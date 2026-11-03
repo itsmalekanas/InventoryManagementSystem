@@ -3,6 +3,7 @@ name: Build Inventory Management System
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -22,6 +23,9 @@ jobs:
         run: |
           version="$(tr -d '\r\n' < VERSION)"
           [[ "$version" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            test "$GITHUB_REF_NAME" = "$version"
+          fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
       - name: Test
         run: go test ./...
@@ -35,16 +39,11 @@ jobs:
         with:
           name: InventoryManagementSystem-windows
           path: dist/Inventory Management System
-      - name: Move the "latest" tag to this commit
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          git tag -f latest
-          git push -f origin latest
-      - name: Publish the "latest" download
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: Publish versioned download
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
+          tag_name: ${{ github.ref_name }}
           name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
           body: Early development release. Download InventoryManagementSystem-windows.zip, unzip it anywhere (for example a USB stick) and run Inventory Management System.exe.
           files: dist/InventoryManagementSystem-windows.zip

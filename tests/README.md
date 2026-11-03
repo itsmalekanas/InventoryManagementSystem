@@ -18,6 +18,7 @@ Node 22+ runs the input validation tests without packages or installation:
 node --test tests/numbers.test.cjs
 node --test tests/finance.test.cjs
 node --test tests/color-picker.test.cjs
+node --test tests/ui-contracts.test.cjs
 ```
 
 On Windows with Chrome installed, build the app and run:
@@ -60,6 +61,15 @@ It also checks cancelling web Exit, clean process termination, and saved data
 after Exit. Lifecycle tests hold a save open while requesting Exit and verify
 that acknowledgement waits for durable data. The tray test also exits a running
 Windows tray process through the web API after restarting it.
+
+Audit coverage includes matching English/Arabic translations and Home counts,
+strict single-object JSON requests, stock-limit rollback on invoice deletion,
+duplicate-click protection for product/customer saves, saving after image
+uploads finish, and reopening invalid custom color fields. GitHub Actions runs
+all JavaScript unit tests, browser-script syntax checks, Go tests and `go vet`
+before building a release. Browser and tray integration tests run separately
+on Windows using temporary shop data; `INVENTORY_TEST_EXE` can select a temporary
+test executable so the source folder stays free of local builds.
 
 Old data compatibility means existing products, stock, prices, customers and
 invoice snapshots continue to load. New optional settings get explicit defaults;

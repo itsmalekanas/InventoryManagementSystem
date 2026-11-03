@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -92,11 +94,23 @@ func validImageName(n string) bool { return imageNameRe.MatchString(n) }
 func readJSON(r *http.Request, v any) error {
 	// Requiring JSON means a web page on another site cannot send data here
 	// with a plain form post: the browser would ask first and be refused.
-	if !strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+	mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || mediaType != "application/json" {
 		return bad("err.badRequest")
 	}
 	dec := json.NewDecoder(http.MaxBytesReader(nil, r.Body, 2<<20))
-	if err := dec.Decode(v); err != nil {
+	var raw json.RawMessage
+	if err := dec.Decode(&raw); err != nil {
+		return bad("err.badRequest")
+	}
+	raw = bytes.TrimSpace(raw)
+	if len(raw) == 0 || raw[0] != '{' {
+		return bad("err.badRequest")
+	}
+	if err := dec.Decode(new(any)); err != io.EOF {
+		return bad("err.badRequest")
+	}
+	if err := json.Unmarshal(raw, v); err != nil {
 		return bad("err.badRequest")
 	}
 	return nil
@@ -549,6 +563,9 @@ func (s *Store) deleteInvoice(w http.ResponseWriter, r *http.Request) {
 				for _, it := range inv.Items {
 					for j := range db.Products {
 						if db.Products[j].ID == it.ProductID {
+							if it.Qty > maxQty-db.Products[j].Stock {
+								return bad("err.restockLimit")
+							}
 							db.Products[j].Stock += it.Qty
 							db.Products[j].UpdatedAt = now()
 						}

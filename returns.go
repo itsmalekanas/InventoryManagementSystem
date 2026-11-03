@@ -102,7 +102,7 @@ func (s *Store) returnInvoice(w http.ResponseWriter, r *http.Request) {
 							continue
 						}
 						if p.Stock > maxQty-item.Qty {
-							return bad("err.badStock")
+							return bad("err.restockLimit")
 						}
 						p.Stock += item.Qty
 						p.UpdatedAt = ret.Date

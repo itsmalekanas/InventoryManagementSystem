@@ -18,6 +18,9 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Read application version
         id: version
         run: |
@@ -29,6 +32,13 @@ jobs:
           echo "value=$version" >> "$GITHUB_OUTPUT"
       - name: Test
         run: go test ./...
+      - name: Go static checks
+        run: go vet ./...
+      - name: Check browser scripts
+        run: |
+          for file in web/*.js; do node --check "$file"; done
+      - name: JavaScript regression tests
+        run: node --test tests/*.test.cjs
       - name: Build
         run: |
           go run github.com/akavel/rsrc@v0.10.2 -ico assets/app.ico -o rsrc_windows_amd64.syso

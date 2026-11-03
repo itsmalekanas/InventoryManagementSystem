@@ -7,6 +7,7 @@
 
 const I18N = {
   en: {
+    'err.restockLimit': 'Restocking would exceed the stock limit. Reduce the current stock first, or choose not to restock.',
     colorHue: 'Hue', colorSaturation: 'Saturation', colorBrightness: 'Brightness', colorHex: 'Hex color', 'err.badColor': 'Enter a valid hex color, for example #A6E3E1.',
     customHeaderColor: 'Custom color',
     inventoryProductCount: 'Products', inventoryPieceCount: 'Pieces in stock', inventoryShowing: 'Showing {n} of {total} products · {pieces} pieces in stock',
@@ -132,6 +133,7 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    'err.restockLimit': 'إعادة القطع ستتجاوز الحد الأقصى للمخزون. قلل المخزون الحالي أولاً أو اختر عدم إعادة القطع للمخزون.',
     colorHue: 'درجة اللون', colorSaturation: 'التشبع', colorBrightness: 'السطوع', colorHex: 'رمز اللون', 'err.badColor': 'أدخل رمز لون صحيحاً، مثل #A6E3E1.',
     customHeaderColor: 'لون مخصص',
     inventoryProductCount: 'عدد المنتجات', inventoryPieceCount: 'القطع في المخزون', inventoryShowing: 'عرض {n} من أصل {total} منتج · {pieces} قطعة في المخزون',
@@ -568,9 +570,9 @@ function renderHome() {
   const low = products.filter(p => p.stock <= lowLimit()).length;
   const now = new Date();
   const today = InventoryFinance.summary(invoices, date => isSameDay(new Date(date), now)).net;
-  const tile = (href, icon, title, sub) => `
+  const tile = (href, icon, color, title, sub) => `
     <a class="tile" href="${href}">
-      <i class="bi ${icon} text-brand"></i>
+      <i class="bi ${icon}" style="color:${color}"></i>
       <div class="tile-title">${esc(title)}</div>
       <div class="tile-sub">${sub}</div>
     </a>`;
@@ -594,13 +596,13 @@ function renderHome() {
         </div>
       </div>
       <div class="tiles">
-        ${tile('#/pos', 'bi-cart-plus', t('pos'), esc(t('posSub')))}
-        ${tile('#/products', 'bi-box-seam', t('products'), esc(t('productsSub', { n: int(products.length), low: int(low) })))}
-        ${tile('#/customers', 'bi-people', t('customers'), esc(t('customersSub')))}
-        ${tile('#/invoices', 'bi-receipt', t('invoices'), esc(t('invoicesSub')))}
-        ${tile('#/reports', 'bi-graph-up', t('reports'), esc(t('reportsSub', { v: moneyText(today) })))}
-        ${tile('#/settings', 'bi-gear', t('settings'), esc(t('settingsSub')))}
-        ${tile('#/backup', 'bi-shield-check', t('backup'), esc(t('backupSub')))}
+        ${tile('#/pos', 'bi-cart-plus', '#D46A55', t('pos'), esc(t('posSub')))}
+        ${tile('#/products', 'bi-box-seam', '#377DCE', t('products'), esc(t('productsSub', { n: int(products.length), low: int(low) })))}
+        ${tile('#/customers', 'bi-people', '#8864C8', t('customers'), esc(t('customersSub', { n: int(customers.length) })))}
+        ${tile('#/invoices', 'bi-receipt', '#C88719', t('invoices'), esc(t('invoicesSub', { n: int(invoices.length) })))}
+        ${tile('#/reports', 'bi-graph-up', '#26865D', t('reports'), esc(t('reportsSub', { v: moneyText(today) })))}
+        ${tile('#/settings', 'bi-gear', '#64748B', t('settings'), esc(t('settingsSub')))}
+        ${tile('#/backup', 'bi-shield-check', '#5965BE', t('backup'), esc(t('backupSub')))}
       </div>
     </div>`;
   const savePreference = async changes => {
@@ -750,7 +752,7 @@ function productForm(p) {
   const box = openModal(`
     <div class="modal-header">
       <h5 class="modal-title">${p ? t('editProduct') : t('addProduct')}</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <button type="button" class="btn-close" aria-label="${esc(t('close'))}" data-bs-dismiss="modal"></button>
     </div>
     <form class="modal-body" id="pf" novalidate>
       <div class="mb-3">
@@ -790,6 +792,7 @@ function productForm(p) {
       <button class="btn btn-brand" id="pf-save"><i class="bi bi-check-lg"></i> ${t('save')}</button>
     </div>`);
   const f = $('#pf', box);
+  let uploadsInFlight = 0;
 
   const drawThumbs = () => {
     $('#pf-thumbs', box).innerHTML = draft.images.map((img, i) => `
@@ -824,17 +827,25 @@ function productForm(p) {
   $('#pf-files', box).onchange = async e => {
     const files = Array.from(e.target.files);
     e.target.value = '';
+    uploadsInFlight++;
+    $('#pf-save', box).disabled = true;
     $('#pf-spin', box).classList.remove('d-none');
     for (const file of files) {
       if (draft.images.length >= 10) break;
       try { draft.images.push(await uploadImage(file, 1000, 'image/jpeg')); drawThumbs(); }
       catch (err) { toast(err.message, true); }
     }
-    $('#pf-spin', box).classList.add('d-none');
+    uploadsInFlight--;
+    if (!uploadsInFlight) {
+      $('#pf-spin', box).classList.add('d-none');
+      $('#pf-save', box).disabled = false;
+    }
   };
 
   f.onsubmit = e => { e.preventDefault(); $('#pf-save', box).click(); };
   $('#pf-save', box).onclick = async () => {
+    const button = $('#pf-save', box);
+    if (button.disabled) return;
     const name = f.name.value.trim();
     const price = parseWhole(f.price.value);
     const stock = parseWhole(f.stock.value);
@@ -843,10 +854,18 @@ function productForm(p) {
     if (!name) return toast(t('err.nameRequired'), true);
     if (isNaN(price) || price > 1e9) return toast(t('err.badPrice'), true);
     if (isNaN(stock) || stock > 1e6) return toast(t('err.badStock'), true);
+    button.disabled = true;
+    $('#pf-files', box).disabled = true;
+    if (p) $('#pf-del', box).disabled = true;
     try {
       await api('POST', '/api/products', { id: draft.id, name, price, stock, costPrice, images: draft.images });
       closeModal(); toast(t('saved')); route();
     } catch (err) { toast(err.message, true); }
+    finally {
+      button.disabled = false;
+      $('#pf-files', box).disabled = false;
+      if (p) $('#pf-del', box).disabled = false;
+    }
   };
   if (p) $('#pf-del', box).onclick = async () => {
     if (!await confirmBox(t('confirmDeleteProduct', { name: p.name }), t('delete'))) return;
@@ -959,7 +978,7 @@ function renderPos() {
       row.querySelector('[data-act=price]').onclick = () => {
         const line = state.cart.find(l => l.productId === id);
         const box = openModal(`
-          <div class="modal-header"><h5 class="modal-title">${t('customPrice')}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <div class="modal-header"><h5 class="modal-title">${t('customPrice')}</h5><button type="button" class="btn-close" aria-label="${esc(t('close'))}" data-bs-dismiss="modal"></button></div>
           <form id="sale-price-form"><div class="modal-body">
             <p><bdi>${esc(productById(id).name)}</bdi></p>
             <label class="form-label" for="sale-price-input">${t('price')} (${t('cur')})</label>
@@ -1000,7 +1019,7 @@ function renderPos() {
     const choice = state.invoiceOverride;
     const box = openModal(`
       <div class="modal-header"><h5 class="modal-title">${t('nextInvoiceNumber')}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <button type="button" class="btn-close" aria-label="${esc(t('close'))}" data-bs-dismiss="modal"></button></div>
       <form id="number-form">
         <div class="modal-body">
           <label class="form-label" for="number-input" dir="ltr">INV-HS-${numbering.year}-</label>
@@ -1203,7 +1222,7 @@ function customerForm(c) {
   const box = openModal(`
     <div class="modal-header">
       <h5 class="modal-title">${c ? t('editCustomer') : t('addCustomer')}</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <button type="button" class="btn-close" aria-label="${esc(t('close'))}" data-bs-dismiss="modal"></button>
     </div>
     <form class="modal-body" id="cf" novalidate>
       <div class="mb-3"><label class="form-label">${t('name')}</label>
@@ -1221,11 +1240,16 @@ function customerForm(c) {
   const f = $('#cf', box);
   f.onsubmit = e => { e.preventDefault(); $('#cf-save', box).click(); };
   $('#cf-save', box).onclick = async () => {
+    const button = $('#cf-save', box);
+    if (button.disabled) return;
     if (!f.name.value.trim()) return toast(t('err.nameRequired'), true);
+    button.disabled = true;
+    if (c) $('#cf-del', box).disabled = true;
     try {
       await api('POST', '/api/customers', { id: c ? c.id : '', name: f.name.value, phone: f.phone.value, address: f.address.value });
       closeModal(); toast(t('saved')); route();
     } catch (err) { toast(err.message, true); }
+    finally { button.disabled = false; if (c) $('#cf-del', box).disabled = false; }
   };
   if (c) $('#cf-del', box).onclick = async () => {
     if (!await confirmBox(t('confirmDeleteCustomer', { name: c.name }), t('delete'))) return;
@@ -1488,7 +1512,7 @@ function renderInvoice(id) {
   $('#inv-del').onclick = () => {
     const box = openModal(`
       <div class="modal-header"><h5 class="modal-title">${t('deleteInvoice')}</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <button type="button" class="btn-close" aria-label="${esc(t('close'))}" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <p class="fs-5">${esc(t('deleteInvoiceQ', { n: invCode(inv) }))}</p>
         <div class="d-grid gap-2">
@@ -1511,7 +1535,7 @@ function returnForm(inv) {
   let pending = null;
   try { pending = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch {}
   const box = openModal(`
-    <div class="modal-header"><h5 class="modal-title">${t('returnItems')} · ${esc(invCode(inv))}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">${t('returnItems')} · ${esc(invCode(inv))}</h5><button type="button" class="btn-close" aria-label="${esc(t('close'))}" data-bs-dismiss="modal"></button></div>
     <form id="return-form"><div class="modal-body">
       <p class="text-secondary">${t('returnHint')}</p>
       <fieldset id="return-fields">
@@ -1806,7 +1830,11 @@ function renderSettings() {
   f.onsubmit = async e => {
     e.preventDefault();
     const invalidColor = $('.color-picker-hex[aria-invalid="true"]', f);
-    if (invalidColor) { invalidColor.focus(); return toast(t('err.badColor'), true); }
+    if (invalidColor) {
+      colorPickers[invalidColor.closest('[data-color-picker]').dataset.colorPicker].open();
+      invalidColor.focus();
+      return toast(t('err.badColor'), true);
+    }
     read();
     const low = parseWhole(f.lowStock.value);
     if (isNaN(low) || low > 1e6) { f.lowStock.focus(); return toast(t('err.badStock'), true); }

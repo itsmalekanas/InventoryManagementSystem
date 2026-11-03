@@ -33,11 +33,12 @@ The home page is a grid with the main parts of the system:
 
 Settings also includes **App colors** with presets, a custom inline color
 picker, live preview and a reset button. One accent themes headers, primary
-buttons, product prices, links, Home icons, selection highlights and form
+buttons, product prices, links, selection highlights and form
 controls. Text accents use a darker or lighter shade of the selected color for
 readability in either theme. Status colors (such as red errors and stock
 warnings) keep their meaning. Subpage titles are larger, bold and centered, with the store name in bold below
 them. App colors are independent of invoice colors and included in backups.
+Home tile icons keep their distinct category colors independently of the app accent.
 The inline pickers offer a color area, hue/saturation/brightness sliders and hex
 entry, and are also used for invoice colors. They work entirely offline.
 

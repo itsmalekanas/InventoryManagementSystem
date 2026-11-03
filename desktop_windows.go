@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"net"
 	"net/http"
@@ -205,23 +206,13 @@ func showTrayMenu(window uintptr) {
 	trayPostMessage.Call(window, 0, 0, 0) // let clicking outside dismiss the menu
 }
 
+//go:embed assets/tray.png
+var trayIconPNG []byte
+
 func createTrayIcon(instance uintptr) (uintptr, error) {
-	// A small white stock box on the app's purple background, generated locally.
-	var mask [32 * 4]byte
-	var pixels [32 * 32 * 4]byte
-	for y := 0; y < 32; y++ {
-		for x := 0; x < 32; x++ {
-			i := (y*32 + x) * 4
-			pixels[i], pixels[i+1], pixels[i+2], pixels[i+3] = 0x67, 0x4b, 0x71, 0xff
-			if (x >= 7 && x <= 24 && (y == 8 || y == 9 || y == 23 || y == 24)) ||
-				(y >= 8 && y <= 24 && (x == 7 || x == 8 || x == 23 || x == 24)) ||
-				(x >= 8 && x <= 23 && (y == 13 || y == 14)) ||
-				(x >= 15 && x <= 16 && y >= 9 && y <= 13) {
-				pixels[i], pixels[i+1], pixels[i+2] = 0xff, 0xff, 0xff
-			}
-		}
-	}
-	icon, _, err := trayUser32.NewProc("CreateIcon").Call(instance, 32, 32, 1, 32, uintptr(unsafe.Pointer(&mask[0])), uintptr(unsafe.Pointer(&pixels[0])))
+	// Modern Windows accepts PNG icon resources, retaining the artwork's alpha.
+	icon, _, err := trayUser32.NewProc("CreateIconFromResourceEx").Call(
+		uintptr(unsafe.Pointer(&trayIconPNG[0])), uintptr(len(trayIconPNG)), 1, 0x00030000, 32, 32, 0)
 	if icon == 0 {
 		return 0, fmt.Errorf("create tray icon: %v", err)
 	}

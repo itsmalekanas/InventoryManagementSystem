@@ -1,4 +1,4 @@
-// Regenerate assets/app.ico from the original Bootstrap SVG. Requires Node 22+ and Chrome.
+// Regenerate Windows icons from the user's PNG. Requires Node 22+ and Chrome.
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
@@ -32,16 +32,20 @@ let socket;
   });
   const { targetInfos } = await call('Target.getTargets');
   const { sessionId } = await call('Target.attachToTarget', { targetId: targetInfos.find(t => t.type === 'page').targetId, flatten: true });
-  const svg = fs.readFileSync(path.join(root, 'assets/box-seam.svg'), 'utf8');
+  const source = fs.readFileSync(path.join(root, 'assets/app.png'));
   const sizes = [16, 24, 32, 48, 64, 128, 256];
   const result = await call('Runtime.evaluate', {
     expression: `(async () => {
       const img = new Image();
-      img.src = 'data:image/svg+xml;base64,' + ${JSON.stringify(Buffer.from(svg).toString('base64'))};
+      img.src = 'data:image/png;base64,' + ${JSON.stringify(source.toString('base64'))};
       await img.decode();
       return ${JSON.stringify(sizes)}.map(size => {
         const canvas = document.createElement('canvas'); canvas.width = canvas.height = size;
-        canvas.getContext('2d').drawImage(img, 0, 0, size, size);
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        const scale = size / Math.max(img.naturalWidth, img.naturalHeight);
+        const width = img.naturalWidth * scale, height = img.naturalHeight * scale;
+        ctx.drawImage(img, (size - width) / 2, (size - height) / 2, width, height);
         return canvas.toDataURL('image/png').split(',')[1];
       });
     })()`, awaitPromise: true, returnByValue: true
@@ -59,5 +63,7 @@ let socket;
     offset += images[i].length;
   });
   fs.writeFileSync(path.join(root, 'assets/app.ico'), Buffer.concat([header, ...images]));
+  fs.copyFileSync(path.join(root, 'assets/app.ico'), path.join(root, 'web/favicon.ico'));
+  fs.writeFileSync(path.join(root, 'assets/tray.png'), images[sizes.indexOf(32)]);
   console.log('Generated assets/app.ico: ' + sizes.join(', '));
 })().catch(err => { console.error(err); process.exitCode = 1; }).finally(() => { socket?.close(); chrome.kill(); });

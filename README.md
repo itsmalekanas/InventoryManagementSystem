@@ -1,6 +1,6 @@
-# Inventory Management System v0.4.5
+# Inventory Management System v0.4.6
 
-**v0.4.5 is an early release under active development.** The application version
+**v0.4.6 is an early release under active development.** The application version
 is stored in `VERSION` and shown on Home, in the browser title, and in the tray
 tooltip. It is independent of the database and backup format version numbers.
 
@@ -32,9 +32,11 @@ The home page is a grid with the main parts of the system:
 ## Optional costs, profit and returns
 
 Settings also includes **App colors** with presets, a custom inline color
-picker, live preview and a reset button. This themes headers and primary action
-buttons together. Text automatically switches between light and dark for
-readability. Subpage titles are centered, with the store name in bold below
+picker, live preview and a reset button. One accent themes headers, primary
+buttons, product prices, links, Home icons, selection highlights and form
+controls. Text accents use a darker or lighter shade of the selected color for
+readability in either theme. Status colors (such as red errors and stock
+warnings) keep their meaning. Subpage titles are larger, bold and centered, with the store name in bold below
 them. App colors are independent of invoice colors and included in backups.
 The inline pickers offer a color area, hue/saturation/brightness sliders and hex
 entry, and are also used for invoice colors. They work entirely offline.
@@ -62,7 +64,7 @@ stays intact. Full ZIP backups include costs and the return history.
 ## How to use it (Windows)
 
 1. Download `InventoryManagementSystem-windows.zip` from the
-   [early release page](../../releases/tag/v0.4.5) and unzip it anywhere, for example
+   [early release page](../../releases/tag/v0.4.6) and unzip it anywhere, for example
    on the desktop or a USB stick.
 2. Double click `Inventory Management System.exe`. The app opens in your browser and a mint-colored box
    inventory icon appears in the Windows notification area near the clock.
@@ -223,13 +225,13 @@ You need [Go](https://go.dev/dl/) 1.24 or newer.
   after building; see [tests/README.md](tests/README.md).
 
 Options (PowerShell): `& ".\Inventory Management System.exe" -port 8750 -data D:\ShopData -no-browser`.
-Use `-version` to print `Inventory Management System v0.4.5` and exit without opening any data.
+Use `-version` to print `Inventory Management System v0.4.6` and exit without opening any data.
 For foreground development or automation, add `-no-tray`. Linux/macOS builds
 currently run in the foreground with the same browser interface; press Ctrl+C
 to stop. The Windows tray implementation uses native APIs and no CGO, so
 cross-compilation stays available without Linux desktop dependencies.
 
-Pushes to `main` build and test the app. Version tags such as `v0.4.5` publish a
+Pushes to `main` build and test the app. Version tags such as `v0.4.6` publish a
 separate release with the Windows ZIP, marked as latest (see `.github/workflows/build.yml`).
 Update `VERSION` before tagging; the tag must match that file. Older versioned
 releases remain available. The newest published release is also available from
@@ -242,7 +244,7 @@ the repository's latest-release link.
    and builds a Windows artifact without changing published releases.
 3. When ready to release, update `VERSION` and the version references in this
    README, commit and push, then create and push a matching tag (for example
-   `v0.4.5`). The tag workflow publishes its own release and Windows ZIP.
+   `v0.4.6`). The tag workflow publishes its own release and Windows ZIP.
 
 Keep source, tests, build scripts and icon assets in Git. Generated executables,
 `dist/` and `.syso` files are ignored. The icon assets are committed so release

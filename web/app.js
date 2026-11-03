@@ -10,8 +10,8 @@ const I18N = {
     colorHue: 'Hue', colorSaturation: 'Saturation', colorBrightness: 'Brightness', colorHex: 'Hex color', 'err.badColor': 'Enter a valid hex color, for example #A6E3E1.',
     customHeaderColor: 'Custom color',
     inventoryProductCount: 'Products', inventoryPieceCount: 'Pieces in stock', inventoryShowing: 'Showing {n} of {total} products · {pieces} pieces in stock',
-    headerPresets: 'Header color presets', presetMint: 'Mint', presetPurple: 'Purple', presetSlate: 'Slate', presetBlue: 'Blue', presetGreen: 'Green', presetCharcoal: 'Charcoal',
-    topbarTheme: 'App colors', topbarColor: 'Header and action button color', topbarHint: 'Themes page headers and primary buttons. Text adjusts automatically for readability. Invoice colors are separate.', resetTopbar: 'Reset app color',
+    headerPresets: 'App color presets', presetMint: 'Mint', presetPurple: 'Purple', presetSlate: 'Slate', presetBlue: 'Blue', presetGreen: 'Green', presetCharcoal: 'Charcoal',
+    topbarTheme: 'App colors', topbarColor: 'App accent color', topbarHint: 'Themes headers, primary buttons, prices, links, icons and form controls. Text uses a readable shade of your color. Status and invoice colors are separate.', resetTopbar: 'Reset app color',
     sortInventory: 'Sort inventory', sortNameAsc: 'Name: A–Z', sortNameDesc: 'Name: Z–A',
     sortPriceAsc: 'Price: low to high', sortPriceDesc: 'Price: high to low', sortStockAsc: 'Stock: low to high', sortStockDesc: 'Stock: high to low', sortNewest: 'Date added: new to old', sortOldest: 'Date added: old to new',
     exitLabel: 'Exit',
@@ -135,8 +135,8 @@ const I18N = {
     colorHue: 'درجة اللون', colorSaturation: 'التشبع', colorBrightness: 'السطوع', colorHex: 'رمز اللون', 'err.badColor': 'أدخل رمز لون صحيحاً، مثل #A6E3E1.',
     customHeaderColor: 'لون مخصص',
     inventoryProductCount: 'عدد المنتجات', inventoryPieceCount: 'القطع في المخزون', inventoryShowing: 'عرض {n} من أصل {total} منتج · {pieces} قطعة في المخزون',
-    headerPresets: 'ألوان جاهزة لشريط العنوان', presetMint: 'نعناعي', presetPurple: 'بنفسجي', presetSlate: 'رمادي مزرق', presetBlue: 'أزرق', presetGreen: 'أخضر', presetCharcoal: 'فحمي',
-    topbarTheme: 'ألوان التطبيق', topbarColor: 'لون شريط العنوان وأزرار الإجراءات', topbarHint: 'يطبق اللون على أشرطة العنوان والأزرار الرئيسية. يتكيف النص تلقائياً للوضوح. ألوان الفاتورة مستقلة.', resetTopbar: 'استعادة اللون الافتراضي',
+    headerPresets: 'ألوان جاهزة للتطبيق', presetMint: 'نعناعي', presetPurple: 'بنفسجي', presetSlate: 'رمادي مزرق', presetBlue: 'أزرق', presetGreen: 'أخضر', presetCharcoal: 'فحمي',
+    topbarTheme: 'ألوان التطبيق', topbarColor: 'لون تمييز التطبيق', topbarHint: 'يطبق على العناوين والأزرار الرئيسية والأسعار والروابط والأيقونات وعناصر النماذج. يستخدم النص درجة واضحة من اللون. ألوان الحالات والفواتير مستقلة.', resetTopbar: 'استعادة اللون الافتراضي',
     sortInventory: 'ترتيب المخزون', sortNameAsc: 'الاسم: تصاعدياً', sortNameDesc: 'الاسم: تنازلياً',
     sortPriceAsc: 'السعر: من الأقل إلى الأعلى', sortPriceDesc: 'السعر: من الأعلى إلى الأقل', sortStockAsc: 'المخزون: من الأقل إلى الأعلى', sortStockDesc: 'المخزون: من الأعلى إلى الأقل', sortNewest: 'تاريخ الإضافة: من الأحدث إلى الأقدم', sortOldest: 'تاريخ الإضافة: من الأقدم إلى الأحدث',
     exitLabel: 'خروج',
@@ -446,13 +446,23 @@ function applyLang() {
   applyTheme();
 }
 
+function colorLuminance(hex) {
+  if (hex.length === 4) hex = '#' + hex.slice(1).split('').map(c => c + c).join('');
+  const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+}
+
+function colorContrast(a, b) {
+  const values = [colorLuminance(a), colorLuminance(b)].sort((x, y) => y - x);
+  return (values[0] + 0.05) / (values[1] + 0.05);
+}
+
+function mixColor(a, b, amount) {
+  return '#' + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - amount) + parseInt(b.slice(i, i + 2), 16) * amount).toString(16).padStart(2, '0')).join('');
+}
+
 function contrastInk(color) {
-  const luminance = hex => {
-    const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
-    return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
-  };
-  const light = luminance(color);
-  return (light + 0.05) / (luminance('#171b22') + 0.05) > 1.05 / (light + 0.05) ? '#171b22' : '#ffffff';
+  return colorContrast(color, '#171b22') > colorContrast(color, '#ffffff') ? '#171b22' : '#ffffff';
 }
 
 function applyAccent(settings) {
@@ -463,6 +473,28 @@ function applyAccent(settings) {
     return Math.round(ink === '#ffffff' ? value + (255 - value) * 0.12 : value * 0.9).toString(16).padStart(2, '0');
   }).join('');
   const root = document.documentElement.style;
+  const dark = document.documentElement.dataset.bsTheme === 'dark';
+  const surfaces = dark ? ['#2b2f36', '#353a43', '#3d444f'] : ['#f5f6f8', '#ffffff', '#f0f0f0'];
+  const soft = mixColor(dark ? '#353a43' : '#ffffff', color, dark ? 0.18 : 0.12);
+  surfaces.push(soft);
+  const target = dark ? '#ffffff' : '#000000';
+  let text = color;
+  for (let step = 0; step <= 100; step++) {
+    text = mixColor(color, target, step / 100);
+    if (surfaces.every(surface => colorContrast(text, surface) >= 4.5)) break;
+  }
+  const textHover = mixColor(text, target, 0.15);
+  const rgb = [1, 3, 5].map(i => parseInt(text.slice(i, i + 2), 16)).join(', ');
+  root.setProperty('--brand', text);
+  root.setProperty('--brand-soft', soft);
+  root.setProperty('--brand-ring', `rgba(${rgb}, .25)`);
+  root.setProperty('--bs-link-color', text);
+  root.setProperty('--bs-link-color-rgb', rgb);
+  root.setProperty('--bs-link-hover-color', textHover);
+  root.setProperty('--bs-link-hover-color-rgb', [1, 3, 5].map(i => parseInt(textHover.slice(i, i + 2), 16)).join(', '));
+  const svg = body => `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">${body}</svg>`)}")`;
+  root.setProperty('--app-check-image', svg(`<path fill="none" stroke="${ink}" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m4 8 3 3 5-6"/>`));
+  root.setProperty('--app-switch-image', svg(`<circle cx="8" cy="8" r="3" fill="${ink}"/>`));
   root.setProperty('--brand-solid', color);
   root.setProperty('--brand-button-ink', ink);
   root.setProperty('--brand-hover', hover);
@@ -536,9 +568,9 @@ function renderHome() {
   const low = products.filter(p => p.stock <= lowLimit()).length;
   const now = new Date();
   const today = InventoryFinance.summary(invoices, date => isSameDay(new Date(date), now)).net;
-  const tile = (href, icon, color, title, sub) => `
+  const tile = (href, icon, title, sub) => `
     <a class="tile" href="${href}">
-      <i class="bi ${icon}" style="color:${color}"></i>
+      <i class="bi ${icon} text-brand"></i>
       <div class="tile-title">${esc(title)}</div>
       <div class="tile-sub">${sub}</div>
     </a>`;
@@ -562,13 +594,13 @@ function renderHome() {
         </div>
       </div>
       <div class="tiles">
-        ${tile('#/pos', 'bi-cart-plus', '#714b67', t('pos'), esc(t('posSub')))}
-        ${tile('#/products', 'bi-box-seam', '#0d6efd', t('products'), esc(t('productsSub', { n: int(products.length), low: int(low) })))}
-        ${tile('#/customers', 'bi-people', '#198754', t('customers'), esc(t('customersSub', { n: int(customers.length) })))}
-        ${tile('#/invoices', 'bi-receipt', '#fd7e14', t('invoices'), esc(t('invoicesSub', { n: int(invoices.length) })))}
-        ${tile('#/reports', 'bi-graph-up', '#6f42c1', t('reports'), esc(t('reportsSub', { v: moneyText(today) })))}
-        ${tile('#/settings', 'bi-gear', '#6c757d', t('settings'), esc(t('settingsSub')))}
-        ${tile('#/backup', 'bi-shield-check', '#198754', t('backup'), esc(t('backupSub')))}
+        ${tile('#/pos', 'bi-cart-plus', t('pos'), esc(t('posSub')))}
+        ${tile('#/products', 'bi-box-seam', t('products'), esc(t('productsSub', { n: int(products.length), low: int(low) })))}
+        ${tile('#/customers', 'bi-people', t('customers'), esc(t('customersSub')))}
+        ${tile('#/invoices', 'bi-receipt', t('invoices'), esc(t('invoicesSub')))}
+        ${tile('#/reports', 'bi-graph-up', t('reports'), esc(t('reportsSub', { v: moneyText(today) })))}
+        ${tile('#/settings', 'bi-gear', t('settings'), esc(t('settingsSub')))}
+        ${tile('#/backup', 'bi-shield-check', t('backup'), esc(t('backupSub')))}
       </div>
     </div>`;
   const savePreference = async changes => {
@@ -622,7 +654,7 @@ function productCard(p, opts = {}) {
     <div class="pimg">${img}</div>
     <span class="pstock">${opts.pos ? (left <= 0 ? `<span class="badge text-bg-danger">${t('outOfStock')}</span>` :
       `<span class="badge ${left <= lowLimit() ? 'text-bg-warning' : 'text-bg-light border'}">${int(left)}</span>`) : stockBadge(p)}</span>
-    ${opts.inCart ? `<span class="pincart badge rounded-pill" style="background:var(--brand)">${int(opts.inCart)}</span>` : ''}
+    ${opts.inCart ? `<span class="pincart badge rounded-pill" style="background:var(--brand-solid);color:var(--brand-button-ink)">${int(opts.inCart)}</span>` : ''}
     <div class="pname"><bdi>${esc(p.name)}</bdi></div>
     <div class="pprice">${money(p.price)}</div>
   </button>`;

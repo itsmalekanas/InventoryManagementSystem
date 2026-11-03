@@ -123,18 +123,19 @@ func main() {
 			openBrowser(url)
 		}()
 	}
-	server := &http.Server{Handler: localOnly(mux), ReadHeaderTimeout: 10 * time.Second}
+	lifecycle := newAppLifecycle(store)
+	server := &http.Server{Handler: localOnly(lifecycle.wrap(mux)), ReadHeaderTimeout: 10 * time.Second}
 	if *noTray {
-		err = serveForeground(server, ln)
+		err = serveForeground(server, ln, lifecycle.exit)
 	} else {
-		err = serveDesktop(server, ln, url)
+		err = serveDesktop(server, ln, url, lifecycle.exit)
 	}
 	if err != nil {
 		fail(err)
 	}
 }
 
-func serveForeground(server *http.Server, ln net.Listener) error {
+func serveForeground(server *http.Server, ln net.Listener, exit <-chan struct{}) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	done := make(chan error, 1)
@@ -146,6 +147,8 @@ func serveForeground(server *http.Server, ln net.Listener) error {
 		}
 		return nil
 	case <-ctx.Done():
+		return server.Shutdown(context.Background())
+	case <-exit:
 		return server.Shutdown(context.Background())
 	}
 }

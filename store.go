@@ -17,6 +17,7 @@ import (
 // stored as int64 so totals never suffer from floating point rounding.
 
 type Product struct {
+	CostPrice *int64   `json:"costPrice,omitempty"`
 	ID        string   `json:"id"`
 	Name      string   `json:"name"`
 	Price     int64    `json:"price"`
@@ -35,6 +36,7 @@ type Customer struct {
 }
 
 type InvoiceItem struct {
+	CostPrice *int64 `json:"costPrice,omitempty"`
 	ProductID string `json:"productId"`
 	Name      string `json:"name"`
 	Price     int64  `json:"price"`
@@ -43,18 +45,19 @@ type InvoiceItem struct {
 }
 
 type Invoice struct {
-	ID              string        `json:"id"`
-	Number          int64         `json:"number"` // running order of all invoices, never reused
-	Code            string        `json:"code"`   // printed number, e.g. INV-HS-2026-00001
-	Year            int           `json:"year"`
-	Seq             int64         `json:"seq"` // position within its year, starts at 1
-	Date            string        `json:"date"`
-	CustomerID      string        `json:"customerId"`
-	CustomerName    string        `json:"customerName"`
-	CustomerPhone   string        `json:"customerPhone"`
-	CustomerAddress string        `json:"customerAddress"`
-	Items           []InvoiceItem `json:"items"`
-	Total           int64         `json:"total"`
+	Returns         []InvoiceReturn `json:"returns,omitempty"`
+	ID              string          `json:"id"`
+	Number          int64           `json:"number"` // running order of all invoices, never reused
+	Code            string          `json:"code"`   // printed number, e.g. INV-HS-2026-00001
+	Year            int             `json:"year"`
+	Seq             int64           `json:"seq"` // position within its year, starts at 1
+	Date            string          `json:"date"`
+	CustomerID      string          `json:"customerId"`
+	CustomerName    string          `json:"customerName"`
+	CustomerPhone   string          `json:"customerPhone"`
+	CustomerAddress string          `json:"customerAddress"`
+	Items           []InvoiceItem   `json:"items"`
+	Total           int64           `json:"total"`
 }
 
 // Saved with stock/invoice changes. Entries remain after invoice deletion, so
@@ -67,6 +70,7 @@ type SaleReceipt struct {
 }
 
 type Settings struct {
+	TrackProfit   bool   `json:"trackProfit,omitempty"`
 	Theme         string `json:"theme"`    // "light" or "dark"
 	Language      string `json:"language"` // "en" or "ar"
 	StoreName     string `json:"storeName"`

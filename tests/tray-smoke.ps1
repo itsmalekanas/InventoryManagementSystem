@@ -107,12 +107,14 @@ try {
   if ($appProcess.ExitCode -ne 0) { throw ('Tray app exit code: ' + $appProcess.ExitCode) }
   $saved = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $copiedData 'db.json') | ConvertFrom-Json
   if (-not ($saved.products | Where-Object name -eq $productName)) { throw 'Pending product was not saved before exit' }
-  # Restart against that same copied folder, then exit using the tray again.
+  # Restart against that same copied folder, then exit through the web API.
   $appProcess = Start-Process -FilePath $executable -ArgumentList $arguments -WindowStyle Hidden -PassThru
   $window = Wait-For { [InventoryTrayCheck]::WindowForProcess('InventoryAppTrayWindow', $appProcess.Id) } 'tray restart'
   Wait-For { try { (Invoke-RestMethod -Uri ($url + '/api/data') -TimeoutSec 1).db.products | Where-Object name -eq $productName } catch { $false } } 'saved product after restart' | Out-Null
-  [InventoryTrayCheck]::PostMessage($window, 0x111, [UIntPtr]::new([uint64]2), [IntPtr]::Zero) | Out-Null
-  if (-not $appProcess.WaitForExit(10000)) { throw 'Second tray exit failed' }
+  $exitSnapshot = Invoke-RestMethod -Uri ($url + '/api/data')
+  $exitAnswer = Invoke-RestMethod -Uri ($url + '/api/exit') -Method Post -ContentType 'application/json' -Headers @{'X-Inventory-Generation'=$exitSnapshot.generation} -Body '{}'
+  if (-not $exitAnswer.closed) { throw 'Web Exit did not confirm shutdown' }
+  if (-not $appProcess.WaitForExit(10000)) { throw 'Web Exit did not terminate the tray app' }
   [PSCustomObject]@{Passed=$true;WindowsSubsystem=$subsystem;TrayMenu=($labels -join ', ');CopiedDatabaseUnchangedOnStartup=$true;GracefulSaveOnExit=$true;RestartPersistence=$true;Artifacts=$testRoot} | ConvertTo-Json
 } finally {
   if ($tcp) { $tcp.Dispose() }

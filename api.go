@@ -202,6 +202,7 @@ func (s *Store) routes(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/sales/cancel", s.cancelSaleAttempt)
 	mux.HandleFunc("GET /api/sales/requests/{id}", s.saleAttemptStatus)
 	mux.HandleFunc("DELETE /api/invoices/{id}", s.deleteInvoice)
+	mux.HandleFunc("POST /api/invoices/{id}/returns", s.returnInvoice)
 	mux.HandleFunc("PUT /api/settings", s.saveSettings)
 	mux.HandleFunc("POST /api/images", s.uploadImage)
 	s.backupRoutes(mux)
@@ -233,6 +234,9 @@ func (s *Store) saveProduct(w http.ResponseWriter, r *http.Request) {
 		}
 		if in.Price < 0 || in.Price > maxPrice {
 			return bad("err.badPrice")
+		}
+		if in.CostPrice != nil && (*in.CostPrice < 0 || *in.CostPrice > maxPrice) {
+			return bad("err.badCost")
 		}
 		if in.Stock < 0 || in.Stock > maxQty {
 			return bad("err.badStock")
@@ -471,6 +475,10 @@ func (s *Store) createSale(w http.ResponseWriter, r *http.Request) {
 				return &apiError{http.StatusConflict, "err.notEnoughStock"}
 			}
 			line := InvoiceItem{ProductID: p.ID, Name: p.Name, Price: key.price, Qty: q, Total: key.price * q}
+			if db.Settings.TrackProfit && p.CostPrice != nil {
+				cost := *p.CostPrice
+				line.CostPrice = &cost
+			}
 			inv.Items = append(inv.Items, line)
 			inv.Total += line.Total
 			// Keep totals far below the largest whole number a browser can
@@ -533,6 +541,9 @@ func (s *Store) deleteInvoice(w http.ResponseWriter, r *http.Request) {
 		for i, inv := range db.Invoices {
 			if inv.ID != id {
 				continue
+			}
+			if len(inv.Returns) != 0 {
+				return &apiError{409, "err.returnDelete"}
 			}
 			if restock {
 				for _, it := range inv.Items {

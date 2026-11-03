@@ -16,6 +16,7 @@ Node 22+ runs the input validation tests without packages or installation:
 
 ```text
 node --test tests/numbers.test.cjs
+node --test tests/finance.test.cjs
 ```
 
 On Windows with Chrome installed, build the app and run:
@@ -23,6 +24,7 @@ On Windows with Chrome installed, build the app and run:
 ```text
 node tests/browser-regression.cjs
 node tests/browser-backup.cjs
+node tests/browser-finance.cjs
 powershell -NoProfile -File tests/tray-smoke.ps1
 ```
 
@@ -46,6 +48,17 @@ restart persistence, damaged-file rejection, and undo using the recovery ZIP.
 The PowerShell tray test checks the hidden console, name/version, menu, repeated
 launches, and finishing an active save on Exit. Both use synthetic temporary
 data. The tray test uses the default executable in `dist`.
+
+The finance checks cover default-off cost tracking, unknown and zero costs,
+historical cost snapshots, partial/full returns, refund dates, and custom sale
+prices. Backend tests verify backup transfer, rejection of excess returns,
+failed-save rollback, and concurrent retry safety. The finance browser test also
+loses a saved return response and reloads before retrying, checks that customer
+invoices hide costs, and captures English/Arabic desktop and mobile layouts.
+It also checks cancelling web Exit, clean process termination, and saved data
+after Exit. Lifecycle tests hold a save open while requesting Exit and verify
+that acknowledgement waits for durable data. The tray test also exits a running
+Windows tray process through the web API after restarting it.
 
 Old data compatibility means existing products, stock, prices, customers and
 invoice snapshots continue to load. New optional settings get explicit defaults;

@@ -7,6 +7,28 @@
 
 const I18N = {
   en: {
+    exitApp: 'Exit app', exitConfirm: 'Exit the software? Active saves will finish before it closes. Unsaved edits and the current cart will be discarded. Other open tabs for this app will disconnect.',
+    appClosing: 'Closing app…', appClosingHelp: 'Waiting for active saves and transfers to finish. Please keep this page open.',
+    appClosed: 'App closed', appClosedHelp: 'Saved data is safe. You can close this browser tab. To use the app again, start Inventory Management System.exe.',
+    exitBusy: 'Finish the current transfer or resolve the pending checkout before exiting.',
+    exitUncertain: 'The connection was lost while exiting. Check whether the tray icon has disappeared. Start the executable again when you want to reopen the app.',
+    'err.exiting': 'The app is closing. Please wait for active saves to finish.',
+    trackProfit: 'Enable cost prices and profit reports',
+    trackProfitHint: 'Optional. Sales work normally when off. Blank costs are unknown and excluded from profit; 0 means a known zero cost. Costs are saved with future sales only.',
+    costPrice: 'Cost per piece (optional)', costHint: 'Leave blank if unknown. This never changes the selling price or appears on customer invoices.',
+    grossProfit: 'Gross profit', profitHint: 'Sales minus recorded product costs, before shop expenses. Only items with a saved cost are included; returns reverse their original profit.',
+    excludedRevenue: 'Net sales excluded because cost is unknown: {v}',
+    returns: 'Returns', returnItems: 'Return items', returnQty: 'Return now', remaining: 'Available to return',
+    restockReturn: 'Put returned items back in stock', noRestock: 'Stock was not changed', refundTotal: 'Refund total', recordReturn: 'Record return',
+    returnHint: 'Refunds use the original sale price. Record the refund here after arranging payment with the customer.',
+    returnSaved: 'Return recorded', returned: 'Returned', netSales: 'Net sales',
+    netSalesHint: 'Sales minus refunds. Refunds are counted on the date the return is recorded.',
+    noReturns: 'No returns recorded.', returnRetry: 'Retry the same return', returnPending: 'The result is uncertain. Retry this same return to check it safely, or reopen the invoice to check its return history.',
+    'err.badCost': 'Enter a whole cost between 0 and 1,000,000,000, or leave it blank.',
+    'err.badReturn': 'Choose valid quantities. You cannot return more pieces than were sold or already returned.',
+    'err.returnChanged': 'This return attempt has different details. Reopen the invoice and review its return history.',
+    'err.returnDelete': 'An invoice with returns cannot be deleted. Its original sale and return history must stay together.',
+    'err.returnProductGone': 'A returned product no longer exists. Restore it first, or record this return without restocking.',
     editSalePrice: 'Edit price', regularPrice: 'Use regular price', customPrice: 'Custom unit price', salePriceHint: 'Applies to every piece on this line, for this sale only. Enter 0 for a gift.',
     appName: 'Inventory Management System', cur: 'IQD', loading: 'Loading…',
     home: 'Home', pos: 'New sale', posSub: 'Sell products from the inventory',
@@ -102,6 +124,28 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    exitApp: 'إغلاق البرنامج', exitConfirm: 'هل تريد إغلاق البرنامج؟ ستكتمل عمليات الحفظ الجارية أولاً. ستُفقد التعديلات غير المحفوظة والسلة الحالية. ستنقطع بقية الصفحات المفتوحة لهذا البرنامج.',
+    appClosing: 'جارٍ إغلاق البرنامج…', appClosingHelp: 'بانتظار اكتمال عمليات الحفظ والنقل الجارية. يرجى إبقاء هذه الصفحة مفتوحة.',
+    appClosed: 'تم إغلاق البرنامج', appClosedHelp: 'البيانات المحفوظة بأمان. يمكنك إغلاق هذه الصفحة. لاستخدام البرنامج مجدداً شغّل Inventory Management System.exe.',
+    exitBusy: 'أكمل عملية النقل الحالية أو تأكيد البيع المعلّق قبل الإغلاق.',
+    exitUncertain: 'انقطع الاتصال أثناء الإغلاق. تحقق من اختفاء أيقونة البرنامج بجانب الساعة. شغّل البرنامج مجدداً عندما تريد فتحه.',
+    'err.exiting': 'البرنامج قيد الإغلاق. يرجى انتظار اكتمال الحفظ.',
+    trackProfit: 'تفعيل سعر التكلفة وتقارير الربح',
+    trackProfitHint: 'اختياري. البيع يعمل كالمعتاد عند إيقافه. التكلفة الفارغة مجهولة وتُستثنى من الربح؛ الصفر تكلفة معروفة. تُحفظ التكلفة مع المبيعات الجديدة فقط.',
+    costPrice: 'تكلفة القطعة (اختياري)', costHint: 'اتركها فارغة إن لم تعرفها. لا تغيّر سعر البيع ولا تظهر على فاتورة الزبون.',
+    grossProfit: 'إجمالي الربح', profitHint: 'المبيعات ناقص تكلفة البضاعة المسجلة، قبل مصاريف المحل. يشمل الأصناف ذات التكلفة المحفوظة فقط؛ المرتجعات تعكس ربحها الأصلي.',
+    excludedRevenue: 'صافي المبيعات المستثناة لعدم معرفة التكلفة: {v}',
+    returns: 'المرتجعات', returnItems: 'إرجاع أصناف', returnQty: 'الكمية المرتجعة الآن', remaining: 'المتاح للإرجاع',
+    restockReturn: 'إعادة القطع المرتجعة إلى المخزون', noRestock: 'لم يتغير المخزون', refundTotal: 'المبلغ المسترد', recordReturn: 'تسجيل الإرجاع',
+    returnHint: 'يُحسب المبلغ بسعر البيع الأصلي. سجّل الإرجاع هنا بعد ترتيب إعادة المبلغ للزبون.',
+    returnSaved: 'تم تسجيل الإرجاع', returned: 'مرتجع', netSales: 'صافي المبيعات',
+    netSalesHint: 'المبيعات ناقص المبالغ المستردة. يُحتسب الإرجاع بتاريخ تسجيله.',
+    noReturns: 'لا توجد مرتجعات مسجلة.', returnRetry: 'إعادة محاولة الإرجاع نفسه', returnPending: 'لم تتأكد النتيجة. أعد المحاولة نفسها بأمان أو افتح الفاتورة مجدداً للتحقق من سجل المرتجعات.',
+    'err.badCost': 'أدخل تكلفة صحيحة من 0 إلى 1,000,000,000 أو اتركها فارغة.',
+    'err.badReturn': 'اختر كميات صحيحة. لا يمكن إرجاع قطع أكثر من الكمية المباعة أو إرجاع القطع نفسها مرتين.',
+    'err.returnChanged': 'تفاصيل محاولة الإرجاع تغيّرت. افتح الفاتورة مجدداً وراجع سجل المرتجعات.',
+    'err.returnDelete': 'لا يمكن حذف فاتورة لها مرتجعات للحفاظ على سجل البيع والإرجاع.',
+    'err.returnProductGone': 'أحد الأصناف المرتجعة لم يعد موجوداً. استعده أولاً أو سجّل الإرجاع دون إعادته للمخزون.',
     editSalePrice: 'تعديل السعر', regularPrice: 'استخدام السعر الأصلي', customPrice: 'سعر الوحدة المخصص', salePriceHint: 'ينطبق على كل قطعة في هذا السطر ولهذه البيعة فقط. أدخل 0 للهدية.',
     appName: 'Inventory Management System', cur: 'د.ع', loading: 'جارٍ التحميل…',
     home: 'الرئيسية', pos: 'بيع جديد', posSub: 'بيع منتجات من المخزون',
@@ -199,6 +243,7 @@ const I18N = {
 };
 
 const state = {
+  exiting: false,
   db: null,
   appVersion: '',
   dataDir: '',
@@ -386,7 +431,7 @@ function applyLang() {
 function topbar(title, extra = '') {
   const s = state.db.settings;
   return `<nav class="topbar no-print">
-    <a href="#/" class="btn btn-sm btn-outline-light" title="${esc(t('home'))}"><i class="bi bi-house-fill"></i></a>
+    <a href="#/" class="btn btn-outline-light home-button" aria-label="${esc(t('home'))}" title="${esc(t('home'))}"><i class="bi bi-house-fill" aria-hidden="true"></i><span>${t('home')}</span></a>
     <h1>${esc(title)}</h1>${extra}
     <span class="store"><bdi>${esc(s.storeName)}</bdi></span>
   </nav>`;
@@ -415,6 +460,7 @@ const routes = {
 };
 
 function route() {
+  if (state.exiting) return;
   const parts = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
   const fn = routes[parts[0]] || renderHome;
   $('#page-style').textContent = '';
@@ -442,7 +488,7 @@ function renderHome() {
   const { products, customers, invoices, settings } = state.db;
   const low = products.filter(p => p.stock <= lowLimit()).length;
   const now = new Date();
-  const today = invoices.filter(i => isSameDay(new Date(i.date), now)).reduce((s, i) => s + i.total, 0);
+  const today = InventoryFinance.summary(invoices, date => isSameDay(new Date(date), now)).net;
   const tile = (href, icon, color, title, sub) => `
     <a class="tile" href="${href}">
       <i class="bi ${icon}" style="color:${color}"></i>
@@ -476,6 +522,7 @@ function renderHome() {
         ${tile('#/settings', 'bi-gear', '#6c757d', t('settings'), esc(t('settingsSub')))}
         ${tile('#/backup', 'bi-shield-check', '#198754', t('backup'), esc(t('backupSub')))}
       </div>
+      <div class="d-flex justify-content-end mt-4"><button class="btn btn-outline-danger px-4 py-2" style="min-height:48px" id="exit-btn"><i class="bi bi-power" aria-hidden="true"></i> ${t('exitApp')}</button></div>
     </div>`;
   const savePreference = async changes => {
     const buttons = $$('.home-actions button');
@@ -490,6 +537,30 @@ function renderHome() {
   };
   $('#lang-btn').onclick = () => savePreference({ language: lang() === 'ar' ? 'en' : 'ar' });
   $('#theme-btn').onclick = () => savePreference({ theme: state.db.settings.theme === 'dark' ? 'light' : 'dark' });
+  $('#exit-btn').onclick = exitApp;
+}
+
+async function exitApp() {
+  if (state.exiting) return;
+  if (transferInProgress || checkoutWorking || state.pendingSale) return toast(t('exitBusy'), true);
+  if (!await confirmBox(t('exitConfirm'), t('exitApp'))) return;
+  state.exiting = true;
+  const status = (title, help, spinner = false) => {
+    document.title = title + ' — ' + t('appName');
+    $('#app').innerHTML = `<main class="page text-center py-5" role="status">${spinner ? '<div class="spinner-border text-brand mb-3" aria-hidden="true"></div>' : '<i class="bi bi-power display-4 text-brand d-block mb-3" aria-hidden="true"></i>'}<h1 class="h3">${esc(title)}</h1><p class="text-secondary">${esc(help)}</p></main>`;
+    $('#toasts').replaceChildren();
+  };
+  status(t('appClosing'), t('appClosingHelp'), true);
+  try {
+    const result = await api('POST', '/api/exit', {});
+    if (!result.closed) throw new Error(t('exitUncertain'));
+    state.cart = [];
+    leaveGuard = null;
+    status(t('appClosed'), t('appClosedHelp'));
+  } catch (err) {
+    if (err.key) { state.exiting = false; route(); toast(err.message, true); }
+    else status(t('exitApp'), t('exitUncertain'));
+  }
 }
 
 /* ---------------- product cards ---------------- */
@@ -592,6 +663,11 @@ function productForm(p) {
           </div>
         </div>
       </div>
+      ${state.db.settings.trackProfit ? `<div class="mb-3">
+        <label class="form-label" for="pf-cost">${t('costPrice')} (${t('cur')})</label>
+        <input class="form-control form-control-lg" id="pf-cost" name="costPrice" inputmode="numeric" dir="ltr" value="${draft.costPrice == null ? '' : int(draft.costPrice)}">
+        <div class="form-text">${t('costHint')}</div>
+      </div>` : ''}
       <label class="form-label">${t('pictures')}</label>
       <div class="thumbs mb-2" id="pf-thumbs"></div>
       <label class="btn btn-outline-secondary btn-sm">
@@ -654,11 +730,13 @@ function productForm(p) {
     const name = f.name.value.trim();
     const price = parseWhole(f.price.value);
     const stock = parseWhole(f.stock.value);
+    const costPrice = f.costPrice ? (f.costPrice.value.trim() === '' ? null : parseWhole(f.costPrice.value)) : draft.costPrice;
+    if (costPrice != null && (isNaN(costPrice) || costPrice > 1e9)) return toast(t('err.badCost'), true);
     if (!name) return toast(t('err.nameRequired'), true);
     if (isNaN(price) || price > 1e9) return toast(t('err.badPrice'), true);
     if (isNaN(stock) || stock > 1e6) return toast(t('err.badStock'), true);
     try {
-      await api('POST', '/api/products', { id: draft.id, name, price, stock, images: draft.images });
+      await api('POST', '/api/products', { id: draft.id, name, price, stock, costPrice, images: draft.images });
       closeModal(); toast(t('saved')); route();
     } catch (err) { toast(err.message, true); }
   };
@@ -962,7 +1040,7 @@ function customerStats() {
   for (const inv of state.db.invoices) {
     const s = stats[inv.customerId] || (stats[inv.customerId] = { count: 0, total: 0 });
     s.count++;
-    s.total += inv.total;
+    s.total += InventoryFinance.netTotal(inv);
   }
   return stats;
 }
@@ -1267,13 +1345,24 @@ function renderInvoice(id) {
       <div class="d-flex flex-wrap gap-2 mb-3 no-print">
         <a class="btn btn-outline-secondary" href="#/invoices"><i class="bi bi-arrow-${lang() === 'ar' ? 'right' : 'left'}"></i> ${t('invoices')}</a>
         <a class="btn btn-outline-secondary" href="#/pos"><i class="bi bi-cart-plus"></i> ${t('pos')}</a>
-        <button class="btn btn-outline-danger ms-auto" id="inv-del"><i class="bi bi-trash"></i> ${t('delete')}</button>
+        <button class="btn btn-outline-secondary" id="inv-return"><i class="bi bi-arrow-return-left"></i> ${t('returnItems')}</button>
+        <button class="btn btn-outline-danger ms-auto" id="inv-del"${inv.returns?.length ? ' disabled' : ''}><i class="bi bi-trash"></i> ${t('delete')}</button>
         <button class="btn btn-outline-secondary" id="inv-pdf"><i class="bi bi-file-earmark-pdf"></i> ${t('downloadPdf')}</button>
         <button class="btn btn-brand" id="inv-print"><i class="bi bi-printer"></i> ${t('print')}</button>
       </div>
+      <section class="bg-white rounded p-3 mb-3 no-print" id="invoice-returns">
+        <h5>${t('returns')}</h5>
+        ${(inv.returns || []).map(ret => `<div class="border-bottom py-2">
+          <div class="d-flex justify-content-between gap-2"><span dir="ltr">${esc(fmtDate(ret.date))}</span><strong>${money(ret.total)}</strong></div>
+          <ul class="mb-1">${ret.items.map(item => `<li><bdi>${esc(inv.items[item.index].name)}</bdi> × ${int(item.qty)}</li>`).join('')}</ul>
+          <small class="text-secondary">${ret.restock ? t('restockReturn') : t('noRestock')}</small>
+        </div>`).join('') || `<p class="text-secondary mb-0">${t('noReturns')}</p>`}
+        ${inv.returns?.length ? `<div class="mt-2">${t('refundTotal')}: ${money(InventoryFinance.refundTotal(inv))} · ${t('netSales')}: ${money(InventoryFinance.netTotal(inv))}</div>` : ''}
+      </section>
       ${invoiceHtml(inv, s)}
     </div>`;
   $('#inv-print').onclick = () => window.print();
+  $('#inv-return').onclick = () => returnForm(inv);
   $('#inv-pdf').onclick = async e => {
     const button = e.currentTarget;
     const label = button.innerHTML;
@@ -1309,15 +1398,86 @@ function renderInvoice(id) {
   };
 }
 
+function returnForm(inv) {
+  const key = 'inventory-pending-return:' + state.dataDir + ':' + state.generation + ':' + inv.id;
+  let pending = null;
+  try { pending = JSON.parse(sessionStorage.getItem(key) || 'null'); } catch {}
+  const box = openModal(`
+    <div class="modal-header"><h5 class="modal-title">${t('returnItems')} · ${esc(invCode(inv))}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="return-form"><div class="modal-body">
+      <p class="text-secondary">${t('returnHint')}</p>
+      <fieldset id="return-fields">
+        ${inv.items.map((item, index) => {
+          const remaining = item.qty - InventoryFinance.returnedQty(inv, index);
+          return `<div class="row g-2 align-items-center mb-3"><div class="col-7"><bdi>${esc(item.name)}</bdi><div class="small text-secondary">${t('remaining')}: ${int(remaining)} · ${money(item.price)}</div></div>
+            <div class="col-5"><label class="form-label small" for="return-${index}">${t('returnQty')}</label><input class="form-control" id="return-${index}" data-return-index="${index}" inputmode="numeric" dir="ltr" value="0"${remaining === 0 ? ' disabled' : ''}></div></div>`;
+        }).join('')}
+        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="return-restock" checked><label class="form-check-label" for="return-restock">${t('restockReturn')}</label></div>
+      </fieldset>
+      <div class="fs-5">${t('refundTotal')}: <strong id="return-total"></strong></div>
+      <div class="alert alert-warning mt-3" id="return-pending" hidden>${t('returnPending')}</div>
+    </div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${t('cancel')}</button><button class="btn btn-brand" id="return-save" type="submit">${t('recordReturn')}</button></div></form>`, { size: 'lg' });
+  const inputs = $$('[data-return-index]', box);
+  const drawTotal = () => {
+    const total = inputs.reduce((sum, input) => {
+      const qty = parseWhole(input.value);
+      return sum + (Number.isNaN(qty) ? 0 : qty * inv.items[Number(input.dataset.returnIndex)].price);
+    }, 0);
+    $('#return-total', box).innerHTML = money(total);
+  };
+  const restorePending = () => {
+    if (!pending) return;
+    inputs.forEach(input => { input.value = pending.items.find(item => item.index === Number(input.dataset.returnIndex))?.qty || 0; });
+    $('#return-restock', box).checked = pending.restock;
+    $('#return-fields', box).disabled = true;
+    $('#return-pending', box).hidden = false;
+    $('#return-save', box).textContent = t('returnRetry');
+  };
+  restorePending(); drawTotal();
+  $('#return-form', box).oninput = drawTotal;
+  $('#return-form', box).onsubmit = async e => {
+    e.preventDefault();
+    const button = $('#return-save', box);
+    if (!pending) {
+      const items = [];
+      for (const input of inputs) {
+        const qty = parseWhole(input.value);
+        const index = Number(input.dataset.returnIndex);
+        if (Number.isNaN(qty) || qty > inv.items[index].qty - InventoryFinance.returnedQty(inv, index)) return toast(t('err.badReturn'), true);
+        if (qty) items.push({ index, qty });
+      }
+      if (!items.length) return toast(t('err.badReturn'), true);
+      const requestId = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
+      pending = { requestId, items, restock: $('#return-restock', box).checked };
+      try { sessionStorage.setItem(key, JSON.stringify(pending)); }
+      catch { pending = null; return toast(t('err.checkoutStorage'), true); }
+    }
+    button.disabled = true;
+    $('#return-fields', box).disabled = true;
+    try {
+      await api('POST', `/api/invoices/${encodeURIComponent(inv.id)}/returns`, pending);
+      sessionStorage.removeItem(key);
+      closeModal(); toast(t('returnSaved')); renderInvoice(inv.id);
+    } catch (err) {
+      if (err.key) {
+        pending = null; sessionStorage.removeItem(key);
+        $('#return-fields', box).disabled = false;
+        $('#return-pending', box).hidden = true;
+        button.textContent = t('recordReturn');
+      } else restorePending();
+      toast(err.message, true);
+    } finally { button.disabled = false; }
+  };
+}
+
 /* ---------------- reports ---------------- */
 
 function renderReports() {
   const { invoices, products } = state.db;
   const now = new Date();
-  const sumOf = list => ({ count: list.length, total: list.reduce((s, i) => s + i.total, 0) });
-  const today = sumOf(invoices.filter(i => isSameDay(new Date(i.date), now)));
-  const month = sumOf(invoices.filter(i => { const d = new Date(i.date); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth(); }));
-  const all = sumOf(invoices);
+  const today = InventoryFinance.summary(invoices, date => isSameDay(new Date(date), now));
+  const month = InventoryFinance.summary(invoices, date => { const d = new Date(date); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth(); });
+  const all = InventoryFinance.summary(invoices);
   const stockValue = products.reduce((s, p) => s + p.price * p.stock, 0);
   const stockPieces = products.reduce((s, p) => s + p.stock, 0);
   const low = products.filter(p => p.stock <= lowLimit()).sort((a, b) => a.stock - b.stock);
@@ -1325,12 +1485,14 @@ function renderReports() {
   // Best sellers, grouped by product. The name shown is the current one
   // when the product still exists, otherwise the name on the last invoice.
   const sold = {};
-  for (const inv of invoices) for (const it of inv.items) {
+  for (const inv of invoices) for (const [index, it] of inv.items.entries()) {
     const r = sold[it.productId] || (sold[it.productId] = { name: it.name, qty: 0, total: 0 });
-    r.qty += it.qty; r.total += it.total; r.name = it.name;
+    const qty = it.qty - InventoryFinance.returnedQty(inv, index);
+    r.qty += qty; r.total += it.price * qty; r.name = it.name;
   }
   const top = Object.entries(sold)
     .map(([id, r]) => ({ ...r, name: (productById(id) || r).name }))
+    .filter(r => r.qty > 0)
     .sort((a, b) => b.qty - a.qty || b.total - a.total)
     .slice(0, 10);
 
@@ -1342,11 +1504,18 @@ function renderReports() {
     ${topbar(t('reports'))}
     <div class="page">
       <div class="row g-3 mb-4">
-        ${card('bi-calendar-day', t('today'), money(today.total), t('salesCount', { n: int(today.count) }))}
-        ${card('bi-calendar-month', t('thisMonth'), money(month.total), t('salesCount', { n: int(month.count) }))}
-        ${card('bi-graph-up', t('allTime'), money(all.total), t('salesCount', { n: int(all.count) }))}
+        ${card('bi-calendar-day', t('today'), money(today.net), t('salesCount', { n: int(today.count) }))}
+        ${card('bi-calendar-month', t('thisMonth'), money(month.net), t('salesCount', { n: int(month.count) }))}
+        ${card('bi-graph-up', t('allTime'), money(all.net), t('salesCount', { n: int(all.count) }))}
         ${card('bi-box-seam', t('stockValue'), money(stockValue), t('stockPieces', { n: int(stockPieces) }))}
       </div>
+      <p class="small text-secondary">${t('netSalesHint')}</p>
+      ${state.db.settings.trackProfit ? `<section class="mb-4" id="profit-report">
+        <h5>${t('grossProfit')}</h5><p class="text-secondary">${t('profitHint')}</p>
+        <div class="row g-3">
+          ${[[t('today'), today], [t('thisMonth'), month], [t('allTime'), all]].map(([title, stats]) => card('bi-cash-coin', title, stats.hasCosts ? money(stats.profit) : '—', t('excludedRevenue', { v: moneyText(stats.excluded) }))).join('')}
+        </div>
+      </section>` : ''}
       <div class="row g-3">
         <div class="col-lg-6"><div class="bg-white rounded shadow-sm p-3 h-100">
           <h6><i class="bi bi-trophy"></i> ${t('topProducts')}</h6>
@@ -1377,6 +1546,11 @@ function renderSettings() {
         <div class="col-lg-5">
           <form id="sf" class="bg-white rounded shadow-sm p-3" novalidate>
             <h5 class="mb-3">${t('general')}</h5>
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" name="trackProfit" id="sf-profit"${d.trackProfit ? ' checked' : ''}>
+              <label class="form-check-label" for="sf-profit">${t('trackProfit')}</label>
+              <div class="form-text">${t('trackProfitHint')}</div>
+            </div>
             <div class="mb-3"><label class="form-label">${t('language')}</label>
               <select class="form-select" name="language">${opt('en', 'English', d.language)}${opt('ar', 'العربية', d.language)}</select></div>
             <div class="mb-3"><label class="form-label">${t('storeName')}</label>
@@ -1457,6 +1631,7 @@ function renderSettings() {
   };
   const preview = () => { $('#sf-preview').innerHTML = invoiceHtml(sample, d); };
   const read = () => {
+    d.trackProfit = f.trackProfit.checked;
     d.language = f.language.value;
     d.storeName = f.storeName.value;
     const low = parseWhole(f.lowStock.value);

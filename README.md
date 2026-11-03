@@ -29,6 +29,28 @@ The home page is a grid with the main parts of the system:
 | **Settings** | Store name, logo (upload, size and position), invoice title, header and footer text, accent color for the invoice text, fill color for the even table rows (A4), a "PAID" stamp under the total, separate **Show date** and **Show time** switches, paper size (A4 or 80 mm receipt printer), language and low stock warning level. A live preview shows the invoice as you change things. |
 | **Backup & transfer** | Export all saved app data to one verified ZIP. On another computer, choose the ZIP, review the contents, and confirm import. A complete recovery backup is saved before replacing existing data. |
 
+## Optional costs, profit and returns
+
+Cost tracking is off by default. Turn on **Enable cost prices and profit reports**
+in Settings to add an optional cost per piece in product forms and show gross
+profit in Reports. Leave a cost blank if unknown; zero means a known zero cost.
+Selling prices, checkout and stock work normally with tracking off. Turning it
+off hides the controls and reports while preserving saved costs and history.
+
+New sales snapshot known costs only while tracking is enabled. Editing costs
+later never changes old sales; older invoices without costs remain unknown.
+Profit excludes those items and reports the excluded net sales. Gross profit is
+before shop expenses, and product costs never appear on customer invoices.
+
+Open an invoice and choose **Return items** for a partial or full return. Enter
+the quantities and choose whether the pieces go back into stock. The refund uses
+the original unit prices, including custom prices. Arrange payment with the
+customer separately; this records the refund but does not transfer money.
+Returns are saved on the original invoice, which cannot then be deleted.
+Reports subtract refunds and their original profit on the return date; customer
+totals and best sellers also account for returns. The original printed invoice
+stays intact. Full ZIP backups include costs and the return history.
+
 ## How to use it (Windows)
 
 1. Download `InventoryManagementSystem-windows.zip` from the
@@ -46,6 +68,12 @@ The home page is a grid with the main parts of the system:
 4. Right click the tray icon and choose **Open app** to reopen the browser, or
    **Exit** to stop the app. Closing the browser leaves the app running in the
    tray. Exit waits for active requests to finish before stopping.
+
+You can also choose **Exit app** at the bottom of Home. Confirm to finish active
+saves and transfers, stop the server and tray process, and show **App closed**.
+You can then close the browser tab. Unsaved edits and the cart are not saved;
+finish your sale first. Other open tabs for this app will disconnect. Start the
+executable again to reopen it.
 
 Windows may show a "Windows protected your PC" message the first time because
 the program is not signed. Click **More info** and then **Run anyway**.

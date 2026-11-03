@@ -12,8 +12,8 @@ import (
 
 // Keep Linux/macOS builds dependency-free. A native tray can be added for those
 // desktops later; for now they retain the browser and foreground server.
-func serveDesktop(server *http.Server, ln net.Listener, url string) error {
-	return serveForeground(server, ln)
+func serveDesktop(server *http.Server, ln net.Listener, url string, exit <-chan struct{}) error {
+	return serveForeground(server, ln, exit)
 }
 
 func prepareBrowserCommand(cmd *exec.Cmd) {}

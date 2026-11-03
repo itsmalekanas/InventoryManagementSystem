@@ -76,7 +76,7 @@ func prepareBrowserCommand(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 }
 
-func serveDesktop(server *http.Server, ln net.Listener, url string) error {
+func serveDesktop(server *http.Server, ln net.Listener, url string, exit <-chan struct{}) error {
 	// Windows must create and dispatch the tray window on the same OS thread.
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
@@ -143,6 +143,15 @@ func serveDesktop(server *http.Server, ln net.Listener, url string) error {
 		return fmt.Errorf("create tray window: %v", err)
 	}
 	defer trayDestroyWindow.Call(window)
+	desktopDone := make(chan struct{})
+	defer close(desktopDone)
+	go func() {
+		select {
+		case <-exit:
+			trayPostMessage.Call(window, wmClose, 0, 0)
+		case <-desktopDone:
+		}
+	}()
 	data.Size = uint32(unsafe.Sizeof(data))
 	data.Window, data.ID, data.Flags, data.Callback, data.Icon = window, 1, 1|2|4|0x80, trayCallback, icon
 	copy(data.Tip[:], syscall.StringToUTF16(appName+" "+appVersion+" - Open app / Exit"))

@@ -272,6 +272,9 @@ func validateBackupDB(db DB, files map[string]bool) error {
 	}
 	productIDs, customerIDs, invoiceIDs := map[string]bool{}, map[string]bool{}, map[string]bool{}
 	for _, p := range db.Products {
+		if p.CostPrice != nil && (*p.CostPrice < 0 || *p.CostPrice > maxPrice) {
+			return fmt.Errorf("invalid product cost: %s", p.ID)
+		}
 		if !checkID(productIDs, p.ID) || strings.TrimSpace(p.Name) == "" || p.Price < 0 || p.Price > maxPrice || p.Stock < 0 || p.Stock > safeInteger || len(p.Images) > maxImages {
 			return fmt.Errorf("invalid product record: %s", p.ID)
 		}
@@ -301,6 +304,9 @@ func validateBackupDB(db DB, files map[string]bool) error {
 		invoiceCodeByID[inv.ID] = inv.Code
 		var total int64
 		for _, item := range inv.Items {
+			if item.CostPrice != nil && (*item.CostPrice < 0 || *item.CostPrice > maxPrice) {
+				return fmt.Errorf("invalid invoice cost: %s", inv.ID)
+			}
 			if item.Qty < 1 || item.Qty > safeInteger || item.Price < 0 || item.Price > maxPrice || (item.Price > 0 && item.Qty > maxTotal/item.Price) || item.Total != item.Price*item.Qty || strings.TrimSpace(item.Name) == "" {
 				return fmt.Errorf("invalid invoice item: %s", inv.ID)
 			}
@@ -311,6 +317,9 @@ func validateBackupDB(db DB, files map[string]bool) error {
 		}
 		if total != inv.Total {
 			return fmt.Errorf("invoice total mismatch: %s", inv.ID)
+		}
+		if err := validateInvoiceReturns(inv); err != nil {
+			return fmt.Errorf("invalid returns for %s: %w", inv.ID, err)
 		}
 	}
 	for year, counter := range db.YearCounters {

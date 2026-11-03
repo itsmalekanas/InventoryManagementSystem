@@ -11,19 +11,27 @@
 }
 
 [data-bs-theme="dark"] {
-  --page: #15181f;
-  --surface: #202630;
-  --ink: #e7edf5;
-  --muted: #a8b3c4;
-  --line: #3a4556;
-  --image-bg: #29313e;
+  --page: #2b2f36;
+  --surface: #353a43;
+  --ink: #e2e5ea;
+  --muted: #b5bdc9;
+  --line: #535c69;
+  --image-bg: #3d444f;
   --brand: #c49ab7;
-  --brand-soft: #3b3040;
-  --bs-body-bg: #15181f;
-  --bs-body-color: #e7edf5;
-  --bs-secondary-color: #a8b3c4;
-  --bs-border-color: #3a4556;
-  --bs-tertiary-bg: #29313e;
+  --brand-soft: #494052;
+  --bs-body-bg: var(--page);
+  --bs-body-color: var(--ink);
+  --bs-body-color-rgb: 226, 229, 234;
+  --bs-emphasis-color: #e9ebef;
+  --bs-emphasis-color-rgb: 233, 235, 239;
+  --bs-secondary-color: var(--muted);
+  --bs-secondary-color-rgb: 181, 189, 201;
+  --bs-secondary-rgb: 181, 189, 201;
+  --bs-secondary-bg: var(--surface);
+  --bs-secondary-bg-rgb: 53, 58, 67;
+  --bs-border-color: var(--line);
+  --bs-tertiary-bg: var(--image-bg);
+  --bs-tertiary-bg-rgb: 61, 68, 79;
 }
 
 body {
@@ -71,9 +79,12 @@ body {
   display: flex; align-items: center; gap: 12px; padding: 10px 16px;
   background: var(--brand-solid); color: #fff; position: sticky; top: 0; z-index: 10;
 }
-.topbar h1 { font-size: 1.25rem; margin: 0; font-weight: 600; }
+.topbar h1 { font-size: 1.25rem; margin: 0; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .topbar .btn { color: #fff; border-color: rgba(255,255,255,.5); }
 .topbar .btn:hover { background: rgba(255,255,255,.15); }
+.topbar .home-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 48px; min-height: 48px; padding: 10px 14px; flex-shrink: 0; }
+.topbar .home-button i { font-size: 1.35rem; }
+@media (max-width: 480px) { .topbar .home-button span { display: none; } }
 .topbar .store { margin-inline-start: auto; opacity: .85; font-size: .95rem; }
 .page { max-width: 1400px; margin: 0 auto; padding: 16px; }
 
@@ -95,12 +106,13 @@ body {
 .pcard .pincart { position: absolute; top: 6px; inset-inline-start: 6px; }
 
 /* ---------- POS ---------- */
-.pos { display: grid; grid-template-columns: 420px minmax(0, 1fr); grid-template-areas: "cart products"; gap: 16px; align-items: start; }
-[dir="rtl"] .pos { grid-template-areas: "products cart"; grid-template-columns: minmax(0, 1fr) 420px; }
+.pos { display: grid; grid-template-columns: minmax(460px, 42%) minmax(0, 1fr); grid-template-areas: "cart products"; gap: 20px; align-items: start; }
+[dir="rtl"] .pos { grid-template-areas: "products cart"; grid-template-columns: minmax(0, 1fr) minmax(460px, 42%); }
 .pos-products { grid-area: products; min-width: 0; }
 .pos-cart { grid-area: cart; min-width: 0; }
 .pos-cart { background: var(--surface); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); position: sticky; top: 72px; }
-.pos-cart .cart-lines { max-height: 38vh; overflow-y: auto; }
+.pos-cart .cart-lines { max-height: 44vh; min-height: 120px; overflow-y: auto; }
+.pos-cart #c-name, .pos-cart #c-phone, .pos-cart #c-address { font-size: 1.05rem; padding: 10px 12px; }
 .cart-line { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
 .cart-line .cl-name { flex: 1; min-width: 0; }
 .cart-line .cl-name div { font-weight: 600; overflow-wrap: anywhere; }
@@ -182,7 +194,10 @@ body {
 /* Bootstrap handles forms, tables, dialogs and alerts through data-bs-theme.
    These utilities and custom surfaces otherwise remain explicitly white. */
 [data-bs-theme="dark"] .bg-white { background-color: var(--surface) !important; }
-[data-bs-theme="dark"] .text-bg-light { background-color: #303b4b !important; color: #e7edf5 !important; }
+[data-bs-theme="dark"] .text-bg-light { background-color: var(--image-bg) !important; color: var(--ink) !important; }
+[data-bs-theme="dark"] .modal-content { --bs-modal-bg: var(--surface); }
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select { background-color: var(--surface); }
 [data-bs-theme="dark"] .btn-outline-secondary {
   --bs-btn-color: #c8d2e1; --bs-btn-border-color: #748197;
   --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #465266; --bs-btn-hover-border-color: #748197;

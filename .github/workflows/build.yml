@@ -47,5 +47,5 @@ jobs:
           name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
           body: Early development release. Download InventoryManagementSystem-windows.zip, unzip it anywhere (for example a USB stick) and run Inventory Management System.exe.
           files: dist/InventoryManagementSystem-windows.zip
-          prerelease: true
-          make_latest: false
+          prerelease: false
+          make_latest: true

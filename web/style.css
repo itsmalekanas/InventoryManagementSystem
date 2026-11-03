@@ -89,6 +89,10 @@ body {
 .page { max-width: 1400px; margin: 0 auto; padding: 16px; }
 
 /* ---------- product cards (POS style) ---------- */
+.inventory-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.inventory-toolbar .inventory-search { flex: 1 1 240px; width: auto; }
+.inventory-toolbar .inventory-sort { flex: 0 1 240px; width: auto; }
+@media (max-width: 600px) { .inventory-toolbar .inventory-search { flex-basis: 100%; } .inventory-toolbar .inventory-sort { flex: 1 1 160px; min-width: 0; } }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .pcard {
   position: relative; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px;

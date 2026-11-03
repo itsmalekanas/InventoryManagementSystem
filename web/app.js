@@ -7,6 +7,8 @@
 
 const I18N = {
   en: {
+    sortInventory: 'Sort inventory', sortDefault: 'Original order', sortNameAsc: 'Name: A–Z', sortNameDesc: 'Name: Z–A',
+    sortPriceAsc: 'Price: low to high', sortPriceDesc: 'Price: high to low', sortStockAsc: 'Stock: low to high', sortStockDesc: 'Stock: high to low', sortNewest: 'Recently added',
     exitLabel: 'Exit',
     exitApp: 'Exit app', exitConfirm: 'Exit the software? Active saves will finish before it closes. Unsaved edits and the current cart will be discarded. Other open tabs for this app will disconnect.',
     appClosing: 'Closing app…', appClosingHelp: 'Waiting for active saves and transfers to finish. Please keep this page open.',
@@ -125,6 +127,8 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    sortInventory: 'ترتيب المخزون', sortDefault: 'الترتيب الأصلي', sortNameAsc: 'الاسم: تصاعدياً', sortNameDesc: 'الاسم: تنازلياً',
+    sortPriceAsc: 'السعر: من الأقل إلى الأعلى', sortPriceDesc: 'السعر: من الأعلى إلى الأقل', sortStockAsc: 'المخزون: من الأقل إلى الأعلى', sortStockDesc: 'المخزون: من الأعلى إلى الأقل', sortNewest: 'المضاف حديثاً',
     exitLabel: 'خروج',
     exitApp: 'إغلاق البرنامج', exitConfirm: 'هل تريد إغلاق البرنامج؟ ستكتمل عمليات الحفظ الجارية أولاً. ستُفقد التعديلات غير المحفوظة والسلة الحالية. ستنقطع بقية الصفحات المفتوحة لهذا البرنامج.',
     appClosing: 'جارٍ إغلاق البرنامج…', appClosingHelp: 'بانتظار اكتمال عمليات الحفظ والنقل الجارية. يرجى إبقاء هذه الصفحة مفتوحة.',
@@ -256,6 +260,7 @@ const state = {
   cart: [],                               // [{ productId, qty }]
   cust: { name: '', phone: '', address: '' },
   productSearch: '',
+  productSort: 'default',
   posSearch: '',
 };
 
@@ -586,26 +591,46 @@ function productCard(p, opts = {}) {
 /* ---------------- products (inventory) ---------------- */
 
 function renderProducts() {
+  const sortOptions = [
+    ['default', 'sortDefault'], ['name-asc', 'sortNameAsc'], ['name-desc', 'sortNameDesc'],
+    ['price-asc', 'sortPriceAsc'], ['price-desc', 'sortPriceDesc'],
+    ['stock-asc', 'sortStockAsc'], ['stock-desc', 'sortStockDesc'], ['newest', 'sortNewest'],
+  ];
   $('#app').innerHTML = `
     ${topbar(t('products'))}
     <div class="page">
-      <div class="d-flex gap-2 mb-3">
-        <div class="input-group">
+      <div class="inventory-toolbar mb-3">
+        <div class="input-group inventory-search">
           <span class="input-group-text"><i class="bi bi-search"></i></span>
           <input class="form-control" id="p-search" placeholder="${esc(t('search'))}" value="${esc(state.productSearch)}" dir="auto">
         </div>
+        <select class="form-select inventory-sort" id="p-sort" aria-label="${esc(t('sortInventory'))}">
+          ${sortOptions.map(([value, key]) => `<option value="${value}"${state.productSort === value ? ' selected' : ''}>${esc(t(key))}</option>`).join('')}
+        </select>
         <button class="btn btn-brand text-nowrap" id="p-add"><i class="bi bi-plus-lg"></i> ${t('addProduct')}</button>
       </div>
       <div id="p-list"></div>
     </div>`;
   const draw = () => {
     const list = state.db.products.filter(p => matches(state.productSearch, p.name));
+    const byName = (a, b) => a.name.localeCompare(b.name, lang(), { numeric: true, sensitivity: 'base' });
+    const sorts = {
+      'name-asc': byName,
+      'name-desc': (a, b) => byName(b, a),
+      'price-asc': (a, b) => a.price - b.price || byName(a, b),
+      'price-desc': (a, b) => b.price - a.price || byName(a, b),
+      'stock-asc': (a, b) => a.stock - b.stock || byName(a, b),
+      'stock-desc': (a, b) => b.stock - a.stock || byName(a, b),
+      newest: (a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0),
+    };
+    if (sorts[state.productSort]) list.sort(sorts[state.productSort]);
     $('#p-list').innerHTML = list.length
       ? `<div class="cards">${list.map(p => productCard(p)).join('')}</div>`
       : `<div class="text-center text-secondary p-5">${state.db.products.length ? t('noResults') : t('noProducts')}</div>`;
     $$('#p-list .pcard').forEach(c => c.onclick = () => productForm(productById(c.dataset.id)));
   };
   $('#p-search').oninput = e => { state.productSearch = e.target.value; draw(); };
+  $('#p-sort').onchange = e => { state.productSort = e.target.value; draw(); };
   $('#p-add').onclick = () => productForm(null);
   draw();
 }

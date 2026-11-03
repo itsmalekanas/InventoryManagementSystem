@@ -5,6 +5,8 @@ ratio and transparency.
 `app.ico` contains the custom design at 16, 24, 32, 48, 64, 128 and 256 pixels.
 `tray.png` is the matching 32-pixel icon embedded in the Windows tray code.
 `web/favicon.ico` is the matching browser tab icon, served locally with the app.
+`web/favicon.png` provides a 256-pixel PNG browser icon. Both links include a
+content-based cache key updated by the generator when the artwork changes.
 Regenerate the icon assets with `node tools/make-icon.cjs`
 (Node 22+ and Chrome; override `CHROME_PATH` if needed).
 

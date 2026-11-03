@@ -40,6 +40,12 @@ async function until(fn) { const end = Date.now() + 30000; while (Date.now() < e
   const input = (selector, value) => evaluate(`(() => { const el = document.querySelector(${JSON.stringify(selector)}); el.value = ${JSON.stringify(value)}; el.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   const holdSaves = endpoint => evaluate(`window.auditFetch = window.fetch; window.auditSaveCalls = 0; window.fetch = async (...args) => { if (String(args[0]).endsWith(${JSON.stringify(endpoint)}) && args[1]?.method === 'POST') { window.auditSaveCalls++; await new Promise(resolve => window.releaseAuditSave = resolve); } return window.auditFetch(...args); };`);
   await go('#/', '#exit-btn');
+  const faviconURL = await evaluate('document.querySelector(\'link[rel="icon"][type="image/png"]\').href');
+  const faviconResponse = await fetch(faviconURL);
+  assert.equal(faviconResponse.status, 200);
+  assert.ok(faviconResponse.headers.get('content-type').startsWith('image/png'));
+  assert.ok(Buffer.from(await faviconResponse.arrayBuffer()).equals(fs.readFileSync(path.join(__dirname, '../web/favicon.png'))));
+  assert.equal(await evaluate(`(async () => { const image = new Image(); image.src = ${JSON.stringify(faviconURL)}; await image.decode(); return image.naturalWidth === 256 && image.naturalHeight === 256; })()`), true);
   assert.equal(await evaluate('/\\{\\w+\\}/.test(document.querySelector(".tiles").textContent)'), false);
   await go('#/reports', '.page');
   assert.equal(await evaluate('!!document.querySelector("#profit-report")'), false);

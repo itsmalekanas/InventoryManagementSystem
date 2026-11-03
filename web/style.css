@@ -51,11 +51,10 @@ body {
 .home-brand { display: flex; align-items: center; gap: 16px; min-width: 0; justify-content: flex-start; }
 .home-brand > i { flex-shrink: 0; }
 .home-brand-text { min-width: 0; }
-.home-exit { display: flex; justify-content: flex-end; direction: ltr; }
-.home-exit .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 180px; min-height: 48px; }
 .home-actions { display: flex; align-items: center; gap: 8px; direction: ltr; justify-self: end; }
 .home-actions .language-button { width: 112px; white-space: nowrap; }
 .home-actions .theme-button { width: 44px; }
+.home-actions .exit-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 96px; margin-left: 8px; }
 .home-actions .btn { height: 40px; flex-shrink: 0; }
 .home-head img { max-height: 64px; max-width: 160px; object-fit: contain; }
 .home-head h1 { font-size: 1.8rem; margin: 0; font-weight: 700; overflow-wrap: anywhere; }

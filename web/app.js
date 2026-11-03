@@ -7,6 +7,7 @@
 
 const I18N = {
   en: {
+    exitLabel: 'Exit',
     exitApp: 'Exit app', exitConfirm: 'Exit the software? Active saves will finish before it closes. Unsaved edits and the current cart will be discarded. Other open tabs for this app will disconnect.',
     appClosing: 'Closing app…', appClosingHelp: 'Waiting for active saves and transfers to finish. Please keep this page open.',
     appClosed: 'App closed', appClosedHelp: 'Saved data is safe. You can close this browser tab. To use the app again, start Inventory Management System.exe.',
@@ -124,6 +125,7 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    exitLabel: 'خروج',
     exitApp: 'إغلاق البرنامج', exitConfirm: 'هل تريد إغلاق البرنامج؟ ستكتمل عمليات الحفظ الجارية أولاً. ستُفقد التعديلات غير المحفوظة والسلة الحالية. ستنقطع بقية الصفحات المفتوحة لهذا البرنامج.',
     appClosing: 'جارٍ إغلاق البرنامج…', appClosingHelp: 'بانتظار اكتمال عمليات الحفظ والنقل الجارية. يرجى إبقاء هذه الصفحة مفتوحة.',
     appClosed: 'تم إغلاق البرنامج', appClosedHelp: 'البيانات المحفوظة بأمان. يمكنك إغلاق هذه الصفحة. لاستخدام البرنامج مجدداً شغّل Inventory Management System.exe.',
@@ -511,6 +513,7 @@ function renderHome() {
         <div class="home-actions">
           <button class="btn btn-outline-secondary language-button" id="lang-btn"><i class="bi bi-translate" aria-hidden="true"></i> ${t('switchLang')}</button>
           <button class="btn btn-outline-secondary theme-button" id="theme-btn" title="${esc(t(settings.theme === 'dark' ? 'lightMode' : 'darkMode'))}" aria-label="${esc(t('toggleTheme'))}" aria-pressed="${settings.theme === 'dark'}"><i class="bi ${settings.theme === 'dark' ? 'bi-sun' : 'bi-moon-stars'}" aria-hidden="true"></i></button>
+          <button class="btn btn-outline-danger exit-button" id="exit-btn" title="${esc(t('exitApp'))}" aria-label="${esc(t('exitApp'))}"><i class="bi bi-power" aria-hidden="true"></i><span dir="auto">${t('exitLabel')}</span></button>
         </div>
       </div>
       <div class="tiles">
@@ -522,7 +525,6 @@ function renderHome() {
         ${tile('#/settings', 'bi-gear', '#6c757d', t('settings'), esc(t('settingsSub')))}
         ${tile('#/backup', 'bi-shield-check', '#198754', t('backup'), esc(t('backupSub')))}
       </div>
-      <div class="home-exit mt-4"><button class="btn btn-outline-danger px-4 py-2" id="exit-btn"><i class="bi bi-power" aria-hidden="true"></i><span dir="auto">${t('exitApp')}</span></button></div>
     </div>`;
   const savePreference = async changes => {
     const buttons = $$('.home-actions button');

@@ -1,6 +1,6 @@
-# Inventory Management System v0.2
+# Inventory Management System v0.3
 
-**v0.2 is an early release under active development.** The application version
+**v0.3 is an early release under active development.** The application version
 is stored in `VERSION` and shown on Home, in the browser title, and in the tray
 tooltip. It is independent of the database and backup format version numbers.
 
@@ -54,7 +54,7 @@ stays intact. Full ZIP backups include costs and the return history.
 ## How to use it (Windows)
 
 1. Download `InventoryManagementSystem-windows.zip` from the
-   [early release page](../../releases/tag/v0.2) and unzip it anywhere, for example
+   [early release page](../../releases/tag/v0.3) and unzip it anywhere, for example
    on the desktop or a USB stick.
 2. Double click `Inventory Management System.exe`. The app opens in your browser and a purple
    inventory icon appears in the Windows notification area near the clock.
@@ -212,13 +212,13 @@ You need [Go](https://go.dev/dl/) 1.24 or newer.
   after building; see [tests/README.md](tests/README.md).
 
 Options (PowerShell): `& ".\Inventory Management System.exe" -port 8750 -data D:\ShopData -no-browser`.
-Use `-version` to print `Inventory Management System v0.2` and exit without opening any data.
+Use `-version` to print `Inventory Management System v0.3` and exit without opening any data.
 For foreground development or automation, add `-no-tray`. Linux/macOS builds
 currently run in the foreground with the same browser interface; press Ctrl+C
 to stop. The Windows tray implementation uses native APIs and no CGO, so
 cross-compilation stays available without Linux desktop dependencies.
 
-Pushes to `main` build and test the app. Version tags such as `v0.2` publish a
+Pushes to `main` build and test the app. Version tags such as `v0.3` publish a
 separate early prerelease with the Windows ZIP (see `.github/workflows/build.yml`).
 Update `VERSION` before tagging; the tag must match that file. Older versioned
 releases remain available. Use the direct early-release link above, since

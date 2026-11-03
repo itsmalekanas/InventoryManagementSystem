@@ -1,6 +1,6 @@
-# Inventory Management System v0.4
+# Inventory Management System v0.4.1
 
-**v0.4 is an early release under active development.** The application version
+**v0.4.1 is an early release under active development.** The application version
 is stored in `VERSION` and shown on Home, in the browser title, and in the tray
 tooltip. It is independent of the database and backup format version numbers.
 
@@ -54,7 +54,7 @@ stays intact. Full ZIP backups include costs and the return history.
 ## How to use it (Windows)
 
 1. Download `InventoryManagementSystem-windows.zip` from the
-   [early release page](../../releases/tag/v0.4) and unzip it anywhere, for example
+   [early release page](../../releases/tag/v0.4.1) and unzip it anywhere, for example
    on the desktop or a USB stick.
 2. Double click `Inventory Management System.exe`. The app opens in your browser and a mint-colored box
    inventory icon appears in the Windows notification area near the clock.
@@ -215,13 +215,13 @@ You need [Go](https://go.dev/dl/) 1.24 or newer.
   after building; see [tests/README.md](tests/README.md).
 
 Options (PowerShell): `& ".\Inventory Management System.exe" -port 8750 -data D:\ShopData -no-browser`.
-Use `-version` to print `Inventory Management System v0.4` and exit without opening any data.
+Use `-version` to print `Inventory Management System v0.4.1` and exit without opening any data.
 For foreground development or automation, add `-no-tray`. Linux/macOS builds
 currently run in the foreground with the same browser interface; press Ctrl+C
 to stop. The Windows tray implementation uses native APIs and no CGO, so
 cross-compilation stays available without Linux desktop dependencies.
 
-Pushes to `main` build and test the app. Version tags such as `v0.4` publish a
+Pushes to `main` build and test the app. Version tags such as `v0.4.1` publish a
 separate early prerelease with the Windows ZIP (see `.github/workflows/build.yml`).
 Update `VERSION` before tagging; the tag must match that file. Older versioned
 releases remain available. Use the direct early-release link above, since
@@ -234,7 +234,7 @@ GitHub's generic latest-stable link excludes prereleases.
    and builds a Windows artifact without changing published releases.
 3. When ready to release, update `VERSION` and the version references in this
    README, commit and push, then create and push a matching tag (for example
-   `v0.4`). The tag workflow publishes its own release and Windows ZIP.
+   `v0.4.1`). The tag workflow publishes its own release and Windows ZIP.
 
 Keep source, tests, build scripts and icon assets in Git. Generated executables,
 `dist/` and `.syso` files are ignored. The icon assets are committed so release

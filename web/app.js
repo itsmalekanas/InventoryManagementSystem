@@ -498,7 +498,7 @@ function renderHome() {
   $('#app').innerHTML = `
     <div class="home">
       <div class="home-head">
-        <div class="home-brand" dir="${lang() === 'ar' ? 'rtl' : 'ltr'}">
+        <div class="home-brand" dir="ltr">
           ${settings.logo ? `<img src="${imgUrl(settings.logo)}" alt="">` : '<i class="bi bi-shop fs-1 text-brand"></i>'}
           <div class="home-brand-text">
             <h1><bdi>${esc(settings.storeName || t('appName'))}</bdi></h1>
@@ -522,7 +522,7 @@ function renderHome() {
         ${tile('#/settings', 'bi-gear', '#6c757d', t('settings'), esc(t('settingsSub')))}
         ${tile('#/backup', 'bi-shield-check', '#198754', t('backup'), esc(t('backupSub')))}
       </div>
-      <div class="d-flex justify-content-end mt-4"><button class="btn btn-outline-danger px-4 py-2" style="min-height:48px" id="exit-btn"><i class="bi bi-power" aria-hidden="true"></i> ${t('exitApp')}</button></div>
+      <div class="home-exit mt-4"><button class="btn btn-outline-danger px-4 py-2" id="exit-btn"><i class="bi bi-power" aria-hidden="true"></i><span dir="auto">${t('exitApp')}</span></button></div>
     </div>`;
   const savePreference = async changes => {
     const buttons = $$('.home-actions button');

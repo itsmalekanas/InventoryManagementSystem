@@ -357,6 +357,9 @@ func validateBackupDB(db DB, files map[string]bool) error {
 		}
 	}
 	s := db.Settings
+	if s.TopbarColor != "" && !colorRe.MatchString(s.TopbarColor) {
+		return fmt.Errorf("invalid top bar color")
+	}
 	if s.Theme != "light" && s.Theme != "dark" {
 		return fmt.Errorf("invalid display theme")
 	}

@@ -618,6 +618,10 @@ func (s *Store) saveSettings(w http.ResponseWriter, r *http.Request) {
 			in.LowStock = maxQty
 		}
 		def := defaultSettings()
+		if !colorRe.MatchString(in.TopbarColor) {
+			in.TopbarColor = def.TopbarColor
+		}
+		in.TopbarColor = strings.ToLower(in.TopbarColor)
 		if !colorRe.MatchString(in.AccentColor) {
 			in.AccentColor = def.AccentColor
 		}

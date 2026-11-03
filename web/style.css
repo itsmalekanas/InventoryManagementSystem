@@ -47,7 +47,7 @@ body {
 
 /* ---------- home ---------- */
 .home { max-width: 1100px; margin: 0 auto; padding: 32px 16px; }
-.home-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; margin-bottom: 28px; direction: ltr; }
+.home-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--line); direction: ltr; }
 .home-brand { display: flex; align-items: center; gap: 16px; min-width: 0; justify-content: flex-start; }
 .home-brand > i { flex-shrink: 0; }
 .home-brand-text { min-width: 0; }
@@ -76,22 +76,31 @@ body {
 
 /* ---------- top bar ---------- */
 .topbar {
-  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
-  background: var(--brand-solid); color: #fff; position: sticky; top: 0; z-index: 10;
+  display: grid; grid-template-columns: minmax(48px, 1fr) minmax(0, 3fr) minmax(48px, 1fr); align-items: center; gap: 12px; padding: 10px 16px;
+  background: var(--topbar-bg, #714b67); color: var(--topbar-ink, #fff); position: sticky; top: 0; z-index: 10;
 }
+.topbar-heading { min-width: 0; text-align: center; }
+.topbar-extra { min-width: 0; justify-self: end; }
 .topbar h1 { font-size: 1.25rem; margin: 0; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
-.topbar .btn { color: #fff; border-color: rgba(255,255,255,.5); }
+.topbar .btn { color: inherit; border-color: currentColor; justify-self: start; }
 .topbar .btn:hover { background: rgba(255,255,255,.15); }
 .topbar .home-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 48px; min-height: 48px; padding: 10px 14px; flex-shrink: 0; }
 .topbar .home-button i { font-size: 1.35rem; }
-@media (max-width: 480px) { .topbar .home-button span { display: none; } }
-.topbar .store { margin-inline-start: auto; opacity: .85; font-size: .95rem; }
+@media (max-width: 600px) { .topbar .home-button span { display: none; } }
+.topbar .store { font-weight: 700; font-size: .85rem; margin-top: 3px; overflow-wrap: anywhere; }
 .page { max-width: 1400px; margin: 0 auto; padding: 16px; }
 
 /* ---------- product cards (POS style) ---------- */
 .inventory-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .inventory-toolbar .inventory-search { flex: 1 1 240px; width: auto; }
 .inventory-toolbar .inventory-sort { flex: 0 1 240px; width: auto; }
+.inventory-toolbar .form-control, .inventory-toolbar .form-select, .inventory-toolbar .btn, .inventory-toolbar .input-group-text { min-height: 44px; }
+.inventory-summary { display: flex; flex-wrap: wrap; gap: 20px 40px; padding: 16px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.inventory-summary > div { display: flex; flex-direction: column; gap: 2px; }
+.inventory-summary strong { font-size: 1.65rem; line-height: 1.3; }
+.header-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.header-preset { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.header-swatch { width: 20px; height: 20px; border: 1px solid currentColor; border-radius: 50%; flex-shrink: 0; }
 @media (max-width: 600px) { .inventory-toolbar .inventory-search { flex-basis: 100%; } .inventory-toolbar .inventory-sort { flex: 1 1 160px; min-width: 0; } }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .pcard {

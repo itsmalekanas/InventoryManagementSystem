@@ -7,8 +7,12 @@
 
 const I18N = {
   en: {
-    sortInventory: 'Sort inventory', sortDefault: 'Original order', sortNameAsc: 'Name: A–Z', sortNameDesc: 'Name: Z–A',
-    sortPriceAsc: 'Price: low to high', sortPriceDesc: 'Price: high to low', sortStockAsc: 'Stock: low to high', sortStockDesc: 'Stock: high to low', sortNewest: 'Recently added',
+    customHeaderColor: 'Custom color',
+    inventoryProductCount: 'Products', inventoryPieceCount: 'Pieces in stock', inventoryShowing: 'Showing {n} of {total} products · {pieces} pieces in stock',
+    headerPresets: 'Header color presets', presetMint: 'Mint', presetPurple: 'Purple', presetSlate: 'Slate', presetBlue: 'Blue', presetGreen: 'Green', presetCharcoal: 'Charcoal',
+    topbarTheme: 'Page header', topbarColor: 'Header background color', topbarHint: 'Applies to subpages. Text adjusts automatically for readability. Invoice colors are separate.', resetTopbar: 'Reset header color',
+    sortInventory: 'Sort inventory', sortNameAsc: 'Name: A–Z', sortNameDesc: 'Name: Z–A',
+    sortPriceAsc: 'Price: low to high', sortPriceDesc: 'Price: high to low', sortStockAsc: 'Stock: low to high', sortStockDesc: 'Stock: high to low', sortNewest: 'Date added: new to old', sortOldest: 'Date added: old to new',
     exitLabel: 'Exit',
     exitApp: 'Exit app', exitConfirm: 'Exit the software? Active saves will finish before it closes. Unsaved edits and the current cart will be discarded. Other open tabs for this app will disconnect.',
     appClosing: 'Closing app…', appClosingHelp: 'Waiting for active saves and transfers to finish. Please keep this page open.',
@@ -127,8 +131,12 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
-    sortInventory: 'ترتيب المخزون', sortDefault: 'الترتيب الأصلي', sortNameAsc: 'الاسم: تصاعدياً', sortNameDesc: 'الاسم: تنازلياً',
-    sortPriceAsc: 'السعر: من الأقل إلى الأعلى', sortPriceDesc: 'السعر: من الأعلى إلى الأقل', sortStockAsc: 'المخزون: من الأقل إلى الأعلى', sortStockDesc: 'المخزون: من الأعلى إلى الأقل', sortNewest: 'المضاف حديثاً',
+    customHeaderColor: 'لون مخصص',
+    inventoryProductCount: 'عدد المنتجات', inventoryPieceCount: 'القطع في المخزون', inventoryShowing: 'عرض {n} من أصل {total} منتج · {pieces} قطعة في المخزون',
+    headerPresets: 'ألوان جاهزة لشريط العنوان', presetMint: 'نعناعي', presetPurple: 'بنفسجي', presetSlate: 'رمادي مزرق', presetBlue: 'أزرق', presetGreen: 'أخضر', presetCharcoal: 'فحمي',
+    topbarTheme: 'شريط عنوان الصفحات', topbarColor: 'لون خلفية شريط العنوان', topbarHint: 'يُطبق على الصفحات الداخلية. يتكيف لون النص تلقائياً للوضوح. ألوان الفاتورة مستقلة.', resetTopbar: 'استعادة اللون الافتراضي',
+    sortInventory: 'ترتيب المخزون', sortNameAsc: 'الاسم: تصاعدياً', sortNameDesc: 'الاسم: تنازلياً',
+    sortPriceAsc: 'السعر: من الأقل إلى الأعلى', sortPriceDesc: 'السعر: من الأعلى إلى الأقل', sortStockAsc: 'المخزون: من الأقل إلى الأعلى', sortStockDesc: 'المخزون: من الأعلى إلى الأقل', sortNewest: 'تاريخ الإضافة: من الأحدث إلى الأقدم', sortOldest: 'تاريخ الإضافة: من الأقدم إلى الأحدث',
     exitLabel: 'خروج',
     exitApp: 'إغلاق البرنامج', exitConfirm: 'هل تريد إغلاق البرنامج؟ ستكتمل عمليات الحفظ الجارية أولاً. ستُفقد التعديلات غير المحفوظة والسلة الحالية. ستنقطع بقية الصفحات المفتوحة لهذا البرنامج.',
     appClosing: 'جارٍ إغلاق البرنامج…', appClosingHelp: 'بانتظار اكتمال عمليات الحفظ والنقل الجارية. يرجى إبقاء هذه الصفحة مفتوحة.',
@@ -260,7 +268,7 @@ const state = {
   cart: [],                               // [{ productId, qty }]
   cust: { name: '', phone: '', address: '' },
   productSearch: '',
-  productSort: 'default',
+  productSort: 'newest',
   posSearch: '',
 };
 
@@ -435,12 +443,23 @@ function applyLang() {
   applyTheme();
 }
 
+function topbarStyle(settings) {
+  const color = safeColor(settings.topbarColor, '#714b67');
+  const luminance = hex => {
+    const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+    return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+  };
+  const light = luminance(color);
+  const ink = (light + 0.05) / (luminance('#171b22') + 0.05) > 1.05 / (light + 0.05) ? '#171b22' : '#ffffff';
+  return `--topbar-bg:${color};--topbar-ink:${ink}`;
+}
+
 function topbar(title, extra = '') {
   const s = state.db.settings;
-  return `<nav class="topbar no-print">
+  return `<nav class="topbar no-print" style="${topbarStyle(s)}">
     <a href="#/" class="btn btn-outline-light home-button" aria-label="${esc(t('home'))}" title="${esc(t('home'))}"><i class="bi bi-house-fill" aria-hidden="true"></i><span>${t('home')}</span></a>
-    <h1>${esc(title)}</h1>${extra}
-    <span class="store"><bdi>${esc(s.storeName)}</bdi></span>
+    <div class="topbar-heading"><h1>${esc(title)}</h1>${s.storeName ? `<div class="store"><bdi>${esc(s.storeName)}</bdi></div>` : ''}</div>
+    <div class="topbar-extra">${extra}</div>
   </nav>`;
 }
 
@@ -592,9 +611,9 @@ function productCard(p, opts = {}) {
 
 function renderProducts() {
   const sortOptions = [
-    ['default', 'sortDefault'], ['name-asc', 'sortNameAsc'], ['name-desc', 'sortNameDesc'],
+    ['newest', 'sortNewest'], ['oldest', 'sortOldest'], ['name-asc', 'sortNameAsc'], ['name-desc', 'sortNameDesc'],
     ['price-asc', 'sortPriceAsc'], ['price-desc', 'sortPriceDesc'],
-    ['stock-asc', 'sortStockAsc'], ['stock-desc', 'sortStockDesc'], ['newest', 'sortNewest'],
+    ['stock-asc', 'sortStockAsc'], ['stock-desc', 'sortStockDesc'],
   ];
   $('#app').innerHTML = `
     ${topbar(t('products'))}
@@ -609,10 +628,18 @@ function renderProducts() {
         </select>
         <button class="btn btn-brand text-nowrap" id="p-add"><i class="bi bi-plus-lg"></i> ${t('addProduct')}</button>
       </div>
+      <section class="inventory-summary mb-3" aria-label="${esc(t('products'))}">
+        <div><span class="text-secondary">${t('inventoryProductCount')}</span><strong class="num" id="p-total-products"></strong></div>
+        <div><span class="text-secondary">${t('inventoryPieceCount')}</span><strong class="num" id="p-total-pieces"></strong></div>
+      </section>
+      <p class="small text-secondary mb-3" id="p-count" role="status" aria-live="polite" aria-atomic="true"></p>
       <div id="p-list"></div>
     </div>`;
   const draw = () => {
     const list = state.db.products.filter(p => matches(state.productSearch, p.name));
+    $('#p-total-products').textContent = int(state.db.products.length);
+    $('#p-total-pieces').textContent = int(state.db.products.reduce((sum, p) => sum + p.stock, 0));
+    $('#p-count').textContent = t('inventoryShowing', { n: int(list.length), total: int(state.db.products.length), pieces: int(list.reduce((sum, p) => sum + p.stock, 0)) });
     const byName = (a, b) => a.name.localeCompare(b.name, lang(), { numeric: true, sensitivity: 'base' });
     const sorts = {
       'name-asc': byName,
@@ -622,6 +649,7 @@ function renderProducts() {
       'stock-asc': (a, b) => a.stock - b.stock || byName(a, b),
       'stock-desc': (a, b) => b.stock - a.stock || byName(a, b),
       newest: (a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0),
+      oldest: (a, b) => (Date.parse(a.createdAt) || 0) - (Date.parse(b.createdAt) || 0),
     };
     if (sorts[state.productSort]) list.sort(sorts[state.productSort]);
     $('#p-list').innerHTML = list.length
@@ -1562,6 +1590,7 @@ function renderReports() {
 /* ---------------- settings ---------------- */
 
 function renderSettings() {
+  const headerPresets = [['#a6e3e1', 'presetMint'], ['#714b67', 'presetPurple'], ['#334155', 'presetSlate'], ['#245a81', 'presetBlue'], ['#28634c', 'presetGreen'], ['#353a43', 'presetCharcoal']];
   const saved = JSON.stringify(state.db.settings);
   const d = JSON.parse(saved); // draft
   const numbering = { ...invoiceNumbering() };
@@ -1573,6 +1602,19 @@ function renderSettings() {
         <div class="col-lg-5">
           <form id="sf" class="bg-white rounded shadow-sm p-3" novalidate>
             <h5 class="mb-3">${t('general')}</h5>
+            <fieldset class="mb-4">
+              <legend class="h6">${t('topbarTheme')}</legend>
+              <label class="form-label" for="sf-topbar-color">${t('topbarColor')}</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="color" class="form-control form-control-color" id="sf-topbar-color" name="topbarColor" value="${safeColor(d.topbarColor, '#714b67')}">
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="sf-topbar-reset">${t('resetTopbar')}</button>
+              </div>
+              <div class="form-text">${t('topbarHint')}</div>
+              <div class="header-presets mt-3" role="group" aria-label="${esc(t('headerPresets'))}">
+                ${headerPresets.map(([color, label]) => `<button type="button" class="btn btn-outline-secondary header-preset" data-header-color="${color}" aria-pressed="false"><span class="header-swatch" style="background:${color}" aria-hidden="true"></span>${t(label)}</button>`).join('')}
+                <button type="button" class="btn btn-outline-secondary header-preset" id="sf-topbar-custom" aria-pressed="false"><i class="bi bi-palette" aria-hidden="true"></i>${t('customHeaderColor')}</button>
+              </div>
+            </fieldset>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" name="trackProfit" id="sf-profit"${d.trackProfit ? ' checked' : ''}>
               <label class="form-check-label" for="sf-profit">${t('trackProfit')}</label>
@@ -1656,8 +1698,22 @@ function renderSettings() {
     ],
     total: 84500, // 50,000 + 22,500 + 12,000
   };
-  const preview = () => { $('#sf-preview').innerHTML = invoiceHtml(sample, d); };
+  const preview = () => {
+    $('#sf-preview').innerHTML = invoiceHtml(sample, d);
+    $('.topbar').style.cssText = topbarStyle(d);
+    $$('[data-header-color]').forEach(button => {
+      const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+    const customSelected = !headerPresets.some(([color]) => color === safeColor(d.topbarColor, '#714b67').toLowerCase());
+    $('#sf-topbar-custom').classList.toggle('active', customSelected);
+    $('#sf-topbar-custom').setAttribute('aria-pressed', String(customSelected));
+    const storeLabel = $('.topbar .store bdi');
+    if (storeLabel) storeLabel.textContent = d.storeName;
+  };
   const read = () => {
+    d.topbarColor = f.topbarColor.value;
     d.trackProfit = f.trackProfit.checked;
     d.language = f.language.value;
     d.storeName = f.storeName.value;
@@ -1682,6 +1738,14 @@ function renderSettings() {
   };
   f.oninput = read;
   f.onchange = read;
+  $('#sf-topbar-reset').onclick = () => { f.topbarColor.value = '#714b67'; read(); };
+  $$('[data-header-color]').forEach(button => { button.onclick = () => { f.topbarColor.value = button.dataset.headerColor; read(); }; });
+  $('#sf-topbar-custom').onclick = () => {
+    const picker = f.topbarColor;
+    picker.focus();
+    if (typeof picker.showPicker === 'function') picker.showPicker();
+    else picker.click();
+  };
   f.onsubmit = async e => {
     e.preventDefault();
     read();

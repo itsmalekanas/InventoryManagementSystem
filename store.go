@@ -70,6 +70,7 @@ type SaleReceipt struct {
 }
 
 type Settings struct {
+	TopbarColor   string `json:"topbarColor,omitempty"`
 	TrackProfit   bool   `json:"trackProfit,omitempty"`
 	Theme         string `json:"theme"`    // "light" or "dark"
 	Language      string `json:"language"` // "en" or "ar"
@@ -114,6 +115,7 @@ const (
 
 func defaultSettings() Settings {
 	return Settings{
+		TopbarColor:   "#714b67",
 		Theme:         "light",
 		Language:      "en",
 		StoreName:     "My Store",

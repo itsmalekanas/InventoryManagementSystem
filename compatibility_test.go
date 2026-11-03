@@ -47,6 +47,7 @@ func TestOriginalAppDataCompatibility(t *testing.T) {
 	}
 	// The display theme is an optional setting added after the original app.
 	original.Settings.Theme = "light"
+	original.Settings.TopbarColor = "#714b67"
 	original.Settings.ShowDate, original.Settings.ShowTime = true, true
 	s, err := OpenStore(dir)
 	if err != nil {

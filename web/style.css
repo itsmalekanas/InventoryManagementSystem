@@ -43,6 +43,7 @@ body {
 .home-brand { display: flex; align-items: center; gap: 16px; min-width: 0; justify-content: flex-start; }
 .home-brand[dir="rtl"] { justify-content: flex-end; }
 .home-brand > i { flex-shrink: 0; }
+.home-brand-text { min-width: 0; }
 .home-actions { display: flex; align-items: center; gap: 8px; direction: ltr; justify-self: end; }
 .home-actions .language-button { width: 112px; white-space: nowrap; }
 .home-actions .theme-button { width: 44px; }

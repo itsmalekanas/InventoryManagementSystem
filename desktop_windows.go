@@ -69,7 +69,7 @@ type trayIconData struct {
 func trayText(text string) *uint16 { return syscall.StringToUTF16Ptr(text) }
 
 func showAppError(err error) {
-	trayUser32.NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(trayText(err.Error()))), uintptr(unsafe.Pointer(trayText("Inventory app"))), 0x10)
+	trayUser32.NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(trayText(err.Error()))), uintptr(unsafe.Pointer(trayText(appName+" "+appVersion))), 0x10)
 }
 
 func prepareBrowserCommand(cmd *exec.Cmd) {
@@ -138,14 +138,14 @@ func serveDesktop(server *http.Server, ln net.Listener, url string) error {
 	}
 	defer trayUser32.NewProc("UnregisterClassW").Call(uintptr(unsafe.Pointer(class.ClassName)), instance)
 	// An invisible top-level window receives TaskbarCreated broadcasts too.
-	window, _, err := trayUser32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.ClassName)), uintptr(unsafe.Pointer(trayText("Inventory app"))), 0, 0, 0, 0, 0, 0, 0, instance, 0)
+	window, _, err := trayUser32.NewProc("CreateWindowExW").Call(0, uintptr(unsafe.Pointer(class.ClassName)), uintptr(unsafe.Pointer(trayText(appName+" "+appVersion))), 0, 0, 0, 0, 0, 0, 0, instance, 0)
 	if window == 0 {
 		return fmt.Errorf("create tray window: %v", err)
 	}
 	defer trayDestroyWindow.Call(window)
 	data.Size = uint32(unsafe.Sizeof(data))
 	data.Window, data.ID, data.Flags, data.Callback, data.Icon = window, 1, 1|2|4|0x80, trayCallback, icon
-	copy(data.Tip[:], syscall.StringToUTF16("Inventory app - Open app / Exit"))
+	copy(data.Tip[:], syscall.StringToUTF16(appName+" "+appVersion+" - Open app / Exit"))
 	if !addIcon() {
 		return fmt.Errorf("could not add the inventory tray icon")
 	}

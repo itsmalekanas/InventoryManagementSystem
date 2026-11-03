@@ -1,4 +1,8 @@
-# Inventory Management
+# Inventory Management System v0.1
+
+**v0.1 is an early release under active development.** The application version
+is stored in `VERSION` and shown on Home, in the browser title, and in the tray
+tooltip. It is independent of the database and backup format version numbers.
 
 A small, portable inventory and sales app for a shop. It runs on your own
 computer with nothing to install, keeps all data in its own folder, works fully
@@ -27,13 +31,13 @@ The home page is a grid with the main parts of the system:
 
 ## How to use it (Windows)
 
-1. Download `InventoryApp-windows.zip` from the
-   [Releases page](../../releases/latest) and unzip it anywhere, for example
+1. Download `InventoryManagementSystem-windows.zip` from the
+   [early release page](../../releases/tag/latest) and unzip it anywhere, for example
    on the desktop or a USB stick.
-2. Double click `InventoryApp.exe`. The app opens in your browser and a purple
+2. Double click `Inventory Management System.exe`. The app opens in your browser and a purple
    inventory icon appears in the Windows notification area near the clock.
    There is no console window. Windows may place the icon under the **^** arrow.
-3. Running `InventoryApp.exe` again while it is already open just opens the
+3. Running `Inventory Management System.exe` again while it is already open just opens the
    browser page again, provided it is the same build using the same data folder.
    A copy in another folder uses its own data and an available local port. If an
    older or different build is running for the same data, exit it before opening
@@ -51,8 +55,8 @@ the program is not signed. Click **More info** and then **Run anyway**.
 Everything is saved next to the program, in a folder called `data`:
 
 ```
-InventoryApp/
-  InventoryApp.exe
+Inventory Management System/
+  Inventory Management System.exe
   data/
     db.json        all products, customers, invoices and settings (UTF-8, Arabic safe)
     images/        product pictures and the store logo
@@ -60,10 +64,14 @@ InventoryApp/
 ```
 
 To back up the app or move it to another computer, copy the whole
-`InventoryApp` folder. To restore an older day, close the app and copy a file
+`Inventory Management System` folder. To restore an older day, close the app and copy a file
 from `backups` over `data/db.json`.
 
 ### Updating from an older version
+
+Earlier versions used `InventoryApp.exe` or `Inventory System.exe`. The new executable is
+`Inventory Management System.exe`; keep it beside the existing `data` folder. The app name
+does not change your store name, invoice numbers, data format, or backup support.
 
 The original JSON database and images are supported. Close the old app first
 (close its console window, or use **Exit** in its tray menu), and make a backup
@@ -167,7 +175,7 @@ current year, leave existing invoices unchanged, and survive restarting the app.
 
 You need [Go](https://go.dev/dl/) 1.24 or newer.
 
-- Windows: double click `build.bat`. The program is written to `dist\InventoryApp.exe`.
+- Windows: double click `build.bat`. The program is written to `dist\Inventory Management System.exe`.
 - macOS / Linux: run `./build.sh`. Programs for all three systems are written to `dist/`.
 - To run it while developing: `go run .` (data is then saved in `./data`).
 - Tests: `go test ./...`
@@ -175,14 +183,18 @@ You need [Go](https://go.dev/dl/) 1.24 or newer.
 - Windows browser regression tests: `node tests/browser-regression.cjs`
   after building; see [tests/README.md](tests/README.md).
 
-Options: `InventoryApp.exe -port 8750 -data D:\ShopData -no-browser`.
+Options (PowerShell): `& ".\Inventory Management System.exe" -port 8750 -data D:\ShopData -no-browser`.
+Use `-version` to print `Inventory Management System v0.1` and exit without opening any data.
 For foreground development or automation, add `-no-tray`. Linux/macOS builds
 currently run in the foreground with the same browser interface; press Ctrl+C
 to stop. The Windows tray implementation uses native APIs and no CGO, so
 cross-compilation stays available without Linux desktop dependencies.
 
-Every push to `main` builds the Windows zip and publishes it on the Releases
-page automatically (see `.github/workflows/build.yml`).
+Every push to `main` builds the Windows zip and publishes it as an early
+prerelease using the rolling `latest` tag (see `.github/workflows/build.yml`).
+The release title reads its version from `VERSION`; change that file when
+advancing to the next application version. Use the direct early-release link
+above, since GitHub's generic latest-stable link excludes prereleases.
 
 The app is one Go program with the web pages built in (`web/`). It uses
 [Bootstrap](https://getbootstrap.com/) and
@@ -203,8 +215,8 @@ location and save-prompt preferences.
 تطبيق بسيط وخفيف لإدارة المخزون والمبيعات، يعمل على الحاسوب مباشرة بدون تثبيت
 وبدون إنترنت، ويدعم اللغة العربية بالكامل. العملة هي الدينار العراقي (د.ع).
 
-**طريقة الاستخدام:** فك ضغط الملف `InventoryApp-windows.zip` في أي مكان (مثلاً
-على فلاش USB) ثم شغّل `InventoryApp.exe`. سيفتح التطبيق في المتصفح وتظهر أيقونة
+**طريقة الاستخدام:** فك ضغط الملف `InventoryManagementSystem-windows.zip` في أي مكان (مثلاً
+على فلاش USB) ثم شغّل `Inventory Management System.exe`. سيفتح التطبيق في المتصفح وتظهر أيقونة
 بنفسجية قرب ساعة ويندوز بدون نافذة سوداء. اضغط عليها بزر الفأرة الأيمن واختر
 `Open app` لفتح التطبيق أو `Exit` لإيقافه. إغلاق المتصفح لا يوقف التطبيق.
 قد تجد الأيقونة ضمن السهم **^**. لتغيير اللغة اضغط زر

@@ -2,7 +2,7 @@
 // All shop data and browser profiles are isolated in a temporary directory.
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),net=require('node:net');
 const {spawn}=require('node:child_process');const assert=require('node:assert/strict');
-const exe=path.resolve(process.argv[2]||process.env.INVENTORY_TEST_EXE||path.resolve(__dirname,'../dist/InventoryApp.exe'));
+const exe=path.resolve(process.argv[2]||process.env.INVENTORY_TEST_EXE||path.resolve(__dirname,'../dist/Inventory Management System.exe'));
 const chromeExe=process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const artifacts=fs.mkdtempSync(path.join(os.tmpdir(),'inventory-regression-'));
 const children=[];let chrome,socket;
@@ -18,7 +18,7 @@ async function api(url,endpoint,body,method='POST'){
 (async()=>{
   // Separate physical copies sharing a preferred port must use their own data.
   let copyPort=await freePort();while(copyPort>65000)copyPort=await freePort();
-  const copies=[];for(const name of ['copy-a','copy-b']){const folder=path.join(artifacts,name);fs.mkdirSync(folder);const binary=path.join(folder,'InventoryApp.exe');fs.copyFileSync(exe,binary);copies.push(binary);}
+  const copies=[];for(const name of ['copy-a','copy-b']){const folder=path.join(artifacts,name);fs.mkdirSync(folder);const binary=path.join(folder,'Inventory Management System.exe');fs.copyFileSync(exe,binary);copies.push(binary);}
   await launch(copies[0],copyPort);const copyA=`http://127.0.0.1:${copyPort}`;await until(async()=>{try{return(await data(copyA)).db;}catch{return false;}});
   await launch(copies[1],copyPort);const copyB=`http://127.0.0.1:${copyPort+1}`;await until(async()=>{try{return(await data(copyB)).db;}catch{return false;}});
   await api(copyA,'/api/products',{name:'Only in shop A',price:1,stock:2,images:[]});assert.equal((await data(copyB)).db.products.length,0);
@@ -41,6 +41,17 @@ async function api(url,endpoint,body,method='POST'){
   async function go(hash,selector){await c('Page.navigate',{url:url+'/'+hash});await until(()=>evaluate(`!!document.querySelector(${JSON.stringify(selector)})`));await evaluate('languageStylesReady');}
   async function click(selector){await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);}
   async function input(selector,value,event='input'){await evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});el.value=${JSON.stringify(value)};el.dispatchEvent(new Event(${JSON.stringify(event)},{bubbles:true}));})()`);}
+  await go('#/','#lang-btn');assert.ok((await evaluate('document.title')).includes('Inventory Management System'));assert.ok((await evaluate('document.querySelector(".home-brand").textContent')).includes('Inventory Management System'));assert.equal(await evaluate('document.querySelector(".app-version").textContent'),fs.readFileSync(path.resolve(__dirname,'../VERSION'),'utf8').trim());
+  const controlRects=()=>evaluate('Array.from(document.querySelectorAll(".home-actions button"),button=>{const rect=button.getBoundingClientRect();return{x:rect.x,y:rect.y,width:rect.width,height:rect.height}})');
+  const equalRects=(before,after)=>before.forEach((rect,i)=>Object.keys(rect).forEach(key=>assert.ok(Math.abs(rect[key]-after[i][key])<1,`Control moved: ${key}`)));
+  const homeReady=async()=>{await until(()=>evaluate('!document.querySelector("#lang-btn").disabled'));await evaluate('languageStylesReady');};
+  const englishControls=await controlRects();await click('#theme-btn');await until(()=>evaluate('document.documentElement.dataset.bsTheme==="dark"'));await homeReady();equalRects(englishControls,await controlRects());
+  await click('#lang-btn');await until(()=>evaluate('document.documentElement.dir==="rtl"'));await homeReady();equalRects(englishControls,await controlRects());
+  const homeShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'home-ar-dark.png'),Buffer.from(homeShot.data,'base64'));
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});const mobileControls=await controlRects();
+  await click('#lang-btn');await until(()=>evaluate('document.documentElement.dir==="ltr"'));await homeReady();equalRects(mobileControls,await controlRects());assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+  await click('#theme-btn');await until(()=>evaluate('document.documentElement.dataset.bsTheme==="light"'));await homeReady();
+  await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
   await go('#/products','#p-add');await click('#p-add');await input('#pf [name=name]','Validation product');await input('#pf [name=stock]','2');
   for(const value of ['-5','12.5']){await input('#pf [name=price]',value);await input('#pf [name=price]',value,'blur');assert.equal(await evaluate('document.querySelector("#pf").price.value'),value);await click('#pf-save');assert.equal((await data(url)).db.products.length,1);}
   await input('#pf [name=price]','٢٥٬٠٠٠');await input('#pf [name=stock]','-2');await click('#pf-save');assert.equal((await data(url)).db.products.length,1);
@@ -48,10 +59,16 @@ async function api(url,endpoint,body,method='POST'){
   await go('#/settings','#sf');await input('#sf [name=lowStock]','12.5');await click('#sf-save');assert.equal((await data(url)).db.settings.lowStock,5);
   await evaluate('leaveGuard=null');
   await go('#/pos','#sale-btn');await evaluate(`document.querySelector('.pcard[data-id="${product}"]').click()`);await input('#c-name','Browser buyer');await input('.cart-line .qty','-1','change');assert.equal(await evaluate('!!document.querySelector(".qty.is-invalid")'),true);await click('#sale-btn');assert.equal((await data(url)).db.invoices.length,1);await input('.cart-line .qty','٢','change');
+  // Price edits affect this line only, support gifts, and can be reset.
+  await click('[data-act=price]');await input('#sale-price-input','-1');await click('#sale-price-form button[type=submit]');assert.equal(await evaluate('state.cart[0].customPrice'),undefined);
+  await input('#sale-price-input','0');await click('#sale-price-form button[type=submit]');assert.equal(await evaluate('cartTotal()'),0);await pause(350);
+  await click('[data-act=price]');await click('#sale-price-reset');assert.equal(await evaluate('cartTotal()'),50000);await pause(350);
+  await click('[data-act=price]');await input('#sale-price-input','١٢٬٥٠٠');await click('#sale-price-form button[type=submit]');assert.equal(await evaluate('cartTotal()'),25000);await pause(350);
   // Simulate a successful save whose HTTP response never reaches the UI.
   await evaluate(`window.realFetch=window.fetch;window.fetch=async function(resource,options){const path=new URL(resource,location.href).pathname;if(path==='/api/sales'&&options?.method==='POST'){await realFetch(resource,options);throw new TypeError('simulated lost response');}if(path.startsWith('/api/sales/requests/'))throw new TypeError('simulated lookup outage');return realFetch(resource,options);}`);
   await click('#sale-btn');await until(()=>evaluate('!!document.querySelector("#checkout-retry")&&!checkoutWorking'));let saved=await data(url);assert.equal(saved.db.invoices.length,2);assert.equal(saved.db.products[0].stock,27);const recoveredID=saved.db.invoices[1].id;
   const requestId=await evaluate('state.pendingSale.payload.requestId');assert.equal(requestId.length,32);
+  assert.equal(saved.db.invoices[1].items[0].price,12500);assert.equal(saved.db.invoices[1].total,25000);assert.equal(saved.db.products[0].price,25000);assert.equal(await evaluate('state.pendingSale.payload.items[0].customPrice'),12500);
   // Another sale occurring meanwhile must not make retry open the newest one.
   await api(url,'/api/sales',{customer:{name:'Other sale'},items:[{productId:product,qty:1}]});await evaluate('window.fetch=window.realFetch');await click('#checkout-retry');await until(()=>evaluate(`location.hash==='#/invoice/${recoveredID}'`));saved=await data(url);assert.equal(saved.db.invoices.length,3);assert.equal(saved.db.products[0].stock,26);assert.equal(await evaluate('state.pendingSale'),null);
   // Reopening the page looks up a persisted attempt, without posting a new sale.

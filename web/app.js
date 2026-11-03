@@ -1,13 +1,14 @@
 'use strict';
 
 /* =========================================================
-   Inventory app – one small script, no build step.
+   Inventory Management System – browser interface, no build step.
    All amounts are whole Iraqi dinars (integers).
    ========================================================= */
 
 const I18N = {
   en: {
-    appName: 'Inventory', cur: 'IQD', loading: 'Loading…',
+    editSalePrice: 'Edit price', regularPrice: 'Use regular price', customPrice: 'Custom unit price', salePriceHint: 'Applies to every piece on this line, for this sale only. Enter 0 for a gift.',
+    appName: 'Inventory Management System', cur: 'IQD', loading: 'Loading…',
     home: 'Home', pos: 'New sale', posSub: 'Sell products from the inventory',
     products: 'Inventory', productsSub: '{n} products · {low} low on stock',
     customers: 'Customers', customersSub: '{n} customers',
@@ -101,7 +102,8 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
-    appName: 'المخزون', cur: 'د.ع', loading: 'جارٍ التحميل…',
+    editSalePrice: 'تعديل السعر', regularPrice: 'استخدام السعر الأصلي', customPrice: 'سعر الوحدة المخصص', salePriceHint: 'ينطبق على كل قطعة في هذا السطر ولهذه البيعة فقط. أدخل 0 للهدية.',
+    appName: 'Inventory Management System', cur: 'د.ع', loading: 'جارٍ التحميل…',
     home: 'الرئيسية', pos: 'بيع جديد', posSub: 'بيع منتجات من المخزون',
     products: 'المخزون', productsSub: '{n} منتج · {low} قليل المخزون',
     customers: 'الزبائن', customersSub: '{n} زبون',
@@ -198,6 +200,7 @@ const I18N = {
 
 const state = {
   db: null,
+  appVersion: '',
   dataDir: '',
   generation: null,
   numbering: null,
@@ -296,7 +299,7 @@ async function api(method, url, body) {
     err.key = data.error;
     throw err;
   }
-  if (data.db) { state.db = data.db; state.dataDir = data.dataDir; state.numbering = data.numbering || null; state.generation = data.generation; }
+  if (data.db) { state.db = data.db; state.dataDir = data.dataDir; state.numbering = data.numbering || null; state.generation = data.generation; state.appVersion = data.version || ''; }
   return data;
 }
 
@@ -389,6 +392,12 @@ function topbar(title, extra = '') {
   </nav>`;
 }
 
+function appTitle() {
+  const name = state.db.settings.storeName;
+  const title = [t('appName'), state.appVersion].filter(Boolean).join(' ');
+  return name && name !== t('appName') ? title + ' — ' + name : title;
+}
+
 /* ---------------- router ---------------- */
 
 let leaveGuard = null; // returns true when the page may be left
@@ -409,7 +418,7 @@ function route() {
   const parts = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
   const fn = routes[parts[0]] || renderHome;
   $('#page-style').textContent = '';
-  document.title = state.db.settings.storeName || t('appName');
+  document.title = appTitle();
   fn(...parts.slice(1));
   window.scrollTo(0, 0);
 }
@@ -445,7 +454,13 @@ function renderHome() {
       <div class="home-head">
         <div class="home-brand" dir="${lang() === 'ar' ? 'rtl' : 'ltr'}">
           ${settings.logo ? `<img src="${imgUrl(settings.logo)}" alt="">` : '<i class="bi bi-shop fs-1 text-brand"></i>'}
-          <h1><bdi>${esc(settings.storeName || t('appName'))}</bdi></h1>
+          <div class="home-brand-text">
+            <h1><bdi>${esc(settings.storeName || t('appName'))}</bdi></h1>
+            <div class="small text-secondary">
+              ${settings.storeName && settings.storeName !== t('appName') ? `<bdi>${esc(t('appName'))}</bdi>` : ''}
+              ${state.appVersion ? `<span class="badge text-bg-light border app-version" dir="ltr">${esc(state.appVersion)}</span>` : ''}
+            </div>
+          </div>
         </div>
         <div class="home-actions">
           <button class="btn btn-outline-secondary language-button" id="lang-btn"><i class="bi bi-translate" aria-hidden="true"></i> ${t('switchLang')}</button>
@@ -669,8 +684,9 @@ function fixCart() {
     .filter(l => l && l.qty > 0);
 }
 
+const cartUnitPrice = line => line.customPrice ?? productById(line.productId).price;
 function cartTotal() {
-  return state.cart.reduce((sum, l) => sum + productById(l.productId).price * l.qty, 0);
+  return state.cart.reduce((sum, l) => sum + cartUnitPrice(l) * l.qty, 0);
 }
 
 function renderPos() {
@@ -734,14 +750,15 @@ function renderPos() {
         return `<div class="cart-line" data-id="${esc(p.id)}">
           <div class="cl-name">
             <div><bdi>${esc(p.name)}</bdi></div>
-            <small class="text-secondary">${money(p.price)} × <span class="num">${int(l.qty)}</span></small>
+            <small class="text-secondary">${money(cartUnitPrice(l))} × <span class="num">${int(l.qty)}</span></small>
+            <button type="button" class="btn btn-sm btn-link p-0 d-block" data-act="price">${t(l.customPrice === undefined ? 'editSalePrice' : 'customPrice')}</button>
           </div>
           <div class="input-group input-group-sm" style="width:auto">
             <button class="btn btn-outline-secondary" data-act="dec"><i class="bi bi-dash"></i></button>
             <input class="form-control qty" value="${l.qty}" inputmode="numeric" dir="ltr">
             <button class="btn btn-outline-secondary" data-act="inc"><i class="bi bi-plus"></i></button>
           </div>
-          <div class="text-end fw-semibold" style="min-width:110px">${money(p.price * l.qty)}</div>
+          <div class="text-end fw-semibold" style="min-width:110px">${money(cartUnitPrice(l) * l.qty)}</div>
           <button class="btn btn-sm text-danger" data-act="del"><i class="bi bi-x-lg"></i></button>
         </div>`;
       }).join('');
@@ -753,6 +770,27 @@ function renderPos() {
 
     $$('.cart-line').forEach(row => {
       const id = row.dataset.id;
+      row.querySelector('[data-act=price]').onclick = () => {
+        const line = state.cart.find(l => l.productId === id);
+        const box = openModal(`
+          <div class="modal-header"><h5 class="modal-title">${t('customPrice')}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+          <form id="sale-price-form"><div class="modal-body">
+            <p><bdi>${esc(productById(id).name)}</bdi></p>
+            <label class="form-label" for="sale-price-input">${t('price')} (${t('cur')})</label>
+            <input class="form-control" id="sale-price-input" inputmode="numeric" dir="ltr" value="${cartUnitPrice(line)}">
+            <div class="form-text">${t('salePriceHint')}</div>
+          </div><div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary me-auto" id="sale-price-reset">${t('regularPrice')} (${money(productById(id).price)})</button>
+            <button type="submit" class="btn btn-brand">${t('save')}</button>
+          </div></form>`);
+        $('#sale-price-reset', box).onclick = () => { delete line.customPrice; closeModal(); drawCart(); };
+        $('#sale-price-form', box).onsubmit = e => {
+          e.preventDefault();
+          const price = parseWhole($('#sale-price-input', box).value);
+          if (isNaN(price) || price > 1e9) return toast(t('err.badPrice'), true);
+          line.customPrice = price; closeModal(); drawCart();
+        };
+      };
       row.querySelector('[data-act=dec]').onclick = () => setQty(id, cartQty(id) - 1);
       row.querySelector('[data-act=inc]').onclick = () => setQty(id, cartQty(id) + 1);
       row.querySelector('[data-act=del]').onclick = () => setQty(id, 0);
@@ -1585,7 +1623,7 @@ function renderBackup(recoveryBackup = '') {
           transferInProgress = false;
           leaveGuard = null;
           applyLang();
-          document.title = state.db.settings.storeName || t('appName');
+          document.title = appTitle();
           renderBackup(restored.recoveryBackup);
         } catch (err) {
           await cancelPreview();

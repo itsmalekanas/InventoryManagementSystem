@@ -1,4 +1,4 @@
-name: Build portable app
+name: Build Inventory Management System
 
 on:
   push:
@@ -17,17 +17,23 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Read application version
+        id: version
+        run: |
+          version="$(tr -d '\r\n' < VERSION)"
+          [[ "$version" =~ ^v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]
+          echo "value=$version" >> "$GITHUB_OUTPUT"
       - name: Test
         run: go test ./...
       - name: Build
         run: |
-          mkdir -p dist/InventoryApp
-          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/InventoryApp/InventoryApp.exe .
-          cd dist && zip -r InventoryApp-windows.zip InventoryApp
+          mkdir -p "dist/Inventory Management System"
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Inventory Management System/Inventory Management System.exe" .
+          cd dist && zip -r InventoryManagementSystem-windows.zip "Inventory Management System"
       - uses: actions/upload-artifact@v4
         with:
-          name: InventoryApp-windows
-          path: dist/InventoryApp
+          name: InventoryManagementSystem-windows
+          path: dist/Inventory Management System
       - name: Move the "latest" tag to this commit
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
@@ -38,7 +44,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: Latest version
-          body: Download InventoryApp-windows.zip, unzip it anywhere (for example a USB stick) and run InventoryApp.exe.
-          files: dist/InventoryApp-windows.zip
-          make_latest: true
+          name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
+          body: Early development release. Download InventoryManagementSystem-windows.zip, unzip it anywhere (for example a USB stick) and run Inventory Management System.exe.
+          files: dist/InventoryManagementSystem-windows.zip
+          prerelease: true
+          make_latest: false

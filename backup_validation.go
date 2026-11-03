@@ -119,7 +119,7 @@ func readBackup(name, extractTo string) (DB, backupManifest, error) {
 	}
 	metadata := files["manifest.json"]
 	if metadata == nil {
-		return db, manifest, fmt.Errorf("not an Inventory app backup: missing manifest")
+		return db, manifest, fmt.Errorf("not an %s backup: missing manifest", appName)
 	}
 	source, err := metadata.Open()
 	if err != nil {

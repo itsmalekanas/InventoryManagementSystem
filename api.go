@@ -169,7 +169,7 @@ func (s *Store) mutateWithOutcome(w http.ResponseWriter, r *http.Request, fn fun
 func (s *Store) payloadLocked() map[string]any {
 	abs, _ := filepath.Abs(s.dir)
 	year := time.Now().Year()
-	return map[string]any{"db": s.db, "dataDir": abs, "generation": s.generation, "numbering": map[string]any{
+	return map[string]any{"db": s.db, "dataDir": abs, "generation": s.generation, "version": appVersion, "numbering": map[string]any{
 		"year": year, "nextNumber": s.db.YearCounters[fmt.Sprint(year)] + 1,
 	}}
 }
@@ -181,7 +181,7 @@ func (s *Store) routes(mux *http.ServeMux) {
 			backupError(w, err)
 			return
 		}
-		writeJSON(w, http.StatusOK, instanceIdentity{App: appID, DataDir: s.dir, BuildID: build})
+		writeJSON(w, http.StatusOK, instanceIdentity{App: appID, DataDir: s.dir, BuildID: build, Version: appVersion})
 	})
 
 	mux.HandleFunc("GET /api/data", func(w http.ResponseWriter, r *http.Request) {
@@ -358,14 +358,14 @@ type saleRequest struct {
 		Address string `json:"address"`
 	} `json:"customer"`
 	Items []struct {
-		ProductID string `json:"productId"`
-		Qty       int64  `json:"qty"`
+		ProductID   string `json:"productId"`
+		Qty         int64  `json:"qty"`
+		CustomPrice *int64 `json:"customPrice,omitempty"`
 	} `json:"items"`
 }
 
 // createSale is the only place that changes stock for a sale. Prices and
-// totals are worked out here from the saved products, never taken from the
-// browser, so an invoice always matches the inventory.
+// totals are calculated here using the saved price or a validated unit override.
 func (s *Store) createSale(w http.ResponseWriter, r *http.Request) {
 	var in saleRequest
 	if err := readJSON(r, &in); err != nil {
@@ -406,22 +406,44 @@ func (s *Store) createSale(w http.ResponseWriter, r *http.Request) {
 			return bad("err.badRequest")
 		}
 
-		// Add up repeated lines of the same product, keeping the order.
-		qty := map[string]int64{}
-		order := []string{}
+		// Merge matching product/price lines while checking stock across all prices.
+		type saleLine struct {
+			productID string
+			price     int64
+		}
+		qty := map[saleLine]int64{}
+		stockQty := map[string]int64{}
+		order := []saleLine{}
+		index := map[string]int{}
+		for i, p := range db.Products {
+			index[p.ID] = i
+		}
 		for _, it := range in.Items {
 			if it.Qty < 1 || it.Qty > maxQty {
 				return bad("err.badQty")
 			}
-			if _, ok := qty[it.ProductID]; !ok {
-				order = append(order, it.ProductID)
+			i, ok := index[it.ProductID]
+			if !ok {
+				return bad("err.productGone")
 			}
-			qty[it.ProductID] += it.Qty
+			price := db.Products[i].Price
+			if it.CustomPrice != nil {
+				price = *it.CustomPrice
+				if price < 0 || price > maxPrice {
+					return bad("err.badPrice")
+				}
+			}
+			key := saleLine{it.ProductID, price}
+			if _, ok := qty[key]; !ok {
+				order = append(order, key)
+			}
+			qty[key] += it.Qty
+			stockQty[it.ProductID] += it.Qty
 		}
-
-		index := map[string]int{}
-		for i, p := range db.Products {
-			index[p.ID] = i
+		for pid, q := range stockQty {
+			if q > db.Products[index[pid]].Stock {
+				return &apiError{http.StatusConflict, "err.notEnoughStock"}
+			}
 		}
 		when := time.Now()
 		if in.InvoiceNumber != nil {
@@ -438,17 +460,17 @@ func (s *Store) createSale(w http.ResponseWriter, r *http.Request) {
 		inv := Invoice{ID: newID(), Number: db.NextInvoice, Date: when.Format(time.RFC3339), Items: []InvoiceItem{}}
 		// Taken here; if the sale is refused below, mutate rolls it back.
 		inv.Code, inv.Year, inv.Seq = db.nextCode(when)
-		for _, pid := range order {
-			i, ok := index[pid]
+		for _, key := range order {
+			i, ok := index[key.productID]
 			if !ok {
 				return bad("err.productGone")
 			}
 			p := &db.Products[i]
-			q := qty[pid]
+			q := qty[key]
 			if q > p.Stock {
 				return &apiError{http.StatusConflict, "err.notEnoughStock"}
 			}
-			line := InvoiceItem{ProductID: p.ID, Name: p.Name, Price: p.Price, Qty: q, Total: p.Price * q}
+			line := InvoiceItem{ProductID: p.ID, Name: p.Name, Price: key.price, Qty: q, Total: key.price * q}
 			inv.Items = append(inv.Items, line)
 			inv.Total += line.Total
 			// Keep totals far below the largest whole number a browser can

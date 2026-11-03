@@ -22,6 +22,8 @@ On Windows with Chrome installed, build the app and run:
 
 ```text
 node tests/browser-regression.cjs
+node tests/browser-backup.cjs
+powershell -NoProfile -File tests/tray-smoke.ps1
 ```
 
 An alternate executable can be supplied as the first argument, or through
@@ -33,8 +35,17 @@ profile. It tests English/Arabic number input, invalid form values, lost checkou
 responses, original-invoice selection when newer sales exist, recovery after
 reload, cancellation and late requests, independent app folders, repeated app
 launches, and all four invoice date/time combinations in preview, print and PDF.
+It also checks the product name/version and fixed language/theme controls on
+desktop and mobile layouts in English and Arabic.
 It stops only the test processes it started. Artifacts remain in the reported
 temporary folder for inspection. It never opens or imports the shop's real data.
+
+The backup browser test runs two isolated shops and checks ZIP download,
+preview/cancel, complete Arabic data and image transfer, stale-tab protection,
+restart persistence, damaged-file rejection, and undo using the recovery ZIP.
+The PowerShell tray test checks the hidden console, name/version, menu, repeated
+launches, and finishing an active save on Exit. Both use synthetic temporary
+data. The tray test uses the default executable in `dist`.
 
 Old data compatibility means existing products, stock, prices, customers and
 invoice snapshots continue to load. New optional settings get explicit defaults;

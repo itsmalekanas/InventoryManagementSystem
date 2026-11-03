@@ -18,4 +18,4 @@ func serveDesktop(server *http.Server, ln net.Listener, url string) error {
 
 func prepareBrowserCommand(cmd *exec.Cmd) {}
 
-func showAppError(err error) { fmt.Fprintln(os.Stderr, "Inventory app:", err) }
+func showAppError(err error) { fmt.Fprintln(os.Stderr, appName+" "+appVersion+":", err) }

@@ -1,4 +1,4 @@
-// Inventory is a small, portable inventory and sales app for a shop.
+// Inventory Management System is a small, portable inventory and sales app for a shop.
 //
 // It is one program file. When started it serves the web pages on this
 // computer only (127.0.0.1), opens the browser, and keeps all data in a
@@ -28,7 +28,16 @@ import (
 	"time"
 )
 
+// Keep this identifier stable for existing backups and instance detection.
 const appID = "inventory-app"
+const appName = "Inventory Management System"
+
+// Application release version, separate from the database/backup format.
+//
+//go:embed VERSION
+var versionFile string
+
+var appVersion = strings.TrimSpace(versionFile)
 
 //go:embed web
 var webFiles embed.FS
@@ -38,7 +47,12 @@ func main() {
 	dataFlag := flag.String("data", "", "data folder (default: \"data\" next to the program)")
 	noBrowser := flag.Bool("no-browser", false, "do not open the browser")
 	noTray := flag.Bool("no-tray", false, "run in the foreground without a tray icon")
+	version := flag.Bool("version", false, "show the app version and exit")
 	flag.Parse()
+	if *version {
+		fmt.Println(appName + " " + appVersion)
+		return
+	}
 
 	dataDir := *dataFlag
 	if dataDir == "" {
@@ -96,7 +110,7 @@ func main() {
 	}))
 
 	fmt.Println("==============================================")
-	fmt.Println(" Inventory app is running")
+	fmt.Println(" " + appName + " " + appVersion + " is running")
 	fmt.Println(" Open:  ", url)
 	fmt.Println(" Data:  ", dataDir)
 	fmt.Println(" Use the tray menu to open or exit the app on Windows.")
@@ -186,6 +200,7 @@ type instanceIdentity struct {
 	App     string `json:"app"`
 	DataDir string `json:"dataDir"`
 	BuildID string `json:"buildId"`
+	Version string `json:"version,omitempty"`
 }
 
 var buildIdentityOnce sync.Once
@@ -241,7 +256,7 @@ func runningURL(port int, dataDir, buildID string) (string, error) {
 			continue
 		}
 		if identity.DataDir == "" || identity.BuildID == "" {
-			return "", fmt.Errorf("an older Inventory app is running on port %d; exit it from its tray menu (or close its console window), then start this copy again", p)
+			return "", fmt.Errorf("an older version of %s is running on port %d; exit it from its tray menu (or close its console window), then start this copy again", appName, p)
 		}
 		same := filepath.Clean(identity.DataDir) == filepath.Clean(dataDir)
 		if runtime.GOOS == "windows" {

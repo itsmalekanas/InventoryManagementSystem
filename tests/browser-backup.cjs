@@ -5,7 +5,7 @@ const net = require('node:net');
 const { spawn } = require('node:child_process');
 const assert = require('node:assert/strict');
 const artifacts=fs.mkdtempSync(path.join(os.tmpdir(),'inventory-backup-e2e-'));
-const executable=path.resolve(process.argv[2]||process.env.INVENTORY_TEST_EXE||path.join(__dirname,'../dist/Inventory Management System.exe'));
+const executable=path.resolve(process.argv[2]||process.env.INVENTORY_TEST_EXE||require('./executable.cjs'));
 const processes=[];let chrome,socket;
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn,timeout=30000){const start=Date.now();while(Date.now()-start<timeout){const value=await fn();if(value)return value;await pause(70);}throw new Error('Timed out');}

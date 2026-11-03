@@ -7,7 +7,8 @@ $copiedData = Join-Path $testRoot 'data'
 New-Item -ItemType Directory -Path $copiedData | Out-Null
 [System.IO.File]::WriteAllText((Join-Path $copiedData 'db.json'), '{"version":1,"nextInvoice":1,"settings":{},"products":[],"customers":[],"invoices":[]}', [System.Text.UTF8Encoding]::new($false))
 $beforeHash = (Get-FileHash -LiteralPath (Join-Path $copiedData 'db.json')).Hash
-$executable = if ($ExecutablePath) { [System.IO.Path]::GetFullPath($ExecutablePath) } else { Join-Path $projectRoot 'dist\Inventory Management System.exe' }
+$packageVersion = ([System.IO.File]::ReadAllText((Join-Path $projectRoot 'VERSION'))).Trim()
+$executable = if ($ExecutablePath) { [System.IO.Path]::GetFullPath($ExecutablePath) } else { Join-Path $projectRoot ('dist\Inventory Management System ' + $packageVersion + '\Inventory Management System ' + $packageVersion + '.exe') }
 $bytes = [IO.File]::ReadAllBytes($executable)
 $peOffset = [BitConverter]::ToInt32($bytes, 0x3c)
 $subsystem = [BitConverter]::ToUInt16($bytes, $peOffset + 24 + 68)

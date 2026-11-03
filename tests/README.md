@@ -49,7 +49,7 @@ preview/cancel, complete Arabic data and image transfer, stale-tab protection,
 restart persistence, damaged-file rejection, and undo using the recovery ZIP.
 The PowerShell tray test checks the hidden console, name/version, menu, repeated
 launches, and finishing an active save on Exit. Both use synthetic temporary
-data. The tray test uses the default executable in `dist`.
+data. Tests find the versioned folder and executable in `dist` using `VERSION`.
 
 The finance checks cover default-off cost tracking, unknown and zero costs,
 historical cost snapshots, partial/full returns, refund dates, and custom sale

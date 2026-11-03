@@ -42,20 +42,22 @@ jobs:
       - name: Build
         run: |
           go run github.com/akavel/rsrc@v0.10.2 -ico assets/app.ico -o rsrc_windows_amd64.syso
-          mkdir -p "dist/Inventory Management System"
-          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/Inventory Management System/Inventory Management System.exe" .
-          cd dist && zip -r InventoryManagementSystem-windows.zip "Inventory Management System"
+          version="${{ steps.version.outputs.value }}"
+          folder="Inventory Management System $version"
+          mkdir -p "dist/$folder"
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/$folder/$folder.exe" .
+          cd dist && zip -r "InventoryManagementSystem-$version-windows.zip" "$folder"
       - uses: actions/upload-artifact@v4
         with:
-          name: InventoryManagementSystem-windows
-          path: dist/Inventory Management System
+          name: InventoryManagementSystem-${{ steps.version.outputs.value }}-windows
+          path: dist/Inventory Management System ${{ steps.version.outputs.value }}
       - name: Publish versioned download
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
-          body: Early development release. Download InventoryManagementSystem-windows.zip, unzip it anywhere (for example a USB stick) and run Inventory Management System.exe.
-          files: dist/InventoryManagementSystem-windows.zip
+          body: Download InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip, extract it, and run Inventory Management System ${{ steps.version.outputs.value }}.exe inside the matching versioned folder. To keep an existing shop, close the old app and copy its complete data folder beside the new executable.
+          files: dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip
           prerelease: false
           make_latest: true

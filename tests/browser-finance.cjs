@@ -2,7 +2,7 @@
 const fs = require('node:fs'), path = require('node:path'), os = require('node:os'), net = require('node:net');
 const { spawn } = require('node:child_process');
 const assert = require('node:assert/strict');
-const exe = path.resolve(process.argv[2] || process.env.INVENTORY_TEST_EXE || path.join(__dirname, '../dist/Inventory Management System.exe'));
+const exe = path.resolve(process.argv[2] || process.env.INVENTORY_TEST_EXE || require('./executable.cjs'));
 const artifacts = fs.mkdtempSync(path.join(os.tmpdir(), 'inventory-finance-'));
 const children = [];
 let socket;

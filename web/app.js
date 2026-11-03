@@ -18,7 +18,7 @@ const I18N = {
     exitLabel: 'Exit',
     exitApp: 'Exit app', exitConfirm: 'Exit the software? Active saves will finish before it closes. Unsaved edits and the current cart will be discarded. Other open tabs for this app will disconnect.',
     appClosing: 'Closing app…', appClosingHelp: 'Waiting for active saves and transfers to finish. Please keep this page open.',
-    appClosed: 'App closed', appClosedHelp: 'Saved data is safe. You can close this browser tab. To use the app again, start Inventory Management System.exe.',
+    appClosed: 'App closed', appClosedHelp: 'Saved data is safe. You can close this browser tab. To use the app again, start the executable in your app folder.',
     exitBusy: 'Finish the current transfer or resolve the pending checkout before exiting.',
     exitUncertain: 'The connection was lost while exiting. Check whether the tray icon has disappeared. Start the executable again when you want to reopen the app.',
     'err.exiting': 'The app is closing. Please wait for active saves to finish.',
@@ -144,7 +144,7 @@ const I18N = {
     exitLabel: 'خروج',
     exitApp: 'إغلاق البرنامج', exitConfirm: 'هل تريد إغلاق البرنامج؟ ستكتمل عمليات الحفظ الجارية أولاً. ستُفقد التعديلات غير المحفوظة والسلة الحالية. ستنقطع بقية الصفحات المفتوحة لهذا البرنامج.',
     appClosing: 'جارٍ إغلاق البرنامج…', appClosingHelp: 'بانتظار اكتمال عمليات الحفظ والنقل الجارية. يرجى إبقاء هذه الصفحة مفتوحة.',
-    appClosed: 'تم إغلاق البرنامج', appClosedHelp: 'البيانات المحفوظة بأمان. يمكنك إغلاق هذه الصفحة. لاستخدام البرنامج مجدداً شغّل Inventory Management System.exe.',
+    appClosed: 'تم إغلاق البرنامج', appClosedHelp: 'البيانات المحفوظة بأمان. يمكنك إغلاق هذه الصفحة. لاستخدام البرنامج مجدداً شغّل الملف التنفيذي من مجلد البرنامج.',
     exitBusy: 'أكمل عملية النقل الحالية أو تأكيد البيع المعلّق قبل الإغلاق.',
     exitUncertain: 'انقطع الاتصال أثناء الإغلاق. تحقق من اختفاء أيقونة البرنامج بجانب الساعة. شغّل البرنامج مجدداً عندما تريد فتحه.',
     'err.exiting': 'البرنامج قيد الإغلاق. يرجى انتظار اكتمال الحفظ.',
@@ -596,7 +596,7 @@ function renderHome() {
         </div>
       </div>
       <div class="tiles">
-        ${tile('#/pos', 'bi-cart-plus', '#D46A55', t('pos'), esc(t('posSub')))}
+        ${tile('#/pos', 'bi-cart-plus', '#E45B35', t('pos'), esc(t('posSub')))}
         ${tile('#/products', 'bi-box-seam', '#377DCE', t('products'), esc(t('productsSub', { n: int(products.length), low: int(low) })))}
         ${tile('#/customers', 'bi-people', '#8864C8', t('customers'), esc(t('customersSub', { n: int(customers.length) })))}
         ${tile('#/invoices', 'bi-receipt', '#C88719', t('invoices'), esc(t('invoicesSub', { n: int(invoices.length) })))}

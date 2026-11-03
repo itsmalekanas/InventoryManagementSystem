@@ -2,7 +2,7 @@
 // All shop data and browser profiles are isolated in a temporary directory.
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),net=require('node:net');
 const {spawn}=require('node:child_process');const assert=require('node:assert/strict');
-const exe=path.resolve(process.argv[2]||process.env.INVENTORY_TEST_EXE||path.resolve(__dirname,'../dist/Inventory Management System.exe'));
+const exe=path.resolve(process.argv[2]||process.env.INVENTORY_TEST_EXE||require('./executable.cjs'));
 const chromeExe=process.env.CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const artifacts=fs.mkdtempSync(path.join(os.tmpdir(),'inventory-regression-'));
 const children=[];let chrome,socket;

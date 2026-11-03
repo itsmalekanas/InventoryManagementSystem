@@ -1,0 +1,44 @@
+name: Build portable app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Test
+        run: go test ./...
+      - name: Build
+        run: |
+          mkdir -p dist/InventoryApp
+          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/InventoryApp/InventoryApp.exe .
+          cd dist && zip -r InventoryApp-windows.zip InventoryApp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InventoryApp-windows
+          path: dist/InventoryApp
+      - name: Move the "latest" tag to this commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git tag -f latest
+          git push -f origin latest
+      - name: Publish the "latest" download
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest version
+          body: Download InventoryApp-windows.zip, unzip it anywhere (for example a USB stick) and run InventoryApp.exe.
+          files: dist/InventoryApp-windows.zip
+          make_latest: true

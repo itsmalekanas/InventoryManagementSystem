@@ -1,0 +1,11 @@
+# App data created when the app runs
+data/
+data-recovery/
+.data.lock
+.data-import-*/
+.data-previous-*/
+.data-import.json
+
+# Build output
+dist/
+*.exe

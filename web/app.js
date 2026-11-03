@@ -7,10 +7,11 @@
 
 const I18N = {
   en: {
+    colorHue: 'Hue', colorSaturation: 'Saturation', colorBrightness: 'Brightness', colorHex: 'Hex color', 'err.badColor': 'Enter a valid hex color, for example #A6E3E1.',
     customHeaderColor: 'Custom color',
     inventoryProductCount: 'Products', inventoryPieceCount: 'Pieces in stock', inventoryShowing: 'Showing {n} of {total} products · {pieces} pieces in stock',
     headerPresets: 'Header color presets', presetMint: 'Mint', presetPurple: 'Purple', presetSlate: 'Slate', presetBlue: 'Blue', presetGreen: 'Green', presetCharcoal: 'Charcoal',
-    topbarTheme: 'Page header', topbarColor: 'Header background color', topbarHint: 'Applies to subpages. Text adjusts automatically for readability. Invoice colors are separate.', resetTopbar: 'Reset header color',
+    topbarTheme: 'App colors', topbarColor: 'Header and action button color', topbarHint: 'Themes page headers and primary buttons. Text adjusts automatically for readability. Invoice colors are separate.', resetTopbar: 'Reset app color',
     sortInventory: 'Sort inventory', sortNameAsc: 'Name: A–Z', sortNameDesc: 'Name: Z–A',
     sortPriceAsc: 'Price: low to high', sortPriceDesc: 'Price: high to low', sortStockAsc: 'Stock: low to high', sortStockDesc: 'Stock: high to low', sortNewest: 'Date added: new to old', sortOldest: 'Date added: old to new',
     exitLabel: 'Exit',
@@ -131,10 +132,11 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    colorHue: 'درجة اللون', colorSaturation: 'التشبع', colorBrightness: 'السطوع', colorHex: 'رمز اللون', 'err.badColor': 'أدخل رمز لون صحيحاً، مثل #A6E3E1.',
     customHeaderColor: 'لون مخصص',
     inventoryProductCount: 'عدد المنتجات', inventoryPieceCount: 'القطع في المخزون', inventoryShowing: 'عرض {n} من أصل {total} منتج · {pieces} قطعة في المخزون',
     headerPresets: 'ألوان جاهزة لشريط العنوان', presetMint: 'نعناعي', presetPurple: 'بنفسجي', presetSlate: 'رمادي مزرق', presetBlue: 'أزرق', presetGreen: 'أخضر', presetCharcoal: 'فحمي',
-    topbarTheme: 'شريط عنوان الصفحات', topbarColor: 'لون خلفية شريط العنوان', topbarHint: 'يُطبق على الصفحات الداخلية. يتكيف لون النص تلقائياً للوضوح. ألوان الفاتورة مستقلة.', resetTopbar: 'استعادة اللون الافتراضي',
+    topbarTheme: 'ألوان التطبيق', topbarColor: 'لون شريط العنوان وأزرار الإجراءات', topbarHint: 'يطبق اللون على أشرطة العنوان والأزرار الرئيسية. يتكيف النص تلقائياً للوضوح. ألوان الفاتورة مستقلة.', resetTopbar: 'استعادة اللون الافتراضي',
     sortInventory: 'ترتيب المخزون', sortNameAsc: 'الاسم: تصاعدياً', sortNameDesc: 'الاسم: تنازلياً',
     sortPriceAsc: 'السعر: من الأقل إلى الأعلى', sortPriceDesc: 'السعر: من الأعلى إلى الأقل', sortStockAsc: 'المخزون: من الأقل إلى الأعلى', sortStockDesc: 'المخزون: من الأعلى إلى الأقل', sortNewest: 'تاريخ الإضافة: من الأحدث إلى الأقدم', sortOldest: 'تاريخ الإضافة: من الأقدم إلى الأحدث',
     exitLabel: 'خروج',
@@ -423,6 +425,7 @@ function confirmBox(message, okText, danger = true) {
 function applyTheme() {
   const theme = state.db.settings.theme === 'dark' ? 'dark' : 'light';
   document.documentElement.dataset.bsTheme = theme;
+  applyAccent(state.db.settings);
   try { localStorage.setItem('inventory-theme', theme); } catch (err) { /* optional first-paint cache */ }
 }
 
@@ -443,15 +446,32 @@ function applyLang() {
   applyTheme();
 }
 
-function topbarStyle(settings) {
-  const color = safeColor(settings.topbarColor, '#714b67');
+function contrastInk(color) {
   const luminance = hex => {
     const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
     return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
   };
   const light = luminance(color);
-  const ink = (light + 0.05) / (luminance('#171b22') + 0.05) > 1.05 / (light + 0.05) ? '#171b22' : '#ffffff';
-  return `--topbar-bg:${color};--topbar-ink:${ink}`;
+  return (light + 0.05) / (luminance('#171b22') + 0.05) > 1.05 / (light + 0.05) ? '#171b22' : '#ffffff';
+}
+
+function applyAccent(settings) {
+  const color = safeColor(settings.topbarColor, '#714b67');
+  const ink = contrastInk(color);
+  const hover = '#' + [1, 3, 5].map(i => {
+    const value = parseInt(color.slice(i, i + 2), 16);
+    return Math.round(ink === '#ffffff' ? value + (255 - value) * 0.12 : value * 0.9).toString(16).padStart(2, '0');
+  }).join('');
+  const root = document.documentElement.style;
+  root.setProperty('--brand-solid', color);
+  root.setProperty('--brand-button-ink', ink);
+  root.setProperty('--brand-hover', hover);
+  root.setProperty('--brand-hover-ink', contrastInk(hover));
+}
+
+function topbarStyle(settings) {
+  const color = safeColor(settings.topbarColor, '#714b67');
+  return `--topbar-bg:${color};--topbar-ink:${contrastInk(color)}`;
 }
 
 function topbar(title, extra = '') {
@@ -487,6 +507,7 @@ const routes = {
 
 function route() {
   if (state.exiting) return;
+  applyAccent(state.db.settings);
   const parts = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
   const fn = routes[parts[0]] || renderHome;
   $('#page-style').textContent = '';
@@ -1590,6 +1611,9 @@ function renderReports() {
 /* ---------------- settings ---------------- */
 
 function renderSettings() {
+  const pickerHtml = (name, value, label) => InventoryColorPicker.html(name, safeColor(value, '#714b67'), esc(label), {
+    hue: esc(t('colorHue')), saturation: esc(t('colorSaturation')), brightness: esc(t('colorBrightness')), hex: esc(t('colorHex')),
+  });
   const headerPresets = [['#a6e3e1', 'presetMint'], ['#714b67', 'presetPurple'], ['#334155', 'presetSlate'], ['#245a81', 'presetBlue'], ['#28634c', 'presetGreen'], ['#353a43', 'presetCharcoal']];
   const saved = JSON.stringify(state.db.settings);
   const d = JSON.parse(saved); // draft
@@ -1604,9 +1628,9 @@ function renderSettings() {
             <h5 class="mb-3">${t('general')}</h5>
             <fieldset class="mb-4">
               <legend class="h6">${t('topbarTheme')}</legend>
-              <label class="form-label" for="sf-topbar-color">${t('topbarColor')}</label>
-              <div class="d-flex align-items-center gap-2">
-                <input type="color" class="form-control form-control-color" id="sf-topbar-color" name="topbarColor" value="${safeColor(d.topbarColor, '#714b67')}">
+              <div class="form-label">${t('topbarColor')}</div>
+              <div class="app-color-control">
+                ${pickerHtml('topbarColor', d.topbarColor, t('topbarColor'))}
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="sf-topbar-reset">${t('resetTopbar')}</button>
               </div>
               <div class="form-text">${t('topbarHint')}</div>
@@ -1657,9 +1681,9 @@ function renderSettings() {
               <label class="form-check-label" for="sf-time">${t('showTime')}</label></div>
             <div class="row g-3 mb-3">
               <div class="col-6"><label class="form-label">${t('accentColor')}</label>
-                <input type="color" class="form-control form-control-color w-100" name="accentColor" value="${esc(d.accentColor)}"></div>
+                ${pickerHtml('accentColor', d.accentColor, t('accentColor'))}</div>
               <div class="col-6"><label class="form-label">${t('rowColor')}</label>
-                <input type="color" class="form-control form-control-color w-100" name="rowColor" value="${esc(d.rowColor)}"></div>
+                ${pickerHtml('rowColor', d.rowColor, t('rowColor'))}</div>
             </div>
             <div class="mb-3"><label class="form-label">${t('invoiceTitle')}</label>
               <input class="form-control" name="invoiceTitle" maxlength="100" dir="auto" placeholder="${esc(t('invoiceTitlePh'))}" value="${esc(d.invoiceTitle)}"></div>
@@ -1698,9 +1722,12 @@ function renderSettings() {
     ],
     total: 84500, // 50,000 + 22,500 + 12,000
   };
+  let colorPickers = {};
   const preview = () => {
     $('#sf-preview').innerHTML = invoiceHtml(sample, d);
     $('.topbar').style.cssText = topbarStyle(d);
+    applyAccent(d);
+    Object.values(colorPickers).forEach(picker => picker.sync());
     $$('[data-header-color]').forEach(button => {
       const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();
       button.classList.toggle('active', selected);
@@ -1738,16 +1765,16 @@ function renderSettings() {
   };
   f.oninput = read;
   f.onchange = read;
-  $('#sf-topbar-reset').onclick = () => { f.topbarColor.value = '#714b67'; read(); };
-  $$('[data-header-color]').forEach(button => { button.onclick = () => { f.topbarColor.value = button.dataset.headerColor; read(); }; });
+  colorPickers = InventoryColorPicker.mount(f);
+  $('#sf-topbar-reset').onclick = () => { f.topbarColor.value = '#714b67'; colorPickers.topbarColor.sync(true); read(); };
+  $$('[data-header-color]').forEach(button => { button.onclick = () => { f.topbarColor.value = button.dataset.headerColor; colorPickers.topbarColor.sync(true); read(); }; });
   $('#sf-topbar-custom').onclick = () => {
-    const picker = f.topbarColor;
-    picker.focus();
-    if (typeof picker.showPicker === 'function') picker.showPicker();
-    else picker.click();
+    colorPickers.topbarColor.focus();
   };
   f.onsubmit = async e => {
     e.preventDefault();
+    const invalidColor = $('.color-picker-hex[aria-invalid="true"]', f);
+    if (invalidColor) { invalidColor.focus(); return toast(t('err.badColor'), true); }
     read();
     const low = parseWhole(f.lowStock.value);
     if (isNaN(low) || low > 1e6) { f.lowStock.focus(); return toast(t('err.badStock'), true); }

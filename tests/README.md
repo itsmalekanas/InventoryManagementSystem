@@ -17,6 +17,7 @@ Node 22+ runs the input validation tests without packages or installation:
 ```text
 node --test tests/numbers.test.cjs
 node --test tests/finance.test.cjs
+node --test tests/color-picker.test.cjs
 ```
 
 On Windows with Chrome installed, build the app and run:

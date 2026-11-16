@@ -57,6 +57,22 @@ async function api(url,endpoint,body,method='POST'){
   await input('#pf [name=price]','٢٥٬٠٠٠');await input('#pf [name=stock]','-2');await click('#pf-save');assert.equal((await data(url)).db.products.length,1);
   await input('#pf [name=stock]','٢');await click('#pf-save');await until(async()=>(await data(url)).db.products.length===2);await until(()=>evaluate('!document.querySelector("#modal").classList.contains("show")'));await pause(200);
   await go('#/settings','#sf');await input('#sf [name=lowStock]','12.5');await click('#sf-save');assert.equal((await data(url)).db.settings.lowStock,5);
+  await input('#a4-margin','20');await input('#a4-fontSize','18');await input('#a4-font','serif','change');await input('#a4-headerAlign','end','change');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontSize'),'18px');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-head-text")).textAlign'),'end');
+  assert.ok(await evaluate('pageCss(state.db.settings).includes("12mm")'));
+  await input('#sf [name=lowStock]','5');await click('#sf-save');
+  await until(async()=>(await data(url)).db.settings.a4Layout?.margin===20);
+  await go('#/settings','#sf');assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
+  assert.ok(await evaluate('pageCss(state.db.settings).includes("20mm")'));
+  await evaluate('document.querySelector("#sf-preview .invoice").classList.add("pdf-page")');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).paddingTop'),'0px');
+  await c('Emulation.setEmulatedMedia',{media:'print'});
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).paddingTop'),'0px');
+  await c('Emulation.setEmulatedMedia',{media:''});
+  await evaluate('document.querySelector("#sf-preview .invoice").classList.remove("pdf-page")');
+  await evaluate('downloadInvoicePdf(state.db.invoices[0], state.db.settings)');
+  await click('#sf-a4-reset');await click('#sf-save');await until(async()=>!(await data(url)).db.settings.a4Layout);
   await evaluate('leaveGuard=null');
   await go('#/pos','#sale-btn');await evaluate(`document.querySelector('.pcard[data-id="${product}"]').click()`);await input('#c-name','Browser buyer');await input('.cart-line .qty','-1','change');assert.equal(await evaluate('!!document.querySelector(".qty.is-invalid")'),true);await click('#sale-btn');assert.equal((await data(url)).db.invoices.length,1);await input('.cart-line .qty','٢','change');
   // Price edits affect this line only, support gifts, and can be reset.

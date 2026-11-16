@@ -31,6 +31,14 @@ The home page is a grid with the main parts of the system:
 
 ## Optional costs, profit and returns
 
+For A4 invoices, Settings includes **A4 layout and branding**: page margins,
+font style and size, store-name and title sizes, header/footer text alignment,
+and spacing. Changes appear in the live preview and apply to printing and PDF
+downloads. Logo size/position and header/footer text remain available above
+these controls. **Reset A4 layout** restores the original design. Receipt
+layouts are unaffected. Fonts use those installed on the computer, so their
+appearance can vary between computers. Layout settings are included in backups.
+
 Settings also includes **App colors** with presets, a custom inline color
 picker, live preview and a reset button. One accent themes headers, primary
 buttons, product prices, links, selection highlights and form

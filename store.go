@@ -70,25 +70,50 @@ type SaleReceipt struct {
 }
 
 type Settings struct {
-	TopbarColor   string `json:"topbarColor,omitempty"`
-	TrackProfit   bool   `json:"trackProfit,omitempty"`
-	Theme         string `json:"theme"`    // "light" or "dark"
-	Language      string `json:"language"` // "en" or "ar"
-	StoreName     string `json:"storeName"`
-	ShowStoreName bool   `json:"showStoreName"`
-	Logo          string `json:"logo"`      // file name inside data/images
-	LogoSize      int    `json:"logoSize"`  // logo height on the invoice, in px
-	LogoAlign     string `json:"logoAlign"` // "start", "center" or "end"
-	InvoiceTitle  string `json:"invoiceTitle"`
-	Header        string `json:"header"`
-	Footer        string `json:"footer"`
-	Paper         string `json:"paper"`       // "a4" or "receipt" (80 mm)
-	LowStock      int64  `json:"lowStock"`    // warn when stock is at or below this
-	AccentColor   string `json:"accentColor"` // text accent on the invoice, "#rrggbb"
-	RowColor      string `json:"rowColor"`    // fill of the even table rows on A4, "#rrggbb"
-	ShowPaid      bool   `json:"showPaid"`    // print "PAID" under the total
-	ShowDate      bool   `json:"showDate"`
-	ShowTime      bool   `json:"showTime"`
+	A4Layout      *A4Layout `json:"a4Layout,omitempty"`
+	TopbarColor   string    `json:"topbarColor,omitempty"`
+	TrackProfit   bool      `json:"trackProfit,omitempty"`
+	Theme         string    `json:"theme"`    // "light" or "dark"
+	Language      string    `json:"language"` // "en" or "ar"
+	StoreName     string    `json:"storeName"`
+	ShowStoreName bool      `json:"showStoreName"`
+	Logo          string    `json:"logo"`      // file name inside data/images
+	LogoSize      int       `json:"logoSize"`  // logo height on the invoice, in px
+	LogoAlign     string    `json:"logoAlign"` // "start", "center" or "end"
+	InvoiceTitle  string    `json:"invoiceTitle"`
+	Header        string    `json:"header"`
+	Footer        string    `json:"footer"`
+	Paper         string    `json:"paper"`       // "a4" or "receipt" (80 mm)
+	LowStock      int64     `json:"lowStock"`    // warn when stock is at or below this
+	AccentColor   string    `json:"accentColor"` // text accent on the invoice, "#rrggbb"
+	RowColor      string    `json:"rowColor"`    // fill of the even table rows on A4, "#rrggbb"
+	ShowPaid      bool      `json:"showPaid"`    // print "PAID" under the total
+	ShowDate      bool      `json:"showDate"`
+	ShowTime      bool      `json:"showTime"`
+}
+
+// Optional so older databases retain their original settings unchanged.
+type A4Layout struct {
+	Margin      int    `json:"margin"`
+	Font        string `json:"font"`
+	FontSize    int    `json:"fontSize"`
+	StoreSize   int    `json:"storeSize"`
+	TitleSize   int    `json:"titleSize"`
+	HeaderAlign string `json:"headerAlign"`
+	FooterAlign string `json:"footerAlign"`
+	HeaderGap   int    `json:"headerGap"`
+	FooterGap   int    `json:"footerGap"`
+}
+
+func validA4Layout(v *A4Layout) bool {
+	if v == nil {
+		return true
+	}
+	align := func(s string) bool { return s == "start" || s == "center" || s == "end" }
+	return v.Margin >= 5 && v.Margin <= 30 && v.FontSize >= 10 && v.FontSize <= 22 &&
+		v.StoreSize >= 14 && v.StoreSize <= 40 && v.TitleSize >= 14 && v.TitleSize <= 36 &&
+		v.HeaderGap >= 0 && v.HeaderGap <= 48 && v.FooterGap >= 0 && v.FooterGap <= 48 &&
+		(v.Font == "system" || v.Font == "sans" || v.Font == "serif") && align(v.HeaderAlign) && align(v.FooterAlign)
 }
 
 type DB struct {

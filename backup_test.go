@@ -127,6 +127,7 @@ func populateBackupSource(t *testing.T) (*httptest.Server, *Store, string) {
 	product.Name, product.Price = "عطر ورد جديد", 30000
 	call(t, srv, "POST", "/api/products", product)
 	settings := defaultSettings()
+	settings.A4Layout = &A4Layout{Margin: 20, Font: "sans", FontSize: 18, StoreSize: 30, TitleSize: 24, HeaderAlign: "end", FooterAlign: "start", HeaderGap: 12, FooterGap: 30}
 	settings.Theme = "dark"
 	settings.Language, settings.StoreName, settings.Logo = "ar", "متجر الورد", logo.Name
 	settings.Header, settings.Footer, settings.AccentColor, settings.LogoAlign = "بغداد\n0770 123 4567", "شكراً لزيارتكم", "#123456", "end"

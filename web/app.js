@@ -7,6 +7,10 @@
 
 const I18N = {
   en: {
+    a4Layout: 'A4 layout and branding', a4Hint: 'Applies to A4 preview, printing and PDF. Fonts use those available on this computer.',
+    a4Margin: 'Page margin (mm)', a4Font: 'Font style', a4System: 'App default', a4Sans: 'Sans serif', a4Serif: 'Serif',
+    a4FontSize: 'Text size (px)', a4StoreSize: 'Store name size (px)', a4TitleSize: 'Title size (px)',
+    a4HeaderAlign: 'Header text alignment', a4FooterAlign: 'Footer alignment', a4HeaderGap: 'Space below header (px)', a4FooterGap: 'Space above footer (px)', a4Reset: 'Reset A4 layout',
     'err.restockLimit': 'Restocking would exceed the stock limit. Reduce the current stock first, or choose not to restock.',
     colorHue: 'Hue', colorSaturation: 'Saturation', colorBrightness: 'Brightness', colorHex: 'Hex color', 'err.badColor': 'Enter a valid hex color, for example #A6E3E1.',
     customHeaderColor: 'Custom color',
@@ -133,6 +137,10 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    a4Layout: 'تخطيط وهوية فاتورة A4', a4Hint: 'يطبق على معاينة A4 والطباعة وPDF. تستخدم الخطوط المتوفرة على هذا الجهاز.',
+    a4Margin: 'هامش الصفحة (ملم)', a4Font: 'نمط الخط', a4System: 'الافتراضي', a4Sans: 'بدون زوائد', a4Serif: 'بزوائد',
+    a4FontSize: 'حجم النص (بكسل)', a4StoreSize: 'حجم اسم المتجر (بكسل)', a4TitleSize: 'حجم العنوان (بكسل)',
+    a4HeaderAlign: 'محاذاة نص الترويسة', a4FooterAlign: 'محاذاة التذييل', a4HeaderGap: 'المسافة أسفل الترويسة (بكسل)', a4FooterGap: 'المسافة أعلى التذييل (بكسل)', a4Reset: 'استعادة تخطيط A4',
     'err.restockLimit': 'إعادة القطع ستتجاوز الحد الأقصى للمخزون. قلل المخزون الحالي أولاً أو اختر عدم إعادة القطع للمخزون.',
     colorHue: 'درجة اللون', colorSaturation: 'التشبع', colorBrightness: 'السطوع', colorHex: 'رمز اللون', 'err.badColor': 'أدخل رمز لون صحيحاً، مثل #A6E3E1.',
     customHeaderColor: 'لون مخصص',
@@ -1318,6 +1326,17 @@ function formatInvoiceCode(year, number) { return `INV-HS-${year}-${String(numbe
 function nextInvoiceCode() { const n = invoiceNumbering(); return formatInvoiceCode(n.year, n.nextNumber); }
 
 // Builds the printable invoice. Used by the invoice page and the settings preview.
+function a4Layout(s) {
+  const v = s.a4Layout || {};
+  const number = (key, fallback, min, max) => Number.isInteger(v[key]) && v[key] >= min && v[key] <= max ? v[key] : fallback;
+  return { margin: number('margin', 12, 5, 30), fontSize: number('fontSize', 16, 10, 22),
+    storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
+    headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
+    font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
+    headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign : 'center',
+    footerAlign: ['start', 'center', 'end'].includes(v.footerAlign) ? v.footerAlign : 'center' };
+}
+
 function invoiceHtml(inv, s) {
   const align = ['start', 'center', 'end'].includes(s.logoAlign) ? s.logoAlign : 'center';
   const showName = s.showStoreName && s.storeName;
@@ -1325,7 +1344,10 @@ function invoiceHtml(inv, s) {
     (s.header ? `<div class="prewrap">${rich(s.header)}</div>` : '');
   const logo = s.logo ? `<img src="${imgUrl(s.logo)}" alt="" style="height:${Number(s.logoSize) || 80}px">` : '';
   const pieces = inv.items.reduce((sum, it) => sum + it.qty, 0);
-  const style = `--accent:${safeColor(s.accentColor, '#714b67')};--row:${safeColor(s.rowColor, '#f3edf2')}`;
+  const layout = a4Layout(s);
+  const fonts = { system: 'inherit', sans: 'Arial, Tahoma, sans-serif', serif: 'Georgia, Times New Roman, serif' };
+  const style = `--accent:${safeColor(s.accentColor, '#714b67')};--row:${safeColor(s.rowColor, '#f3edf2')}` +
+    (s.paper !== 'receipt' && s.a4Layout ? `;--a4-margin:${layout.margin}mm;--a4-height:${297 - layout.margin * 2 - 3}mm;--a4-font:${fonts[layout.font]};--a4-size:${layout.fontSize}px;--store-size:${layout.storeSize}px;--title-size:${layout.titleSize}px;--header-align:${layout.headerAlign};--footer-align:${layout.footerAlign};--header-gap:${layout.headerGap}px;--footer-gap:${layout.footerGap}px` : '');
   return `<div class="invoice paper-${s.paper === 'receipt' ? 'receipt' : 'a4'}" data-bs-theme="light" style="${style}">
     ${logo || headText ? `<div class="inv-head align-${align}">${logo}${headText ? `<div class="inv-head-text">${headText}</div>` : ''}</div>` : ''}
     <div class="inv-title"><bdi>${esc(s.invoiceTitle || t('invoice'))}</bdi></div>
@@ -1363,14 +1385,14 @@ function safeColor(v, fallback) { return /^#[0-9a-fA-F]{6}$/.test(v || '') ? v :
 function pageCss(s) {
   return s.paper === 'receipt'
     ? '@page { size: 80mm auto; margin: 3mm; }'
-    : '@page { size: A4; margin: 12mm; }';
+    : `@page { size: A4; margin: ${a4Layout(s).margin}mm; }`;
 }
 
 // Measure and render separate pages so large invoices never require a canvas
 // taller than the browser supports. Every page repeats the invoice/table header.
 async function downloadInvoicePdf(inv, s) {
   const receipt = s.paper === 'receipt';
-  const margin = receipt ? 3 : 12;
+  const margin = receipt ? 3 : a4Layout(s).margin;
   const width = receipt ? 80 : 210;
   const maxHeight = receipt ? 280 : 297;
   const contentWidth = width - margin * 2;
@@ -1673,6 +1695,8 @@ function renderSettings() {
   const headerPresets = [['#a6e3e1', 'presetMint'], ['#714b67', 'presetPurple'], ['#334155', 'presetSlate'], ['#245a81', 'presetBlue'], ['#28634c', 'presetGreen'], ['#353a43', 'presetCharcoal']];
   const saved = JSON.stringify(state.db.settings);
   const d = JSON.parse(saved); // draft
+  const layout = a4Layout(d);
+  const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
   $('#app').innerHTML = `
@@ -1750,6 +1774,15 @@ function renderSettings() {
             <div class="mb-3"><label class="form-label">${t('paper')}</label>
               <select class="form-select" name="paper">${opt('a4', t('paperA4'), d.paper)}${opt('receipt', t('paperReceipt'), d.paper)}</select></div>
 
+            <fieldset id="sf-a4" class="mb-4"${d.paper === 'receipt' ? ' hidden' : ''}>
+              <legend class="h5">${t('a4Layout')}</legend>
+              <p class="form-text">${t('a4Hint')}</p>
+              <div class="mb-3"><label class="form-label" for="a4-font">${t('a4Font')}</label>
+                <select class="form-select" id="a4-font" data-a4="font">${opt('system', t('a4System'), layout.font)}${opt('sans', t('a4Sans'), layout.font)}${opt('serif', t('a4Serif'), layout.font)}</select></div>
+              ${Object.entries(layoutRanges).map(([key, [min, max, label]]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}: <output id="a4-${key}-value">${layout[key]}</output></label><input class="form-range" id="a4-${key}" data-a4="${key}" type="range" min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
+              ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
+              <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
+            </fieldset>
             <button class="btn btn-brand btn-lg w-100" id="sf-save"><i class="bi bi-check-lg"></i> ${t('save')}</button>
 
             <div class="mt-4 small text-secondary">
@@ -1809,6 +1842,7 @@ function renderSettings() {
     d.header = f.header.value;
     d.footer = f.footer.value;
     d.paper = f.paper.value;
+    $('#sf-a4').hidden = d.paper === 'receipt';
     d.showPaid = f.showPaid.checked;
     d.showDate = f.showDate.checked;
     d.showTime = f.showTime.checked;
@@ -1821,6 +1855,27 @@ function renderSettings() {
   };
   f.oninput = read;
   f.onchange = read;
+  $$('[data-a4]', f).forEach(control => {
+    const update = () => {
+      layout[control.dataset.a4] = control.type === 'range' ? Number(control.value) : control.value;
+      const output = $(`#a4-${control.dataset.a4}-value`);
+      if (output) output.textContent = control.value;
+      d.a4Layout = { ...layout };
+      read();
+    };
+    control.oninput = update;
+    control.onchange = update;
+  });
+  $('#sf-a4-reset').onclick = () => {
+    delete d.a4Layout;
+    Object.assign(layout, a4Layout(d));
+    $$('[data-a4]', f).forEach(control => {
+      control.value = layout[control.dataset.a4];
+      const output = $(`#a4-${control.dataset.a4}-value`);
+      if (output) output.textContent = control.value;
+    });
+    read();
+  };
   colorPickers = InventoryColorPicker.mount(f);
   $('#sf-topbar-reset').onclick = () => { f.topbarColor.value = '#714b67'; colorPickers.topbarColor.sync(true); read(); };
   $$('[data-header-color]').forEach(button => { button.onclick = () => { f.topbarColor.value = button.dataset.headerColor; colorPickers.topbarColor.sync(true); read(); }; });

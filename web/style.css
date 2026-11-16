@@ -208,6 +208,14 @@ body {
 }
 /* A4 is 794 x 1123 px on screen; the column layout pushes the footer to the bottom. */
 .invoice.paper-a4 { max-width: 794px; min-height: 1123px; display: flex; flex-direction: column; }
+.invoice.paper-a4[style*="--a4-margin"] { padding: var(--a4-margin); font-family: var(--a4-font); font-size: var(--a4-size); }
+.paper-a4[style*="--a4-margin"] .inv-store { font-size: var(--store-size); }
+.paper-a4[style*="--a4-margin"] .inv-title { font-size: var(--title-size); }
+.paper-a4[style*="--a4-margin"] .inv-head { margin-bottom: var(--header-gap); }
+.paper-a4[style*="--a4-margin"] .inv-head .inv-head-text { text-align: var(--header-align); }
+.paper-a4[style*="--a4-margin"] .inv-head.align-center .inv-head-text { width: 100%; }
+.paper-a4[style*="--a4-margin"] .inv-foot { text-align: var(--footer-align); padding-top: var(--footer-gap); }
+.paper-a4 .inv-head-text { overflow-wrap: anywhere; min-width: 0; }
 .invoice { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .invoice.paper-receipt { max-width: 302px; padding: 12px; font-size: 12px; }
 .inv-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
@@ -243,6 +251,7 @@ body {
 
 /* Render one bounded PDF page at a time, including for very long invoices. */
 .invoice.pdf-page { max-width: none; min-height: 0; padding: 0; box-shadow: none; margin: 0; }
+.invoice.paper-a4.pdf-page { padding: 0; }
 
 /* ---------- toasts ---------- */
 #toasts { position: fixed; bottom: 16px; inset-inline-end: 16px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
@@ -270,5 +279,6 @@ body {
   .page { padding: 0; max-width: none; }
   .invoice { box-shadow: none; margin: 0; max-width: none !important; padding: 0; }
   /* A4 height minus the 12 mm margins is 273 mm; a little less keeps it on one page. */
-  .invoice.paper-a4 { min-height: 270mm; }
+  .invoice.paper-a4 { min-height: var(--a4-height, 270mm); padding: 0; }
+  .invoice.paper-a4[style*="--a4-margin"] { padding: 0; }
 }

@@ -590,6 +590,10 @@ func (s *Store) saveSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	in := request.Settings
+	if !validA4Layout(in.A4Layout) {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "err.badRequest"})
+		return
+	}
 	var oldLogo string
 	s.mutate(w, r, func(db *DB) error {
 		if in.Theme != "dark" {

@@ -357,6 +357,9 @@ func validateBackupDB(db DB, files map[string]bool) error {
 		}
 	}
 	s := db.Settings
+	if !validA4Layout(s.A4Layout) {
+		return fmt.Errorf("invalid A4 layout")
+	}
 	if s.TopbarColor != "" && !colorRe.MatchString(s.TopbarColor) {
 		return fmt.Errorf("invalid top bar color")
 	}

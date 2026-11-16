@@ -1,0 +1,42 @@
+[
+    {
+        "file":  "inter-variable.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf",
+        "sha256":  "29160A80FF49DDCAB2C97711247E08B1FAB27A484A329CE8B813D820DC559031"
+    },
+    {
+        "file":  "lora-variable.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/lora/Lora%5Bwght%5D.ttf",
+        "sha256":  "822A6621CCBE8D97D20AC88C1C41F5615C9C2C202EAA75F272CD452AAC6475A7"
+    },
+    {
+        "file":  "sourcesans3-variable.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/sourcesans3/SourceSans3%5Bwght%5D.ttf",
+        "sha256":  "042FE2CC0B933E328410D7ACBD0AA6A1873DCA5AEF81875F4BC214B08825C7B9"
+    },
+    {
+        "file":  "cairo-variable.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/cairo/Cairo%5Bslnt%2Cwght%5D.ttf",
+        "sha256":  "667C987182391C91F4E57A2F455B1794FB5E3EE6CA4EF3383E86BB690FA9C964"
+    },
+    {
+        "file":  "tajawal-bold.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/tajawal/Tajawal-Bold.ttf",
+        "sha256":  "0342AB6B74B6BD1B4B5BF7BEDA45A9734A2B3147A31E8A3A45B6A3417A52D9D7"
+    },
+    {
+        "file":  "tajawal-regular.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/tajawal/Tajawal-Regular.ttf",
+        "sha256":  "6882892DA3E03527D5DB2BBAB3B48BDE6EF2E878A43F522D1A4EEBDA90010A19"
+    },
+    {
+        "file":  "amiri-bold.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/amiri/Amiri-Bold.ttf",
+        "sha256":  "CFCCB794268E7D573D857E6D6A67F89CF8A053E8FFD85DFA0C8EC1BB36FC4827"
+    },
+    {
+        "file":  "amiri-regular.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/amiri/Amiri-Regular.ttf",
+        "sha256":  "AB391C4147D054C48976E98322AD0EEFE1427AA0E0502A12A4C75D80A70CFCD7"
+    }
+]

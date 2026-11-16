@@ -7,10 +7,11 @@
 
 const I18N = {
   en: {
+    invoiceSpacing: 'Page spacing', invoiceCompact: 'Compact', invoiceStandard: 'Standard', invoiceSpacious: 'Spacious', invoiceTextSize: 'Text size', invoiceSmall: 'Small', invoiceLarge: 'Large', invoiceCustom: 'Custom (saved values)', invoiceAdvanced: 'Advanced layout', invoiceMoreFonts: 'Previously available fonts', invoiceFontSample: 'Invoice · My Store · 0123456789', invoiceFontsOffline: 'Preview each font below. New fonts are included in the app and work offline. Existing font choices are preserved until you change them.',
     settingsInvoice: 'Invoice', settingsData: 'Data & backup', settingsSaveHint: 'Save changes from all tabs.',
     a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
     a4FontHint: 'English and Arabic fonts apply to their own letters, including mixed text. Uses installed fonts offline; unavailable fonts fall back to a similar style.',
-    a4Layout: 'A4 layout and branding', a4Hint: 'Applies to A4 preview, printing and PDF. Fonts use those available on this computer.',
+    a4Layout: 'A4 layout and branding', a4Hint: 'Choose spacing, text size and fonts. Changes appear in the preview, printing and PDF.',
     a4Margin: 'Page margin (mm)', a4Font: 'Font style', a4System: 'App default', a4Sans: 'Sans serif', a4Serif: 'Serif',
     a4FontSize: 'Text size (px)', a4StoreSize: 'Store name size (px)', a4TitleSize: 'Title size (px)',
     a4HeaderAlign: 'Header text alignment', a4FooterAlign: 'Footer alignment', a4HeaderGap: 'Space below header (px)', a4FooterGap: 'Space above footer (px)', a4Reset: 'Reset A4 layout',
@@ -140,10 +141,11 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    invoiceSpacing: 'تباعد الصفحة', invoiceCompact: 'مضغوط', invoiceStandard: 'قياسي', invoiceSpacious: 'واسع', invoiceTextSize: 'حجم النص', invoiceSmall: 'صغير', invoiceLarge: 'كبير', invoiceCustom: 'مخصص (القيم المحفوظة)', invoiceAdvanced: 'إعدادات التخطيط المتقدمة', invoiceMoreFonts: 'الخطوط المتوفرة سابقاً', invoiceFontSample: 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩', invoiceFontsOffline: 'عاين الخطوط أدناه. الخطوط الجديدة مضمنة وتعمل دون إنترنت. يبقى اختيار الخط الحالي محفوظاً حتى تغييره.',
     settingsInvoice: 'الفاتورة', settingsData: 'البيانات والنسخ الاحتياطي', settingsSaveHint: 'حفظ التغييرات في جميع علامات التبويب.',
     a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
     a4FontHint: 'يطبق كل خط على حروف لغته حتى في النص المختلط. تستخدم الخطوط المثبتة دون إنترنت، مع خط بديل عند عدم توفر الخط المحدد.',
-    a4Layout: 'تخطيط وهوية فاتورة A4', a4Hint: 'يطبق على معاينة A4 والطباعة وPDF. تستخدم الخطوط المتوفرة على هذا الجهاز.',
+    a4Layout: 'تخطيط وهوية فاتورة A4', a4Hint: 'اختر التباعد وحجم النص والخطوط. تظهر التغييرات في المعاينة والطباعة وPDF.',
     a4Margin: 'هامش الصفحة (ملم)', a4Font: 'نمط الخط', a4System: 'الافتراضي', a4Sans: 'بدون زوائد', a4Serif: 'بزوائد',
     a4FontSize: 'حجم النص (بكسل)', a4StoreSize: 'حجم اسم المتجر (بكسل)', a4TitleSize: 'حجم العنوان (بكسل)',
     a4HeaderAlign: 'محاذاة نص الترويسة', a4FooterAlign: 'محاذاة التذييل', a4HeaderGap: 'المسافة أسفل الترويسة (بكسل)', a4FooterGap: 'المسافة أعلى التذييل (بكسل)', a4Reset: 'استعادة تخطيط A4',
@@ -1339,8 +1341,8 @@ function a4Layout(s) {
     storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
     headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
     font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
-    englishFont: ['segoe', 'arial', 'georgia'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
-    arabicFont: ['tahoma', 'arial', 'traditional'].includes(v.arabicFont) ? v.arabicFont : 'tahoma',
+    englishFont: ['segoe', 'arial', 'georgia', 'inter', 'lora', 'sourcesans3'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
+    arabicFont: ['tahoma', 'arial', 'traditional', 'cairo', 'tajawal', 'amiri'].includes(v.arabicFont) ? v.arabicFont : 'tahoma',
     emphasis: v.emphasis === 'headings' ? 'headings' : 'regular',
     headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign : 'center',
     footerAlign: ['start', 'center', 'end'].includes(v.footerAlign) ? v.footerAlign : 'center' };
@@ -1706,6 +1708,14 @@ function renderSettings() {
   const d = JSON.parse(saved); // draft
   const layout = a4Layout(d);
   const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
+  const spacingPresets = { compact: { margin: 8, headerGap: 8, footerGap: 12 }, standard: { margin: 12, headerGap: 16, footerGap: 24 }, spacious: { margin: 20, headerGap: 28, footerGap: 36 } };
+  const sizePresets = { small: { fontSize: 14, storeSize: 21, titleSize: 18 }, standard: { fontSize: 16, storeSize: 24, titleSize: 21 }, large: { fontSize: 18, storeSize: 28, titleSize: 24 } };
+  const selectedPreset = presets => Object.entries(presets).find(([, values]) => Object.entries(values).every(([key, value]) => layout[key] === value))?.[0] || 'custom';
+  const fontGallery = (key, label, prefix, fonts, legacy) => {
+    const cards = choices => choices.map(([value, name]) => `<label class="invoice-font-card"><input type="radio" name="${key}" data-a4="${key}" value="${value}"${layout[key] === value ? ' checked' : ''}><span><span class="invoice-font-name">${name}</span><span class="invoice-font-sample" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${value},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</span></span></label>`).join('');
+    const oldChoice = legacy.find(([value]) => value === layout[key]);
+    return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards(fonts)}</div><details class="mt-2"><summary>${t('invoiceMoreFonts')}<span data-font-legacy="${key}">${oldChoice ? ` · ${oldChoice[1]}` : ''}</span></summary><div class="invoice-font-gallery mt-2">${cards(legacy)}</div></details></fieldset>`;
+  };
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
   $('#app').innerHTML = `
@@ -1793,10 +1803,19 @@ function renderSettings() {
             <fieldset id="sf-a4" class="mb-4"${d.paper === 'receipt' ? ' hidden' : ''}>
               <legend class="h5">${t('a4Layout')}</legend>
               <p class="form-text">${t('a4Hint')}</p>
-              ${[['englishFont', 'a4EnglishFont', [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']]], ['arabicFont', 'a4ArabicFont', [['tahoma', 'Tahoma — تاهوما'], ['arial', 'Arial — أريال'], ['traditional', 'Traditional Arabic — العربية التقليدية']]], ['emphasis', 'a4Emphasis', [['regular', t('a4Regular')], ['headings', t('a4Headings')]]]].map(([key, label, options]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${options.map(([value, name]) => opt(value, name, layout[key])).join('')}</select></div>`).join('')}
-              <p class="form-text">${t('a4FontHint')}</p>
-              ${Object.entries(layoutRanges).map(([key, [min, max, label]]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}: <output id="a4-${key}-value">${layout[key]}</output></label><input class="form-range" id="a4-${key}" data-a4="${key}" type="range" min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
+              <div class="row g-3 mb-3">
+                <div class="col-sm-6"><label class="form-label" for="a4-spacing">${t('invoiceSpacing')}</label><select class="form-select" id="a4-spacing">${opt('custom', t('invoiceCustom'), selectedPreset(spacingPresets))}${opt('compact', t('invoiceCompact'), selectedPreset(spacingPresets))}${opt('standard', t('invoiceStandard'), selectedPreset(spacingPresets))}${opt('spacious', t('invoiceSpacious'), selectedPreset(spacingPresets))}</select></div>
+                <div class="col-sm-6"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
+              </div>
+              <p class="form-text">${t('invoiceFontsOffline')}</p>
+              ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['inter', 'Inter'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
+              ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['cairo', 'Cairo — القاهرة'], ['tajawal', 'Tajawal — تجوّل'], ['amiri', 'Amiri — أميري']], [['tahoma', 'Tahoma'], ['arial', 'Arial'], ['traditional', 'Traditional Arabic']])}
+              <div class="mb-3"><label class="form-label" for="a4-emphasis">${t('a4Emphasis')}</label><select class="form-select" id="a4-emphasis" data-a4="emphasis">${opt('regular', t('a4Regular'), layout.emphasis)}${opt('headings', t('a4Headings'), layout.emphasis)}</select></div>
+              <details id="a4-advanced" class="invoice-advanced mb-3"><summary>${t('invoiceAdvanced')}</summary><div class="row g-3 my-1">
+              ${Object.entries(layoutRanges).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
+              </div>
               ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
+              </details>
               <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
             </fieldset>
               </div>
@@ -1872,6 +1891,10 @@ function renderSettings() {
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
     Object.values(colorPickers).forEach(picker => picker.sync());
+    $$('[data-font-legacy]').forEach(label => {
+      const selected = $(`input[name="${label.dataset.fontLegacy}"]:checked`, f);
+      label.textContent = selected && !['inter', 'lora', 'sourcesans3', 'cairo', 'tajawal', 'amiri'].includes(selected.value) ? ` · ${selected.closest('label').querySelector('.invoice-font-name').textContent}` : '';
+    });
     $$('[data-header-color]').forEach(button => {
       const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();
       button.classList.toggle('active', selected);
@@ -1910,12 +1933,31 @@ function renderSettings() {
   };
   f.oninput = read;
   f.onchange = read;
+  const syncLayout = () => {
+    $$('[data-a4]', f).forEach(control => {
+      if (control.type === 'radio') control.checked = control.value === layout[control.dataset.a4];
+      else control.value = layout[control.dataset.a4];
+    });
+    $('#a4-spacing').value = selectedPreset(spacingPresets);
+    $('#a4-text-size').value = selectedPreset(sizePresets);
+  };
+  [['#a4-spacing', spacingPresets], ['#a4-text-size', sizePresets]].forEach(([selector, presets]) => {
+    $(selector).onchange = event => {
+      if (!presets[event.target.value]) { event.target.value = selectedPreset(presets); return; }
+      Object.assign(layout, presets[event.target.value]);
+      d.a4Layout = { ...layout };
+      syncLayout(); read();
+    };
+  });
   $$('[data-a4]', f).forEach(control => {
     const update = () => {
-      layout[control.dataset.a4] = control.type === 'range' ? Number(control.value) : control.value;
+      if (control.type === 'number' && (!control.value || !control.checkValidity())) return;
+      layout[control.dataset.a4] = ['range', 'number'].includes(control.type) ? Number(control.value) : control.value;
       const output = $(`#a4-${control.dataset.a4}-value`);
       if (output) output.textContent = control.value;
       d.a4Layout = { ...layout };
+      $('#a4-spacing').value = selectedPreset(spacingPresets);
+      $('#a4-text-size').value = selectedPreset(sizePresets);
       read();
     };
     control.oninput = update;
@@ -1924,11 +1966,7 @@ function renderSettings() {
   $('#sf-a4-reset').onclick = () => {
     delete d.a4Layout;
     Object.assign(layout, a4Layout(d));
-    $$('[data-a4]', f).forEach(control => {
-      control.value = layout[control.dataset.a4];
-      const output = $(`#a4-${control.dataset.a4}-value`);
-      if (output) output.textContent = control.value;
-    });
+    syncLayout();
     read();
   };
   colorPickers = InventoryColorPicker.mount(f);
@@ -1948,6 +1986,11 @@ function renderSettings() {
     }
     read();
     const low = parseWhole(f.lowStock.value);
+    const invalidLayout = $('#sf-a4 input[type="number"]:invalid');
+    if (invalidLayout && d.paper !== 'receipt') {
+      $('#a4-advanced').open = true;
+      revealControl(invalidLayout); invalidLayout.reportValidity(); return;
+    }
     if (isNaN(low) || low > 1e6) { revealControl(f.lowStock); return toast(t('err.badStock'), true); }
     const next = parseInvoiceNumber(f.nextInvoiceNumber.value);
     if (!next) { revealControl(f.nextInvoiceNumber); return toast(t('err.invoiceNumber'), true); }

@@ -7,6 +7,8 @@
 
 const I18N = {
   en: {
+    a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
+    a4FontHint: 'English and Arabic fonts apply to their own letters, including mixed text. Uses installed fonts offline; unavailable fonts fall back to a similar style.',
     a4Layout: 'A4 layout and branding', a4Hint: 'Applies to A4 preview, printing and PDF. Fonts use those available on this computer.',
     a4Margin: 'Page margin (mm)', a4Font: 'Font style', a4System: 'App default', a4Sans: 'Sans serif', a4Serif: 'Serif',
     a4FontSize: 'Text size (px)', a4StoreSize: 'Store name size (px)', a4TitleSize: 'Title size (px)',
@@ -137,6 +139,8 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
+    a4FontHint: 'يطبق كل خط على حروف لغته حتى في النص المختلط. تستخدم الخطوط المثبتة دون إنترنت، مع خط بديل عند عدم توفر الخط المحدد.',
     a4Layout: 'تخطيط وهوية فاتورة A4', a4Hint: 'يطبق على معاينة A4 والطباعة وPDF. تستخدم الخطوط المتوفرة على هذا الجهاز.',
     a4Margin: 'هامش الصفحة (ملم)', a4Font: 'نمط الخط', a4System: 'الافتراضي', a4Sans: 'بدون زوائد', a4Serif: 'بزوائد',
     a4FontSize: 'حجم النص (بكسل)', a4StoreSize: 'حجم اسم المتجر (بكسل)', a4TitleSize: 'حجم العنوان (بكسل)',
@@ -1333,6 +1337,9 @@ function a4Layout(s) {
     storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
     headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
     font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
+    englishFont: ['segoe', 'arial', 'georgia'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
+    arabicFont: ['tahoma', 'arial', 'traditional'].includes(v.arabicFont) ? v.arabicFont : 'tahoma',
+    emphasis: v.emphasis === 'headings' ? 'headings' : 'regular',
     headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign : 'center',
     footerAlign: ['start', 'center', 'end'].includes(v.footerAlign) ? v.footerAlign : 'center' };
 }
@@ -1345,9 +1352,9 @@ function invoiceHtml(inv, s) {
   const logo = s.logo ? `<img src="${imgUrl(s.logo)}" alt="" style="height:${Number(s.logoSize) || 80}px">` : '';
   const pieces = inv.items.reduce((sum, it) => sum + it.qty, 0);
   const layout = a4Layout(s);
-  const fonts = { system: 'inherit', sans: 'Arial, Tahoma, sans-serif', serif: 'Georgia, Times New Roman, serif' };
-  const style = `--accent:${safeColor(s.accentColor, '#714b67')};--row:${safeColor(s.rowColor, '#f3edf2')}` +
-    (s.paper !== 'receipt' && s.a4Layout ? `;--a4-margin:${layout.margin}mm;--a4-height:${297 - layout.margin * 2 - 3}mm;--a4-font:${fonts[layout.font]};--a4-size:${layout.fontSize}px;--store-size:${layout.storeSize}px;--title-size:${layout.titleSize}px;--header-align:${layout.headerAlign};--footer-align:${layout.footerAlign};--header-gap:${layout.headerGap}px;--footer-gap:${layout.footerGap}px` : '');
+  const fontFamily = `InvoiceLatin-${layout.englishFont}, InvoiceArabic-${layout.arabicFont}, Tahoma, Arial, sans-serif`;
+  const style = `--accent:${safeColor(s.accentColor, '#714b67')};--row:${safeColor(s.rowColor, '#f3edf2')};--a4-font:${fontFamily};--a4-emphasis:${layout.emphasis === 'headings' ? 700 : 400}` +
+    (s.paper !== 'receipt' && s.a4Layout ? `;--a4-margin:${layout.margin}mm;--a4-height:${297 - layout.margin * 2 - 3}mm;--a4-font:${fontFamily};--a4-size:${layout.fontSize}px;--store-size:${layout.storeSize}px;--title-size:${layout.titleSize}px;--header-align:${layout.headerAlign};--footer-align:${layout.footerAlign};--header-gap:${layout.headerGap}px;--footer-gap:${layout.footerGap}px` : '');
   return `<div class="invoice paper-${s.paper === 'receipt' ? 'receipt' : 'a4'}" data-bs-theme="light" style="${style}">
     ${logo || headText ? `<div class="inv-head align-${align}">${logo}${headText ? `<div class="inv-head-text">${headText}</div>` : ''}</div>` : ''}
     <div class="inv-title"><bdi>${esc(s.invoiceTitle || t('invoice'))}</bdi></div>
@@ -1777,8 +1784,8 @@ function renderSettings() {
             <fieldset id="sf-a4" class="mb-4"${d.paper === 'receipt' ? ' hidden' : ''}>
               <legend class="h5">${t('a4Layout')}</legend>
               <p class="form-text">${t('a4Hint')}</p>
-              <div class="mb-3"><label class="form-label" for="a4-font">${t('a4Font')}</label>
-                <select class="form-select" id="a4-font" data-a4="font">${opt('system', t('a4System'), layout.font)}${opt('sans', t('a4Sans'), layout.font)}${opt('serif', t('a4Serif'), layout.font)}</select></div>
+              ${[['englishFont', 'a4EnglishFont', [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']]], ['arabicFont', 'a4ArabicFont', [['tahoma', 'Tahoma — تاهوما'], ['arial', 'Arial — أريال'], ['traditional', 'Traditional Arabic — العربية التقليدية']]], ['emphasis', 'a4Emphasis', [['regular', t('a4Regular')], ['headings', t('a4Headings')]]]].map(([key, label, options]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${options.map(([value, name]) => opt(value, name, layout[key])).join('')}</select></div>`).join('')}
+              <p class="form-text">${t('a4FontHint')}</p>
               ${Object.entries(layoutRanges).map(([key, [min, max, label]]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}: <output id="a4-${key}-value">${layout[key]}</output></label><input class="form-range" id="a4-${key}" data-a4="${key}" type="range" min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
               ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
               <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>

@@ -201,6 +201,20 @@ body {
 .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .prewrap { white-space: pre-line; }
 
+/* Local font aliases restrict Latin to its own glyphs so Arabic selections also
+   work inside mixed names, addresses and notes. No network fonts are required. */
+@font-face { font-family: InvoiceLatin-segoe; src: local("Segoe UI"); font-weight: 400; unicode-range: U+0000-024F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceLatin-segoe; src: local("Segoe UI Bold"); font-weight: 700; unicode-range: U+0000-024F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceLatin-arial; src: local("Arial"); font-weight: 400; unicode-range: U+0000-024F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceLatin-arial; src: local("Arial Bold"); font-weight: 700; unicode-range: U+0000-024F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceLatin-georgia; src: local("Georgia"); font-weight: 400; unicode-range: U+0000-024F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceLatin-georgia; src: local("Georgia Bold"); font-weight: 700; unicode-range: U+0000-024F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceArabic-tahoma; src: local("Tahoma"); font-weight: 400; }
+@font-face { font-family: InvoiceArabic-tahoma; src: local("Tahoma Bold"); font-weight: 700; }
+@font-face { font-family: InvoiceArabic-arial; src: local("Arial"); font-weight: 400; }
+@font-face { font-family: InvoiceArabic-arial; src: local("Arial Bold"); font-weight: 700; }
+@font-face { font-family: InvoiceArabic-traditional; src: local("Traditional Arabic"); font-weight: 400; }
+
 /* ---------- invoice ---------- */
 .invoice {
   background: #fff; color: #000; margin: 0 auto; padding: 32px;
@@ -208,6 +222,10 @@ body {
 }
 /* A4 is 794 x 1123 px on screen; the column layout pushes the footer to the bottom. */
 .invoice.paper-a4 { max-width: 794px; min-height: 1123px; display: flex; flex-direction: column; }
+.invoice.paper-a4 { font-family: var(--a4-font); font-weight: 400; line-height: 1.5; }
+.paper-a4 b, .paper-a4 strong, .paper-a4 .inv-meta, .paper-a4 .inv-cust { font-weight: 400; }
+.paper-a4 .inv-store, .paper-a4 .inv-title, .paper-a4 .inv-table th,
+.paper-a4 .inv-table .inv-total td, .paper-a4 .inv-table .inv-paid-row .inv-paid { font-weight: var(--a4-emphasis, 400); }
 .invoice.paper-a4[style*="--a4-margin"] { padding: var(--a4-margin); font-family: var(--a4-font); font-size: var(--a4-size); }
 .paper-a4[style*="--a4-margin"] .inv-store { font-size: var(--store-size); }
 .paper-a4[style*="--a4-margin"] .inv-title { font-size: var(--title-size); }

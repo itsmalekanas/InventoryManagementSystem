@@ -94,6 +94,9 @@ type Settings struct {
 
 // Optional so older databases retain their original settings unchanged.
 type A4Layout struct {
+	EnglishFont string `json:"englishFont,omitempty"`
+	ArabicFont  string `json:"arabicFont,omitempty"`
+	Emphasis    string `json:"emphasis,omitempty"`
 	Margin      int    `json:"margin"`
 	Font        string `json:"font"`
 	FontSize    int    `json:"fontSize"`
@@ -110,6 +113,11 @@ func validA4Layout(v *A4Layout) bool {
 		return true
 	}
 	align := func(s string) bool { return s == "start" || s == "center" || s == "end" }
+	if (v.EnglishFont != "" && v.EnglishFont != "segoe" && v.EnglishFont != "arial" && v.EnglishFont != "georgia") ||
+		(v.ArabicFont != "" && v.ArabicFont != "tahoma" && v.ArabicFont != "arial" && v.ArabicFont != "traditional") ||
+		(v.Emphasis != "" && v.Emphasis != "regular" && v.Emphasis != "headings") {
+		return false
+	}
 	return v.Margin >= 5 && v.Margin <= 30 && v.FontSize >= 10 && v.FontSize <= 22 &&
 		v.StoreSize >= 14 && v.StoreSize <= 40 && v.TitleSize >= 14 && v.TitleSize <= 36 &&
 		v.HeaderGap >= 0 && v.HeaderGap <= 48 && v.FooterGap >= 0 && v.FooterGap <= 48 &&

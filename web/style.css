@@ -309,6 +309,7 @@ body {
 
 /* ---------- toasts ---------- */
 #toasts { position: fixed; bottom: 16px; inset-inline-end: 16px; z-index: 2000; display: flex; flex-direction: column; gap: 8px; }
+#backup-warning { position: fixed; bottom: 12px; inset-inline-start: 12px; max-width: min(540px, calc(100vw - 24px)); z-index: 1900; }
 .toast-msg { background: #222; color: #fff; padding: 10px 16px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.2); max-width: 360px; }
 .toast-msg.error { background: #b02a37; }
 

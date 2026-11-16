@@ -7,6 +7,9 @@
 
 const I18N = {
   en: {
+    'err.settingsChanged': 'Settings changed in another tab. Your edits have not been saved. Copy any changes you want to keep, then reload and try again.',
+    'backupWarning': 'Your data was saved, but the automatic daily backup needs attention. Check the backups folder and available disk space, then export a full backup.',
+    'uploadWait': 'Please wait for the logo upload to finish.',
     invoiceSpacing: 'Page spacing', invoiceCompact: 'Compact', invoiceStandard: 'Standard', invoiceSpacious: 'Spacious', invoiceTextSize: 'Text size', invoiceSmall: 'Small', invoiceLarge: 'Large', invoiceCustom: 'Custom (saved values)', invoiceAdvanced: 'Advanced layout', invoiceMoreFonts: 'Previously available fonts', invoiceFontSample: 'Invoice · My Store · 0123456789', invoiceFontsOffline: 'Preview each font below. New fonts are included in the app and work offline. Existing font choices are preserved until you change them.',
     settingsInvoice: 'Invoice', settingsData: 'Data & backup', settingsSaveHint: 'Save changes from all tabs.',
     a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
@@ -141,6 +144,9 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    'err.settingsChanged': 'تغيرت الإعدادات في علامة تبويب أخرى. لم تحفظ تعديلاتك. انسخ ما تريد الاحتفاظ به، ثم أعد التحميل وحاول مجدداً.',
+    'backupWarning': 'حفظت البيانات، لكن النسخة الاحتياطية اليومية تحتاج إلى متابعة. تحقق من مجلد النسخ والمساحة المتوفرة، ثم صدّر نسخة احتياطية كاملة.',
+    'uploadWait': 'يرجى الانتظار حتى يكتمل رفع الشعار.',
     invoiceSpacing: 'تباعد الصفحة', invoiceCompact: 'مضغوط', invoiceStandard: 'قياسي', invoiceSpacious: 'واسع', invoiceTextSize: 'حجم النص', invoiceSmall: 'صغير', invoiceLarge: 'كبير', invoiceCustom: 'مخصص (القيم المحفوظة)', invoiceAdvanced: 'إعدادات التخطيط المتقدمة', invoiceMoreFonts: 'الخطوط المتوفرة سابقاً', invoiceFontSample: 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩', invoiceFontsOffline: 'عاين الخطوط أدناه. الخطوط الجديدة مضمنة وتعمل دون إنترنت. يبقى اختيار الخط الحالي محفوظاً حتى تغييره.',
     settingsInvoice: 'الفاتورة', settingsData: 'البيانات والنسخ الاحتياطي', settingsSaveHint: 'حفظ التغييرات في جميع علامات التبويب.',
     a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
@@ -366,7 +372,8 @@ async function api(method, url, body) {
     res = await fetch(url, {
       method,
       headers: { 'Content-Type': body instanceof Blob ? body.type : 'application/json',
-        ...(state.generation && method !== 'GET' ? { 'X-Inventory-Generation': state.generation } : {}) },
+        ...(state.generation && method !== 'GET' ? { 'X-Inventory-Generation': state.generation } : {}),
+        ...(url === '/api/settings' && state.settingsToken ? { 'X-Inventory-Settings': state.settingsToken } : {}) },
       body: body === undefined ? undefined : (body instanceof Blob ? body : JSON.stringify(body)),
     });
   } catch (e) {
@@ -379,7 +386,13 @@ async function api(method, url, body) {
     err.key = data.error;
     throw err;
   }
-  if (data.db) { state.db = data.db; state.dataDir = data.dataDir; state.numbering = data.numbering || null; state.generation = data.generation; state.appVersion = data.version || ''; }
+  if (data.db) {
+    state.db = data.db; state.dataDir = data.dataDir; state.numbering = data.numbering || null; state.generation = data.generation; state.appVersion = data.version || ''; state.settingsToken = data.settingsToken || '';
+    let warning = $('#backup-warning');
+    if (!warning) { warning = document.createElement('div'); warning.id = 'backup-warning'; warning.className = 'alert alert-warning'; warning.setAttribute('role', 'alert'); document.body.appendChild(warning); }
+    warning.hidden = !data.backupWarning;
+    warning.textContent = data.backupWarning ? t('backupWarning') : '';
+  }
   return data;
 }
 
@@ -542,6 +555,12 @@ function appTitle() {
 /* ---------------- router ---------------- */
 
 let leaveGuard = null; // returns true when the page may be left
+const dirtyForms = new WeakSet();
+let settingsBusy = () => false;
+for (const eventName of ['input', 'change']) document.addEventListener(eventName, event => {
+  const form = event.target.closest?.('form');
+  if (form) dirtyForms.add(form);
+});
 
 const routes = {
   '': renderHome,
@@ -556,6 +575,7 @@ const routes = {
 };
 
 function route() {
+  settingsBusy = () => false;
   if (state.exiting) return;
   applyAccent(state.db.settings);
   const parts = location.hash.replace(/^#\/?/, '').split('/').map(decodeURIComponent);
@@ -1705,6 +1725,9 @@ function renderSettings() {
   });
   const headerPresets = [['#a6e3e1', 'presetMint'], ['#714b67', 'presetPurple'], ['#334155', 'presetSlate'], ['#245a81', 'presetBlue'], ['#28634c', 'presetGreen'], ['#353a43', 'presetCharcoal']];
   const saved = JSON.stringify(state.db.settings);
+  const savedSettingsToken = state.settingsToken;
+  let logoUploads = 0, settingsSaving = false;
+  settingsBusy = () => logoUploads > 0 || settingsSaving;
   const d = JSON.parse(saved); // draft
   const layout = a4Layout(d);
   const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
@@ -1973,6 +1996,7 @@ function renderSettings() {
   };
   f.onsubmit = async e => {
     e.preventDefault();
+    if (logoUploads || settingsSaving) { if (logoUploads) toast(t('uploadWait'), true); return; }
     const invalidColor = $('.color-picker-hex[aria-invalid="true"]', f);
     if (invalidColor) {
       revealControl(invalidColor);
@@ -1992,27 +2016,44 @@ function renderSettings() {
     if (!next) { revealControl(f.nextInvoiceNumber); return toast(t('err.invoiceNumber'), true); }
     if (next < numbering.nextNumber) { revealControl(f.nextInvoiceNumber); return toast(t('err.invoiceNumberUsed'), true); }
     const button = $('#sf-save');
+    settingsSaving = true;
+    const settingsControls = Array.from(f.elements).map(control => [control, control.disabled]);
+    settingsControls.forEach(([control]) => { control.disabled = true; });
     button.disabled = true;
     try {
-      await api('PUT', '/api/settings', { ...d,
+      await api('PUT', '/api/settings', { ...d, expectedSettingsToken: savedSettingsToken,
         ...(next !== numbering.nextNumber ? { nextInvoiceNumber: next, invoiceYear: numbering.year } : {}) });
       leaveGuard = null;
       applyLang(); toast(t('saved')); route();
     } catch (err) { toast(err.message, true); }
-    finally { button.disabled = false; }
+    finally { settingsSaving = false; settingsControls.forEach(([control, disabled]) => { control.disabled = disabled; }); button.disabled = logoUploads > 0; }
   };
   $('#sf-logo').onchange = async e => {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
-    $('#sf-spin').classList.remove('d-none');
+    logoUploads++;
+    const spinner = $('#sf-spin'), saveButton = $('#sf-save');
+    saveButton.disabled = true;
+    $('#sf-logo').disabled = true;
+    $('#sf-logo-del').disabled = true;
+    spinner.classList.remove('d-none');
     try { d.logo = await uploadImage(file, 600, 'image/png'); preview(); }
     catch (err) { toast(err.message, true); }
-    $('#sf-spin').classList.add('d-none');
+    logoUploads--;
+    if (f.isConnected) {
+      spinner.classList.toggle('d-none', logoUploads === 0);
+      saveButton.disabled = logoUploads > 0 || settingsSaving;
+      $('#sf-logo-del').disabled = logoUploads > 0 || settingsSaving;
+      $('#sf-logo').disabled = logoUploads > 0 || settingsSaving;
+    }
   };
   $('#sf-logo-del').onclick = () => { d.logo = ''; preview(); };
 
-  leaveGuard = () => (JSON.stringify(d) === saved && parseInvoiceNumber(f.nextInvoiceNumber.value) === numbering.nextNumber) || confirm(t('unsaved'));
+  leaveGuard = () => {
+    if (settingsBusy()) { toast(t('uploadWait'), true); return false; }
+    return (!dirtyForms.has(f) && JSON.stringify(d) === saved && parseInvoiceNumber(f.nextInvoiceNumber.value) === numbering.nextNumber) || confirm(t('unsaved'));
+  };
   preview();
 }
 
@@ -2020,7 +2061,8 @@ function renderSettings() {
 
 let transferInProgress = false;
 window.addEventListener('beforeunload', e => {
-  if (transferInProgress) { e.preventDefault(); e.returnValue = ''; }
+  const unsavedForm = $$('form').some(form => dirtyForms.has(form) && form.getClientRects().length > 0 && (!form.closest('.modal') || form.closest('.modal').classList.contains('show')));
+  if (transferInProgress || settingsBusy() || unsavedForm || state.cart.length > 0 || state.pendingSale) { e.preventDefault(); e.returnValue = ''; }
 });
 
 function renderBackup(recoveryBackup = '') {

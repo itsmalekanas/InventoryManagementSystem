@@ -56,7 +56,24 @@ async function api(url,endpoint,body,method='POST'){
   for(const value of ['-5','12.5']){await input('#pf [name=price]',value);await input('#pf [name=price]',value,'blur');assert.equal(await evaluate('document.querySelector("#pf").price.value'),value);await click('#pf-save');assert.equal((await data(url)).db.products.length,1);}
   await input('#pf [name=price]','٢٥٬٠٠٠');await input('#pf [name=stock]','-2');await click('#pf-save');assert.equal((await data(url)).db.products.length,1);
   await input('#pf [name=stock]','٢');await click('#pf-save');await until(async()=>(await data(url)).db.products.length===2);await until(()=>evaluate('!document.querySelector("#modal").classList.contains("show")'));await pause(200);
-  await go('#/settings','#sf');await input('#sf [name=lowStock]','12.5');await click('#sf-save');assert.equal((await data(url)).db.settings.lowStock,5);
+  await go('#/settings','#sf');
+  const reliability=await evaluate(`(async()=>{
+    const form=document.querySelector('#sf'), file=document.querySelector('#sf-logo');
+    const oldUpload=uploadImage, oldApi=api;let finishUpload, settingsWrites=0;
+    uploadImage=()=>new Promise(resolve=>finishUpload=resolve);
+    api=async(method,url,body)=>{if(url==='/api/settings')settingsWrites++;return oldApi(method,url,body);};
+    Object.defineProperty(file,'files',{configurable:true,value:[new File(['test'],'test.png',{type:'image/png'})]});
+    const pending=file.onchange({target:file});
+    const saveBlocked=document.querySelector('#sf-save').disabled;
+    form.requestSubmit();
+    const unload=new Event('beforeunload',{cancelable:true});window.dispatchEvent(unload);
+    finishUpload(state.db.settings.logo);await pending;uploadImage=oldUpload;api=oldApi;
+    return {saveBlocked,settingsWrites,unloadBlocked:unload.defaultPrevented,saveEnabled:!document.querySelector('#sf-save').disabled};
+  })()`);
+  assert.deepEqual(reliability,{saveBlocked:true,settingsWrites:0,unloadBlocked:true,saveEnabled:true});
+  await input('#sf [name=lowStock]','12.5');
+  assert.ok(await evaluate('(()=>{const e=new Event("beforeunload",{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented;})()'));
+  await click('#sf-save');assert.equal((await data(url)).db.settings.lowStock,5);
   await click('#settings-tab-invoice');
   assert.equal(await evaluate('document.querySelectorAll("#sf-save").length'),1);
   assert.equal(await evaluate('document.querySelector("#sf-save").form.id'),'sf');

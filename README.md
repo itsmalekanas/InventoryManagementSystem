@@ -37,6 +37,15 @@ numbering, logo, paper size, and layout. Switching tabs keeps unsaved edits;
 one Save button in the fixed Settings header saves changes from every tab
 together and stays accessible while scrolling.
 
+Settings saves detect a newer settings change from another tab and reject an
+outdated draft instead of overwriting it. Copy any edits you want to retain
+before reloading to resolve that conflict. Save waits for logo uploads, and
+reload/close protection warns about unsaved forms, carts and active transfers.
+Browsers control whether a close warning can be displayed.
+If an automatic daily backup fails, a persistent warning appears while successful
+data saves remain intact. Check disk space and folder access and export a full
+backup; the warning clears after a successful daily-backup retry.
+
 For A4 invoices, **A4 layout and branding** offers Compact, Standard, and
 Spacious page spacing, plus Small, Standard, and Large text sizes. Individual
 margins, sizes, alignment, and spacing are under **Advanced layout**.

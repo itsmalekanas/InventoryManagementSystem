@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -170,16 +171,22 @@ func defaultSettings() Settings {
 // after every change. A small shop never gets close to the size where this
 // becomes slow, and one JSON file is easy to copy, back up and read.
 type Store struct {
-	mu           sync.Mutex
-	dir          string
-	imagesDir    string
-	file         string
-	db           DB
-	generation   string
-	revision     uint64
-	transfers    map[string]*backupTransfer
-	importBroken bool
-	backupWork   chan struct{}
+	backupWarning string
+	mu            sync.Mutex
+	dir           string
+	imagesDir     string
+	file          string
+	db            DB
+	generation    string
+	revision      uint64
+	transfers     map[string]*backupTransfer
+	importBroken  bool
+	backupWork    chan struct{}
+}
+
+func settingsToken(settings Settings) string {
+	raw, _ := json.Marshal(settings)
+	return fmt.Sprintf("%x", sha256.Sum256(raw))
 }
 
 func OpenStore(dir string) (*Store, error) {
@@ -336,7 +343,10 @@ func (s *Store) normalize() {
 // Once per day it also keeps a copy of the previous file in data/backups.
 func (s *Store) saveLocked() error {
 	s.normalize()
-	s.dailyBackup()
+	s.backupWarning = ""
+	if err := s.dailyBackup(); err != nil {
+		s.backupWarning = err.Error()
+	}
 	data, err := json.MarshalIndent(s.db, "", "  ")
 	if err != nil {
 		return err
@@ -348,26 +358,39 @@ func (s *Store) saveLocked() error {
 	return os.Rename(tmp, s.file)
 }
 
-func (s *Store) dailyBackup() {
+func (s *Store) dailyBackup() error {
 	backupDir := filepath.Join(s.dir, "backups")
 	name := filepath.Join(backupDir, "db-"+time.Now().Format("2006-01-02")+".json")
-	if _, err := os.Stat(name); err == nil {
-		return
+	if existing, err := os.ReadFile(name); err == nil && json.Valid(existing) {
+		return nil
 	}
 	raw, err := os.ReadFile(s.file)
-	if err != nil {
-		return
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
 	}
-	if os.WriteFile(name, raw, 0o644) != nil {
-		return
+	if err != nil {
+		return err
+	}
+	if !json.Valid(raw) {
+		return fmt.Errorf("cannot back up invalid database JSON")
+	}
+	defer os.Remove(name + ".tmp")
+	if err := writeSyncedFile(name+".tmp", raw); err != nil {
+		return err
+	}
+	if err := os.Rename(name+".tmp", name); err != nil {
+		return err
 	}
 	// Keep the 30 newest daily backups.
 	entries, _ := filepath.Glob(filepath.Join(backupDir, "db-*.json"))
 	sort.Strings(entries)
 	for len(entries) > 30 {
-		os.Remove(entries[0])
+		if err := os.Remove(entries[0]); err != nil {
+			return err
+		}
 		entries = entries[1:]
 	}
+	return nil
 }
 
 // sweepImages removes picture files that nothing points to any more, for

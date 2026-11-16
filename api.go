@@ -183,7 +183,7 @@ func (s *Store) mutateWithOutcome(w http.ResponseWriter, r *http.Request, fn fun
 func (s *Store) payloadLocked() map[string]any {
 	abs, _ := filepath.Abs(s.dir)
 	year := time.Now().Year()
-	return map[string]any{"db": s.db, "dataDir": abs, "generation": s.generation, "version": appVersion, "numbering": map[string]any{
+	return map[string]any{"db": s.db, "settingsToken": settingsToken(s.db.Settings), "backupWarning": s.backupWarning, "dataDir": abs, "generation": s.generation, "version": appVersion, "numbering": map[string]any{
 		"year": year, "nextNumber": s.db.YearCounters[fmt.Sprint(year)] + 1,
 	}}
 }
@@ -582,8 +582,9 @@ func (s *Store) deleteInvoice(w http.ResponseWriter, r *http.Request) {
 func (s *Store) saveSettings(w http.ResponseWriter, r *http.Request) {
 	var request struct {
 		Settings
-		NextInvoiceNumber *int64 `json:"nextInvoiceNumber"`
-		InvoiceYear       int    `json:"invoiceYear"`
+		NextInvoiceNumber     *int64 `json:"nextInvoiceNumber"`
+		InvoiceYear           int    `json:"invoiceYear"`
+		ExpectedSettingsToken string `json:"expectedSettingsToken"`
 	}
 	if err := readJSON(r, &request); err != nil {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "err.badRequest"})
@@ -596,6 +597,13 @@ func (s *Store) saveSettings(w http.ResponseWriter, r *http.Request) {
 	}
 	var oldLogo string
 	s.mutate(w, r, func(db *DB) error {
+		expected := request.ExpectedSettingsToken
+		if expected == "" {
+			expected = r.Header.Get("X-Inventory-Settings")
+		}
+		if expected != "" && expected != settingsToken(db.Settings) {
+			return &apiError{http.StatusConflict, "err.settingsChanged"}
+		}
 		if in.Theme != "dark" {
 			in.Theme = "light"
 		}

@@ -68,7 +68,10 @@ duplicate-click protection for product/customer saves, saving after image
 uploads finish, and reopening invalid custom color fields. GitHub Actions runs
 all JavaScript unit tests, browser-script syntax checks, Go tests and `go vet`
 before building a release. Browser and tray integration tests run separately
-on Windows using temporary shop data; `INVENTORY_TEST_EXE` can select a temporary
+on Windows using temporary shop data. The three browser suites now also run in
+a Windows GitHub Actions job that must pass before the build/release job starts.
+The interactive tray smoke check remains a separate Windows check.
+`INVENTORY_TEST_EXE` can select a temporary
 test executable so the source folder stays free of local builds.
 
 Old data compatibility means existing products, stock, prices, customers and

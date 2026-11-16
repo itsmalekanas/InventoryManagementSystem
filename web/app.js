@@ -7,6 +7,7 @@
 
 const I18N = {
   en: {
+    settingsInvoice: 'Invoice', settingsData: 'Data & backup', settingsSaveHint: 'Save changes from all tabs.',
     a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
     a4FontHint: 'English and Arabic fonts apply to their own letters, including mixed text. Uses installed fonts offline; unavailable fonts fall back to a similar style.',
     a4Layout: 'A4 layout and branding', a4Hint: 'Applies to A4 preview, printing and PDF. Fonts use those available on this computer.',
@@ -139,6 +140,7 @@ const I18N = {
     'err.invoiceYearChanged': 'The year has changed. Refresh the page and choose the invoice number again.',
   },
   ar: {
+    settingsInvoice: 'الفاتورة', settingsData: 'البيانات والنسخ الاحتياطي', settingsSaveHint: 'حفظ التغييرات في جميع علامات التبويب.',
     a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
     a4FontHint: 'يطبق كل خط على حروف لغته حتى في النص المختلط. تستخدم الخطوط المثبتة دون إنترنت، مع خط بديل عند عدم توفر الخط المحدد.',
     a4Layout: 'تخطيط وهوية فاتورة A4', a4Hint: 'يطبق على معاينة A4 والطباعة وPDF. تستخدم الخطوط المتوفرة على هذا الجهاز.',
@@ -1708,10 +1710,12 @@ function renderSettings() {
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
   $('#app').innerHTML = `
     ${topbar(t('settings'))}
-    <div class="page">
-      <div class="row g-4">
-        <div class="col-lg-5">
-          <form id="sf" class="bg-white rounded shadow-sm p-3" novalidate>
+    <div class="page settings-page">
+      <div class="settings-tabs" role="tablist" aria-label="${esc(t('settings'))}">
+        ${[['general', 'general'], ['invoice', 'settingsInvoice'], ['data', 'settingsData']].map(([key, label]) => `<button type="button" class="btn settings-tab" id="settings-tab-${key}" role="tab" aria-controls="settings-panel-${key}" aria-selected="false" tabindex="-1" data-settings-tab="${key}">${t(label)}</button>`).join('')}
+      </div>
+      <form id="sf" novalidate>
+        <section id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general" tabindex="0" hidden class="settings-general bg-white rounded shadow-sm p-3 p-md-4">
             <h5 class="mb-3">${t('general')}</h5>
             <fieldset class="mb-4">
               <legend class="h6">${t('topbarTheme')}</legend>
@@ -1733,11 +1737,16 @@ function renderSettings() {
             </div>
             <div class="mb-3"><label class="form-label">${t('language')}</label>
               <select class="form-select" name="language">${opt('en', 'English', d.language)}${opt('ar', 'العربية', d.language)}</select></div>
-            <div class="mb-3"><label class="form-label">${t('storeName')}</label>
-              <input class="form-control" name="storeName" maxlength="200" dir="auto" value="${esc(d.storeName)}"></div>
             <div class="mb-3"><label class="form-label">${t('lowStockAt')}</label>
               <input class="form-control" name="lowStock" inputmode="numeric" dir="ltr" value="${int(d.lowStock)}"></div>
-
+        </section>
+        <section id="settings-panel-invoice" role="tabpanel" aria-labelledby="settings-tab-invoice" tabindex="0" hidden>
+          <div class="row g-4">
+            <div class="col-lg-5">
+              <div class="bg-white rounded shadow-sm p-3 p-md-4">
+            <h5 class="mb-3">${t('invoiceDesign')}</h5>
+            <div class="mb-3"><label class="form-label">${t('storeName')}</label>
+              <input class="form-control" name="storeName" maxlength="200" dir="auto" value="${esc(d.storeName)}"></div>
             <div class="mb-3">
               <label class="form-label" for="sf-next-number">${t('nextInvoiceNumber')} (${numbering.year})</label>
               <div class="input-group" dir="ltr"><span class="input-group-text">INV-HS-${numbering.year}-</span>
@@ -1790,24 +1799,63 @@ function renderSettings() {
               ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
               <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
             </fieldset>
-            <button class="btn btn-brand btn-lg w-100" id="sf-save"><i class="bi bi-check-lg"></i> ${t('save')}</button>
-
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="settings-preview">
+                <h5>${t('preview')}</h5>
+                <div id="sf-preview"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section id="settings-panel-data" role="tabpanel" aria-labelledby="settings-tab-data" tabindex="0" hidden class="settings-general bg-white rounded shadow-sm p-3 p-md-4">
+          <h5>${t('settingsData')}</h5>
+          <a class="btn btn-outline-secondary mt-3" href="#/backup"><i class="bi bi-shield-check"></i> ${t('backup')}</a>
             <div class="mt-4 small text-secondary">
               <div class="fw-semibold"><i class="bi bi-folder2-open"></i> ${t('dataFolder')}</div>
               <div dir="ltr" class="text-start text-break"><code>${esc(state.dataDir)}</code></div>
               <div>${t('dataNote')}</div>
             </div>
-          </form>
-          <a class="btn btn-outline-secondary w-100 mt-3" href="#/backup"><i class="bi bi-shield-check"></i> ${t('backup')}</a>
+        </section>
+        <div class="settings-save mt-4 d-flex gap-3 align-items-center flex-wrap">
+          <button class="btn btn-brand btn-lg" id="sf-save"><i class="bi bi-check-lg"></i> ${t('save')}</button>
+          <span class="text-secondary small">${t('settingsSaveHint')}</span>
         </div>
-        <div class="col-lg-7">
-          <h5>${t('preview')}</h5>
-          <div id="sf-preview"></div>
-        </div>
-      </div>
+      </form>
     </div>`;
 
   const f = $('#sf');
+  const selectTab = (key, focus = false) => {
+    if (!['general', 'invoice', 'data'].includes(key)) key = 'general';
+    state.settingsTab = key;
+    $$('[data-settings-tab]', f.parentElement).forEach(button => {
+      const active = button.dataset.settingsTab === key;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      $(`#settings-panel-${button.dataset.settingsTab}`).hidden = !active;
+      if (active && focus) button.focus();
+    });
+  };
+  const revealControl = control => {
+    const panel = control.closest('[role="tabpanel"]');
+    if (panel) selectTab(panel.id.replace('settings-panel-', ''));
+    control.focus();
+  };
+  const tabs = $$('[data-settings-tab]');
+  tabs.forEach((button, index) => {
+    button.onclick = () => selectTab(button.dataset.settingsTab);
+    button.onkeydown = event => {
+      let next;
+      if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else if (event.key === 'ArrowRight') next = (index + (lang() === 'ar' ? -1 : 1) + tabs.length) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index + (lang() === 'ar' ? 1 : -1) + tabs.length) % tabs.length;
+      if (next !== undefined) { event.preventDefault(); selectTab(tabs[next].dataset.settingsTab, true); }
+    };
+  });
+  selectTab(state.settingsTab);
   const sample = {
     code: nextInvoiceCode(), date: new Date().toISOString(),
     customerName: t('sampleCustomer'), customerPhone: '0770 000 0000', customerAddress: lang() === 'ar' ? 'بغداد' : 'Baghdad',
@@ -1893,16 +1941,17 @@ function renderSettings() {
     e.preventDefault();
     const invalidColor = $('.color-picker-hex[aria-invalid="true"]', f);
     if (invalidColor) {
+      revealControl(invalidColor);
       colorPickers[invalidColor.closest('[data-color-picker]').dataset.colorPicker].open();
       invalidColor.focus();
       return toast(t('err.badColor'), true);
     }
     read();
     const low = parseWhole(f.lowStock.value);
-    if (isNaN(low) || low > 1e6) { f.lowStock.focus(); return toast(t('err.badStock'), true); }
+    if (isNaN(low) || low > 1e6) { revealControl(f.lowStock); return toast(t('err.badStock'), true); }
     const next = parseInvoiceNumber(f.nextInvoiceNumber.value);
-    if (!next) return toast(t('err.invoiceNumber'), true);
-    if (next < numbering.nextNumber) return toast(t('err.invoiceNumberUsed'), true);
+    if (!next) { revealControl(f.nextInvoiceNumber); return toast(t('err.invoiceNumber'), true); }
+    if (next < numbering.nextNumber) { revealControl(f.nextInvoiceNumber); return toast(t('err.invoiceNumberUsed'), true); }
     const button = $('#sf-save');
     button.disabled = true;
     try {

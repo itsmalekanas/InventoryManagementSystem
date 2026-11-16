@@ -215,6 +215,17 @@ body {
 @font-face { font-family: InvoiceArabic-arial; src: local("Arial Bold"); font-weight: 700; }
 @font-face { font-family: InvoiceArabic-traditional; src: local("Traditional Arabic"); font-weight: 400; }
 
+/* ---------- settings ---------- */
+.settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 24px; padding-bottom: 12px; }
+.settings-tab { color: var(--ink); border: 1px solid transparent; }
+.settings-tab:hover { background: var(--brand-soft); color: var(--ink); }
+.settings-tab.active { background: var(--brand-solid); color: var(--brand-button-ink, #fff); }
+.settings-tab:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+.settings-general { max-width: 800px; }
+.settings-preview { position: sticky; top: 20px; }
+#sf-preview { overflow-x: auto; }
+@media (max-width: 991px) { .settings-preview { position: static; } }
+
 /* ---------- invoice ---------- */
 .invoice {
   background: #fff; color: #000; margin: 0 auto; padding: 32px;

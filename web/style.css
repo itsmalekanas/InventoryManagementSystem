@@ -55,7 +55,10 @@ body {
   --bs-btn-disabled-bg: var(--brand-solid);
   --bs-btn-disabled-border-color: var(--brand-solid);
 }
-.btn-brand:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+/* One corner radius across sizes. Use a crisp keyboard outline instead of
+   stacking Bootstrap's soft focus shadow with a second outline. */
+.btn { --bs-btn-border-radius: 8px; --bs-btn-focus-box-shadow: none; }
+.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; box-shadow: none; }
 .text-brand { color: var(--brand); }
 .btn-outline-primary {
   --bs-btn-color: var(--brand); --bs-btn-border-color: var(--brand);
@@ -216,6 +219,7 @@ body {
 @font-face { font-family: InvoiceArabic-traditional; src: local("Traditional Arabic"); font-weight: 400; }
 
 /* ---------- settings ---------- */
+@font-face { font-family: InvoiceLatin-googlesans; src: url('vendor/fonts/googlesans-variable.ttf') format('truetype'); font-weight: 100 900; font-display: swap; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
 @font-face { font-family: InvoiceLatin-inter; src: url('vendor/fonts/inter-variable.ttf') format('truetype'); font-weight: 100 900; font-display: swap; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
 @font-face { font-family: InvoiceLatin-sourcesans3; src: url('vendor/fonts/sourcesans3-variable.ttf') format('truetype'); font-weight: 200 900; font-display: swap; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
 @font-face { font-family: InvoiceLatin-lora; src: url('vendor/fonts/lora-variable.ttf') format('truetype'); font-weight: 400 700; font-display: swap; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
@@ -238,10 +242,14 @@ body {
 .settings-tab:hover { background: var(--brand-soft); color: var(--ink); }
 .settings-tab.active { background: var(--brand-solid); color: var(--brand-button-ink, #fff); }
 .settings-tab:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+.topbar .settings-save-action { min-height: 44px; white-space: nowrap; padding-inline: 14px; }
 .settings-general { max-width: 800px; }
-.settings-preview { position: sticky; top: 20px; }
-#sf-preview { overflow-x: auto; }
-@media (max-width: 991px) { .settings-preview { position: static; } }
+.settings-preview { position: sticky; top: 96px; }
+#sf-preview { overflow: auto; max-height: calc(100dvh - 150px); overscroll-behavior: contain; }
+@media (max-width: 991px) {
+  .settings-preview { position: static; }
+  #sf-preview { max-height: none; }
+}
 
 /* ---------- invoice ---------- */
 .invoice {

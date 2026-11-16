@@ -7,7 +7,7 @@ const crypto = require('node:crypto');
 test('bundled fonts match their pinned sources and include redistribution licenses', () => {
   const root = path.join(__dirname, '../web/vendor/fonts');
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'sources.json'), 'utf8'));
-  assert.equal(manifest.length, 8);
+  assert.equal(manifest.length, 9);
   for (const entry of manifest) {
     const bytes = fs.readFileSync(path.join(root, entry.file));
     assert.equal(bytes.readUInt32BE(0), 0x00010000, entry.file + ' must be a TrueType font');

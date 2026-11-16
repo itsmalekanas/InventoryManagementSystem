@@ -47,7 +47,7 @@ func TestA4LayoutPersistenceAndValidation(t *testing.T) {
 }
 
 func TestAllInvoiceFontsAccepted(t *testing.T) {
-	for _, english := range []string{"", "segoe", "arial", "georgia", "inter", "lora", "sourcesans3"} {
+	for _, english := range []string{"", "segoe", "arial", "georgia", "inter", "lora", "sourcesans3", "googlesans"} {
 		for _, arabic := range []string{"", "tahoma", "arial", "traditional", "cairo", "tajawal", "amiri"} {
 			layout := &A4Layout{Margin: 12, Font: "system", FontSize: 16, StoreSize: 24, TitleSize: 21, HeaderAlign: "center", FooterAlign: "center", HeaderGap: 16, FooterGap: 24, EnglishFont: english, ArabicFont: arabic}
 			if !validA4Layout(layout) {

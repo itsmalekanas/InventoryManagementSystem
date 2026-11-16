@@ -38,5 +38,10 @@
         "file":  "amiri-regular.ttf",
         "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/amiri/Amiri-Regular.ttf",
         "sha256":  "AB391C4147D054C48976E98322AD0EEFE1427AA0E0502A12A4C75D80A70CFCD7"
+    },
+    {
+        "file":  "googlesans-variable.ttf",
+        "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/googlesans/GoogleSans%5BGRAD%2Copsz%2Cwght%5D.ttf",
+        "sha256":  "D0A87D835A944B8B40D0E82A5651BB59AB97B936A2AEED5946EB57E7B2A3A90A"
     }
 ]

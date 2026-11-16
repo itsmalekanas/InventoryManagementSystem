@@ -101,7 +101,7 @@ const I18N = {
     paper: 'Paper size', paperA4: 'A4 page', paperReceipt: 'Receipt printer (80 mm)',
     lowStockAt: 'Warn about low stock at (pieces)', preview: 'Preview', dataFolder: 'Data folder',
     dataNote: 'All data and pictures are saved in this folder. To back up or move the app, copy the whole app folder.',
-    sampleCustomer: 'Sample customer', sampleProduct: 'Sample product',
+    sampleCustomer: 'Customer name', sampleProduct: 'Product name', sampleAddress: 'Customer address',
     unsaved: 'You have unsaved changes. Leave without saving?',
     backup: 'Backup & transfer', backupSub: 'Export everything or restore a backup',
     exportBackup: 'Export everything', importBackup: 'Choose backup ZIP',
@@ -235,7 +235,7 @@ const I18N = {
     paper: 'حجم الورق', paperA4: 'ورقة A4', paperReceipt: 'طابعة إيصالات (80 ملم)',
     lowStockAt: 'التنبيه عند انخفاض المخزون إلى (قطعة)', preview: 'معاينة', dataFolder: 'مجلد البيانات',
     dataNote: 'كل البيانات والصور محفوظة في هذا المجلد. للنسخ الاحتياطي أو النقل انسخ مجلد التطبيق كاملاً.',
-    sampleCustomer: 'زبون تجريبي', sampleProduct: 'منتج تجريبي',
+    sampleCustomer: 'اسم العميل', sampleProduct: 'اسم المنتج', sampleAddress: 'عنوان العميل',
     unsaved: 'لديك تغييرات غير محفوظة. هل تريد المغادرة بدون حفظ؟',
     backup: 'النسخ الاحتياطي والنقل', backupSub: 'تصدير كل البيانات أو استعادة نسخة احتياطية',
     exportBackup: 'تصدير كل البيانات', importBackup: 'اختيار نسخة ZIP',
@@ -1341,7 +1341,7 @@ function a4Layout(s) {
     storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
     headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
     font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
-    englishFont: ['segoe', 'arial', 'georgia', 'inter', 'lora', 'sourcesans3'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
+    englishFont: ['segoe', 'arial', 'georgia', 'inter', 'lora', 'sourcesans3', 'googlesans'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
     arabicFont: ['tahoma', 'arial', 'traditional', 'cairo', 'tajawal', 'amiri'].includes(v.arabicFont) ? v.arabicFont : 'tahoma',
     emphasis: v.emphasis === 'headings' ? 'headings' : 'regular',
     headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign : 'center',
@@ -1719,7 +1719,7 @@ function renderSettings() {
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
   $('#app').innerHTML = `
-    ${topbar(t('settings'))}
+    ${topbar(t('settings'), `<button type="submit" form="sf" class="btn settings-save-action" id="sf-save" title="${esc(t('settingsSaveHint'))}"><i class="bi bi-check-lg" aria-hidden="true"></i> ${t('save')}</button>`)}
     <div class="page settings-page">
       <div class="settings-tabs" role="tablist" aria-label="${esc(t('settings'))}">
         ${[['general', 'general'], ['invoice', 'settingsInvoice'], ['data', 'settingsData']].map(([key, label]) => `<button type="button" class="btn settings-tab" id="settings-tab-${key}" role="tab" aria-controls="settings-panel-${key}" aria-selected="false" tabindex="-1" data-settings-tab="${key}">${t(label)}</button>`).join('')}
@@ -1808,7 +1808,7 @@ function renderSettings() {
                 <div class="col-sm-6"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
               </div>
               <p class="form-text">${t('invoiceFontsOffline')}</p>
-              ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['inter', 'Inter'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
+              ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['googlesans', 'Google Sans'], ['inter', 'Inter'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
               ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['cairo', 'Cairo — القاهرة'], ['tajawal', 'Tajawal — تجوّل'], ['amiri', 'Amiri — أميري']], [['tahoma', 'Tahoma'], ['arial', 'Arial'], ['traditional', 'Traditional Arabic']])}
               <div class="mb-3"><label class="form-label" for="a4-emphasis">${t('a4Emphasis')}</label><select class="form-select" id="a4-emphasis" data-a4="emphasis">${opt('regular', t('a4Regular'), layout.emphasis)}${opt('headings', t('a4Headings'), layout.emphasis)}</select></div>
               <details id="a4-advanced" class="invoice-advanced mb-3"><summary>${t('invoiceAdvanced')}</summary><div class="row g-3 my-1">
@@ -1837,10 +1837,6 @@ function renderSettings() {
               <div>${t('dataNote')}</div>
             </div>
         </section>
-        <div class="settings-save mt-4 d-flex gap-3 align-items-center flex-wrap">
-          <button class="btn btn-brand btn-lg" id="sf-save"><i class="bi bi-check-lg"></i> ${t('save')}</button>
-          <span class="text-secondary small">${t('settingsSaveHint')}</span>
-        </div>
       </form>
     </div>`;
 
@@ -1877,7 +1873,7 @@ function renderSettings() {
   selectTab(state.settingsTab);
   const sample = {
     code: nextInvoiceCode(), date: new Date().toISOString(),
-    customerName: t('sampleCustomer'), customerPhone: '0770 000 0000', customerAddress: lang() === 'ar' ? 'بغداد' : 'Baghdad',
+    customerName: t('sampleCustomer'), customerPhone: '0000 000 0000', customerAddress: t('sampleAddress'),
     items: [
       { name: t('sampleProduct') + ' 1', price: 25000, qty: 2, total: 50000 },
       { name: t('sampleProduct') + ' 2', price: 7500, qty: 3, total: 22500 },
@@ -1893,7 +1889,7 @@ function renderSettings() {
     Object.values(colorPickers).forEach(picker => picker.sync());
     $$('[data-font-legacy]').forEach(label => {
       const selected = $(`input[name="${label.dataset.fontLegacy}"]:checked`, f);
-      label.textContent = selected && !['inter', 'lora', 'sourcesans3', 'cairo', 'tajawal', 'amiri'].includes(selected.value) ? ` · ${selected.closest('label').querySelector('.invoice-font-name').textContent}` : '';
+      label.textContent = selected && !['googlesans', 'inter', 'lora', 'sourcesans3', 'cairo', 'tajawal', 'amiri'].includes(selected.value) ? ` · ${selected.closest('label').querySelector('.invoice-font-name').textContent}` : '';
     });
     $$('[data-header-color]').forEach(button => {
       const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();

@@ -306,7 +306,9 @@ func browserCommands(platform, url string) [][]string {
 	default:
 		// Prefer Firefox, including Debian's ESR package. Desktop launchers also
 		// cover installations provided by Flatpak or another default browser.
-		return [][]string{{"firefox", "--new-tab", url}, {"firefox-esr", "--new-tab", url}, {"xdg-open", url}, {"gio", "open", url}}
+		// A new tab can remain hidden inside a minimized Firefox window. Request
+		// a window so reopening the portable app always presents its interface.
+		return [][]string{{"firefox", "--new-window", url}, {"firefox-esr", "--new-window", url}, {"xdg-open", url}, {"gio", "open", url}}
 	}
 }
 

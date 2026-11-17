@@ -52,11 +52,12 @@ function desktopQuote(value) { return '"' + value.replace(/[\\"`$]/g, '\\$&') + 
   assert.ok(title.includes('Inventory Management System'));
   const dbPath = path.join(appDir, 'data', 'db.json'); assert.ok(fs.existsSync(dbPath));
   const initialDB = fs.readFileSync(dbPath);
-  // Reopening the desktop entry should reuse the app and restore Firefox's window.
+  // Reopening must present the app, even when its previous Firefox window is minimized.
   command('xdotool', ['windowminimize', windowID]);
   await until(() => command('xwininfo', ['-id', windowID]).includes('IsUnMapped'));
   command('gio', ['launch', desktop], { env, cwd: os.tmpdir() });
-  await until(() => command('xwininfo', ['-id', windowID]).includes('IsViewable'));
+  const reopenedWindow = await until(() => command('xdotool', ['search', '--onlyvisible', '--name', 'Inventory Management System']).trim().split('\n')[0]);
+  assert.equal(Number(command('xdotool', ['getwindowpid', reopenedWindow]).trim()), browserPID);
   assert.ok(fs.readFileSync(dbPath).equals(initialDB), 'Reopen must not rewrite data');
   const state = await (await fetch(url + '/api/data')).json();
   const response = await fetch(url + '/api/exit', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Inventory-Generation': state.generation }, body: '{}' });

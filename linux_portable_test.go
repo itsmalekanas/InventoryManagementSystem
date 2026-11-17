@@ -114,7 +114,7 @@ func TestLinuxPortableLauncher(t *testing.T) {
 		t.Fatal("reopening changed database")
 	}
 	args, err := os.ReadFile(capture)
-	if err != nil || strings.Count(string(args), "--new-tab") != 2 || !strings.Contains(string(args), url) {
+	if err != nil || strings.Count(string(args), "--new-window") != 2 || !strings.Contains(string(args), url) {
 		t.Fatalf("Firefox dispatch: %s %v", args, err)
 	}
 	stop()

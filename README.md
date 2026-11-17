@@ -250,7 +250,7 @@ current year, leave existing invoices unchanged, and survive restarting the app.
 
 Linux packages target current Debian stable, Ubuntu's latest stable release,
 Fedora stable, and Arch Linux. The same static executable is used across these
-distributions, with separate `linux-amd64` (Intel/AMD) and `linux-arm64` archives.
+distributions, distributed as a `linux-amd64` archive for Intel/AMD 64-bit PCs.
 The Linux edition was introduced in v0.6.0 alongside the Windows package.
 
 Extract the complete `.tar.gz` archive into a writable folder and run `./start.sh`
@@ -273,8 +273,7 @@ and Firefox browser checks on Ubuntu and Windows. Distro containers do not test
 desktop integration; an additional Ubuntu virtual-X11 smoke check exercises a
 desktop entry, a real Firefox window, minimize/reopen and Exit. Other desktop
 environments and file-manager trust prompts need checking on those desktops.
-ARM64 builds are cross-compiled, not covered by the x86-64 runtime
-matrix.
+The runtime matrix covers Intel/AMD 64-bit systems.
 
 ## Building from source
 
@@ -284,9 +283,9 @@ are optional, for development and Windows integration checks.
 You need [Go](https://go.dev/dl/) 1.24 or newer.
 
 - Windows: double click `build.bat`. The program is written to `dist\Inventory Management System v0.6.1\Inventory Management System v0.6.1.exe`.
-- macOS / Linux: run `./build.sh`. Programs for all three systems are written to `dist/`.
-- Linux only, from any supported build host: `go run ./tools/build-linux -arch amd64`
-  or `go run ./tools/build-linux -arch arm64`. This writes a versioned portable
+- Linux: run `sh build.sh` to build Windows and Linux Intel/AMD packages into `dist/`.
+- Linux only, from any supported build host: `go run ./tools/build-linux`.
+  This writes a versioned portable
   folder and `.tar.gz` to `dist/`; only app files are packaged, never existing data.
 - To run it while developing: `go run .` (data is then saved in `./data`).
 - Tests: `go test ./...`

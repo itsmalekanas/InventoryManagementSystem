@@ -2,6 +2,22 @@
 
 Updated: 2026-11-17 (Asia/Baghdad).
 
+## Current platform policy: Intel/AMD 64-bit only
+
+- User requested removing ARM64 from code/builds and GitHub downloads altogether.
+  The Linux packager now has one fixed amd64 target and no architecture flag.
+  Build.sh, test executable resolution, CI build/upload/release asset selection,
+  and user/test/package docs now cover Windows and Linux Intel/AMD 64-bit only.
+  Removed the unused macOS ARM build from build.sh as well. No version bump.
+- Local Go tests/vet, 13 JS tests, shell syntax, Linux amd64 package build and
+  actionlint passed. The generated ARM64 folder/archive under dist were removed
+  after checking the folder contained only generated app files, not shop data.
+- GitHub cleanup targets: the two ARM64 assets attached to v0.6.0 and v0.6.1,
+  plus old mixed-architecture linux-portables CI bundles. Keep Windows/Linux
+  amd64 release downloads, version tags and Git history. Pending push/cleanup
+  verification; VERSION remains v0.6.1. Historical architecture notes below
+  describe old releases and must not be treated as current supported targets.
+
 ## Latest completed checkpoint: v0.6.1
 
 - Published latest **v0.6.1**, tag commit `395e6ef`. Release workflow 44073131452

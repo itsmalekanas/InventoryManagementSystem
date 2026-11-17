@@ -16,19 +16,16 @@ import (
 )
 
 func main() {
-	arch := flag.String("arch", "amd64", "Linux CPU architecture: amd64 or arm64")
 	out := flag.String("out", "dist", "output directory")
 	flag.Parse()
-	if err := build(*arch, *out); err != nil {
+	if err := build(*out); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func build(arch, out string) error {
-	if arch != "amd64" && arch != "arm64" {
-		return fmt.Errorf("unsupported architecture %q", arch)
-	}
+func build(out string) error {
+	const arch = "amd64"
 	raw, err := os.ReadFile("VERSION")
 	if err != nil {
 		return err

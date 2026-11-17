@@ -22,8 +22,7 @@ web Exit and restart persistence. Run against a freshly built executable.
 Build portable Linux archives with:
 
 ```sh
-go run ./tools/build-linux -arch amd64
-go run ./tools/build-linux -arch arm64
+go run ./tools/build-linux
 ```
 
 `tools/build-linux` forces `CGO_ENABLED=0`, rejects an ELF dynamic loader,
@@ -41,8 +40,8 @@ The launcher check stubs browser dispatch; actual Firefox rendering is tested
 separately. CI also compiles the backend test runner statically and runs the full
 suite and packaged-launcher check inside `debian:stable-slim`, `ubuntu:rolling`,
 `fedora:latest` and `archlinux:latest`. Ubuntu's `rolling` tag tracks the latest
-stable release, while `latest` tracks LTS. ARM64 is built but not runtime-tested
-by this x86-64 matrix. Linux execution checks run in CI because the current
+stable release, while `latest` tracks LTS. The supported architecture is Intel/AMD
+64-bit. Linux execution checks run in CI because the current
 Windows workspace has no WSL/Docker.
 
 The Linux CI job also installs Openbox/xdotool/Xvfb and runs a real Firefox GUI

@@ -1,7 +1,7 @@
 Inventory Management System - portable Linux edition
 
 Targets: current Debian stable, Ubuntu stable, Fedora stable, and Arch Linux.
-Choose linux-amd64 for Intel/AMD PCs, or linux-arm64 for ARM64 computers.
+The linux-amd64 package supports Intel/AMD 64-bit PCs.
 
 1. Extract the complete .tar.gz archive into a writable folder.
 2. Run ./start.sh (or: sh start.sh). It prefers Firefox or Firefox ESR;

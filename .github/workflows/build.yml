@@ -66,8 +66,7 @@ jobs:
           go vet ./...
       - name: Build static portable Linux archives
         run: |
-          go run ./tools/build-linux -arch amd64
-          go run ./tools/build-linux -arch arm64
+          go run ./tools/build-linux
           CGO_ENABLED=0 go test -c -o dist/linux-tests .
       - name: Portable launcher and Firefox dispatch
         run: |
@@ -89,7 +88,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: linux-portables
-          path: dist/*.tar.gz
+          path: dist/*-linux-amd64.tar.gz
       - uses: actions/upload-artifact@v4
         with:
           name: linux-test-runner
@@ -175,9 +174,9 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
-          body: Windows users can extract the Windows ZIP and run the EXE. Linux users can extract the linux-amd64 (Intel/AMD) or linux-arm64 archive and run start.sh; Firefox/Firefox ESR is preferred. Linux uses the same offline browser interface and web Exit button, with no tray icon. Exit the old app before copying its full data folder or importing a full backup into the new version.
+          body: Windows users can extract the Windows ZIP and run the EXE. Linux users can extract the linux-amd64 (Intel/AMD) archive and run start.sh; Firefox/Firefox ESR is preferred. Linux uses the same offline browser interface and web Exit button, with no tray icon. Exit the old app before copying its full data folder or importing a full backup into the new version.
           files: |
             dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip
-            dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-linux-*.tar.gz
+            dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-linux-amd64.tar.gz
           prerelease: false
           make_latest: true

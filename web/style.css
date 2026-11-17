@@ -243,12 +243,18 @@ body {
 .invoice-a4-settings { min-width: 0; margin-bottom: 0; }
 .invoice-text-style { min-width: 0; padding-block: 12px; border-top: 1px solid var(--line); }
 .invoice-text-style legend { float: none; width: auto; margin-bottom: 8px; }
+.text-style-color-info { display: flex; justify-content: flex-end; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.text-style-color-field { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.text-style-color-field input { width: 32px; padding: 2px; flex-shrink: 0; }
+.text-style-color-field code { color: var(--ink); font-size: .75rem; }
+.settings-save-group { display: flex; gap: 12px; align-items: center; justify-content: flex-end; }
+#sf-save-status[data-unsaved="true"] { color: var(--ink) !important; font-weight: 600; }
 #sf-logo-del, .invoice-settings-controls label.btn { white-space: normal; }
 .settings-topbar { position: static; }
 .settings-toolbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--line); background: var(--page); }
 .settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
 .settings-save-action { min-height: 44px; white-space: nowrap; padding-inline: 14px; flex-shrink: 0; }
-@media (max-width: 600px) {
+@media (max-width: 767px) {
   .settings-toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
   .settings-save-action { align-self: flex-end; }
 }

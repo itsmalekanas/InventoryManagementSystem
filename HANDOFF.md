@@ -6,13 +6,15 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,
   IQD integer amounts, JSON persistence, images, Windows tray, verified ZIP backups.
-- User authorized publishing all current work as **v0.5.7** latest on 2026-11-17.
+- User authorized publishing all current work as **v0.5.8** latest on 2026-11-17.
+- v0.5.7 published as latest at `c65581c` with Windows ZIP; GitHub checks passed.
 - v0.5.6 published as latest at `98e7e18` with Windows ZIP; GitHub checks passed.
 - v0.5.5 published as latest at `aa232f5` with Windows ZIP; GitHub checks passed.
 - v0.5.4 was pushed at `fe00994`; GitHub confirmed the latest release has its
   Windows ZIP. Windows browser checks, Go tests/vet, and JS checks passed on GitHub.
-- `VERSION` and README now use v0.5.7. This release adds six offline invoice
-  font families and compact dropdown selectors with live selected-font samples.
+- `VERSION` and README now use v0.5.8. This release adds one shared text-style
+  reset, explicit default sizes/weights, color hex/source indicators, saved/unsaved
+  status beside Save, and clearer Typography/Layout grouping.
   Previous text styles, PNG/PDF exports and reliability fixes remain included. Tag push starts the GitHub
   workflow, which publishes the Windows ZIP as latest after checks pass.
 - The Qt experiment was completely removed at the user's request. No desktop
@@ -51,6 +53,24 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 ## User preferences and pending decisions
 
+- User approved clarity tweaks: default text sizes now show effective pixel
+  values, default weight names show Regular/Bold, and color swatches show hex
+  values plus Follows accent / Default black / Custom color. Values refresh
+  with presets, accent changes and reset. Base font-size input moved from Layout
+  into Typography. No persistence/schema changes.
+- Added saved/unsaved status beside Settings Save across tabs. Compares form
+  values, logo and normalized optional layout; catches invalid drafts and avoids
+  false changes from omitted boolean fields. Edits, reverts, tab switching and
+  save/reload checked in browser. Toolbar stacks below 768px for more room.
+  All 13 JS tests, syntax, diff check and browser suite passed; screenshot reviewed
+  at %TEMP%\inventory-regression-vmQGtm. Included in v0.5.8; release/push authorized.
+- After v0.5.7, user requested one Reset for text styles instead of nine.
+  Removed individual buttons; added Reset text styles below the groups, clearing
+  all textStyles overrides together. Fonts, spacing and layout remain intact.
+  English/Arabic labels and helper text updated. Syntax, 13 JS tests and browser
+  suite passed, including single-reset control, restored values and preserved
+  font/layout. Artifacts: %TEMP%\inventory-regression-L4g1HM.
+  Included in v0.5.8; release/push authorized.
 - User requested font dropdowns to save space while retaining previews. Replaced
   both grids with Bootstrap selects, each with a live selected-font sample below.
   All font choices preserved; changing/resetting fonts updates the sample and

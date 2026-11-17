@@ -12,7 +12,8 @@ const I18N = {
     'uploadWait': 'Please wait for the logo upload to finish.',
     invoiceSpacing: 'Page spacing', invoiceCompact: 'Compact', invoiceStandard: 'Standard', invoiceSpacious: 'Spacious', invoiceTextSize: 'Text size', invoiceSmall: 'Small', invoiceLarge: 'Large', invoiceCustom: 'Custom (saved values)', invoiceAdvanced: 'Advanced layout', invoiceMoreFonts: 'Previously available fonts', invoiceFontSample: 'Invoice · My Store · 0123456789', invoiceFontsOffline: 'Preview each font below. New fonts are included in the app and work offline. Existing font choices are preserved until you change them.',
     invoiceBranding: 'Branding', invoiceContent: 'Invoice content', invoiceTypography: 'Typography', invoiceLayout: 'Layout',
-    textStyles: 'Text styles', textStylesHint: 'Set each group independently. Reset restores its original style. Shared fonts above apply to all groups.', textStyleSize: 'Size (px)', textStyleWeight: 'Weight', textStyleColor: 'Color', textStyleRegular: 'Regular', textStyleMedium: 'Medium', textStyleBold: 'Bold', textStyleReset: 'Reset', textStyleDefault: 'Default',
+    settingsUnsaved: 'Unsaved changes', settingsAllSaved: 'All changes saved', textColorAccent: 'Follows accent', textColorDefault: 'Default black', textColorCustom: 'Custom color',
+    textStyles: 'Text styles', textStylesHint: 'Set each group independently. Reset text styles restores all groups to their original styles. Shared fonts above apply to all groups.', textStyleSize: 'Size (px)', textStyleWeight: 'Weight', textStyleColor: 'Color', textStyleRegular: 'Regular', textStyleMedium: 'Medium', textStyleBold: 'Bold', textStyleReset: 'Reset text styles', textStyleDefault: 'Default',
     textStyleStore: 'Store name', textStyleTitle: 'Invoice title', textStyleLabels: 'Detail labels', textStyleValues: 'Detail values', textStyleTableHeadings: 'Table headings', textStyleRows: 'Product rows', textStyleTotals: 'Totals & paid', textStyleHeader: 'Header message', textStyleFooter: 'Footer message',
     settingsInvoice: 'Invoice', settingsData: 'Data & backup', settingsSaveHint: 'Save changes from all tabs.',
     a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
@@ -153,7 +154,8 @@ const I18N = {
     'uploadWait': 'يرجى الانتظار حتى يكتمل رفع الشعار.',
     invoiceSpacing: 'تباعد الصفحة', invoiceCompact: 'مضغوط', invoiceStandard: 'قياسي', invoiceSpacious: 'واسع', invoiceTextSize: 'حجم النص', invoiceSmall: 'صغير', invoiceLarge: 'كبير', invoiceCustom: 'مخصص (القيم المحفوظة)', invoiceAdvanced: 'إعدادات التخطيط المتقدمة', invoiceMoreFonts: 'الخطوط المتوفرة سابقاً', invoiceFontSample: 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩', invoiceFontsOffline: 'عاين الخطوط أدناه. الخطوط الجديدة مضمنة وتعمل دون إنترنت. يبقى اختيار الخط الحالي محفوظاً حتى تغييره.',
     invoiceBranding: 'الهوية', invoiceContent: 'محتوى الفاتورة', invoiceTypography: 'الخطوط', invoiceLayout: 'التخطيط',
-    textStyles: 'أنماط النص', textStylesHint: 'خصص كل مجموعة بشكل مستقل. تعيد إعادة الضبط نمطها الأصلي. تطبق الخطوط المشتركة أعلاه على جميع المجموعات.', textStyleSize: 'الحجم (بكسل)', textStyleWeight: 'الوزن', textStyleColor: 'اللون', textStyleRegular: 'عادي', textStyleMedium: 'متوسط', textStyleBold: 'عريض', textStyleReset: 'إعادة ضبط', textStyleDefault: 'افتراضي',
+    settingsUnsaved: 'تغييرات غير محفوظة', settingsAllSaved: 'جميع التغييرات محفوظة', textColorAccent: 'يتبع اللون الرئيسي', textColorDefault: 'الأسود الافتراضي', textColorCustom: 'لون مخصص',
+    textStyles: 'أنماط النص', textStylesHint: 'خصص كل مجموعة بشكل مستقل. تعيد إعادة ضبط أنماط النص جميع المجموعات إلى أنماطها الأصلية. تطبق الخطوط المشتركة أعلاه على جميع المجموعات.', textStyleSize: 'الحجم (بكسل)', textStyleWeight: 'الوزن', textStyleColor: 'اللون', textStyleRegular: 'عادي', textStyleMedium: 'متوسط', textStyleBold: 'عريض', textStyleReset: 'إعادة ضبط أنماط النص', textStyleDefault: 'افتراضي',
     textStyleStore: 'اسم المتجر', textStyleTitle: 'عنوان الفاتورة', textStyleLabels: 'تسميات التفاصيل', textStyleValues: 'قيم التفاصيل', textStyleTableHeadings: 'عناوين الجدول', textStyleRows: 'صفوف المنتجات', textStyleTotals: 'المجاميع وحالة الدفع', textStyleHeader: 'نص الترويسة', textStyleFooter: 'نص التذييل',
     settingsInvoice: 'الفاتورة', settingsData: 'البيانات والنسخ الاحتياطي', settingsSaveHint: 'حفظ التغييرات في جميع علامات التبويب.',
     a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
@@ -1816,13 +1818,23 @@ function renderSettings() {
   const sizePresets = { small: { fontSize: 14, storeSize: 21, titleSize: 18 }, standard: { fontSize: 16, storeSize: 24, titleSize: 21 }, large: { fontSize: 18, storeSize: 28, titleSize: 24 } };
   const selectedPreset = presets => Object.entries(presets).find(([, values]) => Object.entries(values).every(([key, value]) => layout[key] === value))?.[0] || 'custom';
   const textGroupLabels = { store: 'textStyleStore', title: 'textStyleTitle', labels: 'textStyleLabels', values: 'textStyleValues', tableHeadings: 'textStyleTableHeadings', rows: 'textStyleRows', totals: 'textStyleTotals', header: 'textStyleHeader', footer: 'textStyleFooter' };
+  const textDefaults = key => {
+    const base = d.a4Layout ? layout.fontSize : 16;
+    const accent = ['store', 'title', 'tableHeadings', 'totals'].includes(key);
+    return {
+      size: Math.round((key === 'store' ? (d.a4Layout ? layout.storeSize : base * 1.5) : key === 'title' ? (d.a4Layout ? layout.titleSize : base * 1.3) : key === 'totals' ? base * 1.15 : base) * 10) / 10,
+      weight: (accent || key === 'labels') && layout.emphasis === 'headings' ? 700 : 400,
+      color: safeColor(accent ? d.accentColor : '#000000', '#000000'), accent,
+    };
+  };
   const textStyleControls = () => invoiceTextGroups.map(key => {
     const style = layout.textStyles[key] || {};
     return `<fieldset class="invoice-text-style"><legend class="h6">${t(textGroupLabels[key])}</legend><div class="row g-2 align-items-end">
       <div class="col-4"><label class="form-label small" for="text-${key}-size">${t('textStyleSize')}</label><input class="form-control form-control-sm" id="text-${key}-size" data-text-group="${key}" data-text-prop="size" type="number" min="8" max="48" step="1" placeholder="${esc(t('textStyleDefault'))}" value="${style.size || ''}"></div>
       <div class="col-5"><label class="form-label small" for="text-${key}-weight">${t('textStyleWeight')}</label><select class="form-select form-select-sm" id="text-${key}-weight" data-text-group="${key}" data-text-prop="weight">${[['', 'textStyleDefault'], [400, 'textStyleRegular'], [500, 'textStyleMedium'], [700, 'textStyleBold']].map(([value, label]) => `<option value="${value}"${String(style.weight || '') === String(value) ? ' selected' : ''}>${t(label)}</option>`).join('')}</select></div>
-      <div class="col-3"><label class="form-label small" for="text-${key}-color">${t('textStyleColor')}</label><input class="form-control form-control-color form-control-sm w-100" id="text-${key}-color" data-text-group="${key}" data-text-prop="color" type="color" value="${style.color || safeColor(['store', 'title', 'tableHeadings', 'totals'].includes(key) ? d.accentColor : '#000000', '#000000')}"></div>
-    </div><button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-text-reset="${key}" aria-label="${esc(t('textStyleReset') + ': ' + t(textGroupLabels[key]))}">${t('textStyleReset')}</button></fieldset>`;
+      <div class="col-3"><label class="form-label small" for="text-${key}-color">${t('textStyleColor')}</label><div class="text-style-color-field"><input class="form-control form-control-color form-control-sm" id="text-${key}-color" data-text-group="${key}" data-text-prop="color" type="color" value="${style.color || textDefaults(key).color}" aria-describedby="text-${key}-color-info"><code dir="ltr" data-text-hex="${key}"></code></div></div>
+      <div class="col-12 text-style-color-info" id="text-${key}-color-info"><span class="small text-secondary" data-text-color-source="${key}"></span></div>
+    </div></fieldset>`;
   }).join('');
   const fontGallery = (key, label, prefix, fonts, legacy) => {
     return `<div class="mb-3 invoice-font-picker"><label class="form-label" for="a4-${key}">${t(label)}</label>
@@ -1838,7 +1850,7 @@ function renderSettings() {
       <div class="settings-tabs" role="tablist" aria-label="${esc(t('settings'))}">
         ${[['general', 'general'], ['invoice', 'settingsInvoice'], ['data', 'settingsData']].map(([key, label]) => `<button type="button" class="btn btn-outline-primary settings-tab" id="settings-tab-${key}" role="tab" aria-controls="settings-panel-${key}" aria-selected="false" tabindex="-1" data-settings-tab="${key}">${t(label)}</button>`).join('')}
       </div>
-      <button type="submit" form="sf" class="btn btn-brand settings-save-action" id="sf-save" title="${esc(t('settingsSaveHint'))}"><i class="bi bi-check-lg" aria-hidden="true"></i> ${t('save')}</button>
+      <div class="settings-save-group"><span id="sf-save-status" class="small text-secondary" role="status" aria-live="polite"></span><button type="submit" form="sf" class="btn btn-brand settings-save-action" id="sf-save" title="${esc(t('settingsSaveHint'))}"><i class="bi bi-check-lg" aria-hidden="true"></i> ${t('save')}</button></div>
       </div>
       <form id="sf" novalidate>
         <section id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general" tabindex="0" hidden class="settings-general bg-white rounded shadow-sm p-3 p-md-4">
@@ -1925,6 +1937,7 @@ function renderSettings() {
               <section class="invoice-settings-section" aria-labelledby="invoice-typography-heading">
               <h5 id="invoice-typography-heading">${t('invoiceTypography')}</h5>
               <p class="form-text">${t('a4Hint')}</p>
+              <div class="mb-3"><label class="form-label" for="a4-fontSize">${t('a4FontSize')}</label><input class="form-control" id="a4-fontSize" data-a4="fontSize" type="number" required min="10" max="22" step="1" value="${layout.fontSize}"></div>
                 <div class="mb-3"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
               <p class="form-text">${t('invoiceFontsOffline')}</p>
               ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['googlesans', 'Google Sans'], ['inter', 'Inter'], ['manrope', 'Manrope'], ['ibmplexsans', 'IBM Plex Sans'], ['notosans', 'Noto Sans'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
@@ -1932,12 +1945,13 @@ function renderSettings() {
               <h6>${t('textStyles')}</h6>
               <p class="form-text">${t('textStylesHint')}</p>
               <div id="sf-text-styles">${textStyleControls()}</div>
+              <button type="button" class="btn btn-outline-secondary mt-2" id="sf-text-reset">${t('textStyleReset')}</button>
               </section>
               <section class="invoice-settings-section" aria-labelledby="invoice-layout-heading">
               <h5 id="invoice-layout-heading">${t('invoiceLayout')}</h5>
                 <div class="mb-3"><label class="form-label" for="a4-spacing">${t('invoiceSpacing')}</label><select class="form-select" id="a4-spacing">${opt('custom', t('invoiceCustom'), selectedPreset(spacingPresets))}${opt('compact', t('invoiceCompact'), selectedPreset(spacingPresets))}${opt('standard', t('invoiceStandard'), selectedPreset(spacingPresets))}${opt('spacious', t('invoiceSpacious'), selectedPreset(spacingPresets))}</select></div>
               <div id="a4-advanced" class="row g-3 mb-3">
-              ${Object.entries(layoutRanges).filter(([key]) => !['storeSize', 'titleSize'].includes(key)).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
+              ${Object.entries(layoutRanges).filter(([key]) => !['fontSize', 'storeSize', 'titleSize'].includes(key)).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
               </div>
               ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
               <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
@@ -2007,7 +2021,8 @@ function renderSettings() {
     ],
     total: 84500, // 50,000 + 22,500 + 12,000
   };
-  let colorPickers = {};
+  let colorPickers = {}, savedDraft;
+  const draftSignature = () => JSON.stringify([d.logo || '', d.a4Layout ? a4Layout(d) : null, ...Array.from(f.elements).filter(control => control.matches('input, select, textarea') && control.type !== 'file').map(control => [control.name || control.id, ['checkbox', 'radio'].includes(control.type) ? control.checked : control.value])]);
   const preview = () => {
     $('#sf-preview').innerHTML = invoiceHtml(sample, d);
     $$('[data-font-sample]', f).forEach(sample => {
@@ -2018,8 +2033,20 @@ function renderSettings() {
     applyAccent(d);
     Object.values(colorPickers).forEach(picker => picker.sync());
     $$('[data-text-prop="color"]', f).forEach(control => {
-      if (!layout.textStyles[control.dataset.textGroup]?.color) control.value = safeColor(['store', 'title', 'tableHeadings', 'totals'].includes(control.dataset.textGroup) ? d.accentColor : '#000000', '#000000');
+      const key = control.dataset.textGroup, style = layout.textStyles[key] || {}, defaults = textDefaults(key);
+      if (!style.color) control.value = defaults.color;
+      $(`[data-text-hex="${key}"]`, f).textContent = control.value.toUpperCase();
+      $(`[data-text-color-source="${key}"]`, f).textContent = t(style.color ? 'textColorCustom' : defaults.accent ? 'textColorAccent' : 'textColorDefault');
+      const size = $(`#text-${key}-size`, f);
+      size.placeholder = `${t('textStyleDefault')} (${defaults.size})`;
+      size.title = `${t('textStyleDefault')}: ${defaults.size}px`;
+      $(`#text-${key}-weight option[value=""]`, f).textContent = `${t('textStyleDefault')} · ${t(defaults.weight === 700 ? 'textStyleBold' : 'textStyleRegular')}`;
     });
+    const signature = draftSignature();
+    if (savedDraft === undefined) savedDraft = signature;
+    const unsaved = signature !== savedDraft || logoUploads > 0;
+    $('#sf-save-status').textContent = t(unsaved ? 'settingsUnsaved' : 'settingsAllSaved');
+    $('#sf-save-status').dataset.unsaved = String(unsaved);
     $$('[data-header-color]').forEach(button => {
       const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();
       button.classList.toggle('active', selected);
@@ -2085,11 +2112,11 @@ function renderSettings() {
     control.oninput = update;
     control.onchange = update;
   });
-  $$('[data-text-reset]', f).forEach(button => { button.onclick = () => {
-    delete layout.textStyles[button.dataset.textReset];
+  $('#sf-text-reset').onclick = () => {
+    layout.textStyles = {};
     d.a4Layout = { ...layout };
     syncLayout(); read();
-  }; });
+  };
   [['#a4-spacing', spacingPresets], ['#a4-text-size', sizePresets]].forEach(([selector, presets]) => {
     $(selector).onchange = event => {
       if (!presets[event.target.value]) { event.target.value = selectedPreset(presets); return; }

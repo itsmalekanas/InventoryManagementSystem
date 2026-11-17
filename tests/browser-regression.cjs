@@ -57,6 +57,14 @@ async function api(url,endpoint,body,method='POST'){
   await input('#pf [name=price]','٢٥٬٠٠٠');await input('#pf [name=stock]','-2');await click('#pf-save');assert.equal((await data(url)).db.products.length,1);
   await input('#pf [name=stock]','٢');await click('#pf-save');await until(async()=>(await data(url)).db.products.length===2);await until(()=>evaluate('!document.querySelector("#modal").classList.contains("show")'));await pause(200);
   await go('#/settings','#sf');
+  assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'false');
+  const originalStoreName=await evaluate('document.querySelector("#sf [name=storeName]").value');
+  await input('#sf [name=storeName]','Temporary draft');
+  assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'true');
+  await click('#settings-tab-invoice');await click('#settings-tab-general');
+  assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'true');
+  await input('#sf [name=storeName]',originalStoreName);
+  assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'false');
   const reliability=await evaluate(`(async()=>{
     const form=document.querySelector('#sf'), file=document.querySelector('#sf-logo');
     const oldUpload=uploadImage, oldApi=api;let finishUpload, settingsWrites=0;
@@ -120,6 +128,19 @@ async function api(url,endpoint,body,method='POST'){
   await input('#a4-spacing','spacious','change');await input('#a4-text-size','large','change');
   assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
   assert.equal(await evaluate('document.querySelector("#a4-fontSize").value'),'18');
+  assert.ok(await evaluate('document.querySelector("#text-store-size").placeholder.includes("28")'));
+  assert.ok(await evaluate('document.querySelector("#text-labels-weight option:first-child").textContent.includes(t("textStyleRegular"))'));
+  assert.equal(await evaluate('document.querySelector("#a4-fontSize").closest("section").id||document.querySelector("#a4-fontSize").closest("section").getAttribute("aria-labelledby")'),'invoice-typography-heading');
+  assert.equal(await evaluate('document.querySelector("#a4-advanced #a4-fontSize")'),null);
+  await input('#sf [name=accentColor]','#245a81');
+  assert.equal(await evaluate('document.querySelector("[data-text-hex=store]").textContent'),'#245A81');
+  assert.equal(await evaluate('document.querySelector("[data-text-color-source=store]").textContent'),await evaluate('t("textColorAccent")'));
+  await input('#text-store-color','#112233');await input('#sf [name=accentColor]','#28634c');
+  assert.equal(await evaluate('document.querySelector("[data-text-hex=store]").textContent'),'#112233');
+  assert.equal(await evaluate('document.querySelector("[data-text-color-source=store]").textContent'),await evaluate('t("textColorCustom")'));
+  await click('#sf-text-reset');await input('#sf [name=accentColor]','#714b67');
+  assert.equal(await evaluate('document.querySelector("[data-text-hex=store]").textContent'),'#714B67');
+  assert.equal(await evaluate('document.querySelector("[data-text-hex=values]").textContent'),'#000000');
   await input('select[name=englishFont]','googlesans','change');await input('select[name=arabicFont]','cairo','change');
   await evaluate('document.fonts.ready');
   await evaluate('document.fonts.load("18px InvoiceLatin-inter", "Invoice")');
@@ -162,6 +183,7 @@ async function api(url,endpoint,body,method='POST'){
   await input('#sf [name=lowStock]','5');await click('#sf-save');
   await until(async()=>(await data(url)).db.settings.a4Layout?.margin===20);
   await go('#/settings','#sf');assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
+  assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'false');
   assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'cairo');
   assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'googlesans');
   assert.ok(await evaluate('pageCss(state.db.settings).includes("20mm")'));
@@ -184,9 +206,14 @@ async function api(url,endpoint,body,method='POST'){
     const style=await evaluate('(()=>{const s=getComputedStyle(document.querySelector('+JSON.stringify('#sf-preview '+selector)+'));return [s.fontSize,s.fontWeight,s.color]})()');
     assert.deepEqual(style,['17px','500','rgb(34, 51, 68)'],group);
   }
-  await click('[data-text-reset=labels]');
+  assert.equal(await evaluate('document.querySelectorAll("#sf-text-reset").length'),1);
+  assert.equal(await evaluate('document.querySelectorAll("[data-text-reset]").length'),0);
+  await click('#sf-text-reset');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-label")).fontWeight'),'400');
-  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).fontWeight'),'500');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).fontWeight'),'400');
+  assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
+  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'googlesans');
+  assert.ok(await evaluate('Array.from(document.querySelectorAll("[data-text-prop=size], [data-text-prop=weight]"),control=>control.value).every(value=>value==="")'));
   await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
   await evaluate('window.scrollTo({top:document.querySelector("#sf-text-styles").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
   const stylesShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'invoice-text-styles.png'),Buffer.from(stylesShot.data,'base64'));

@@ -12,10 +12,14 @@ Updated: 2026-11-17 (Asia/Baghdad).
 - Local Go tests/vet, 13 JS tests, shell syntax, Linux amd64 package build and
   actionlint passed. The generated ARM64 folder/archive under dist were removed
   after checking the folder contained only generated app files, not shop data.
-- GitHub cleanup targets: the two ARM64 assets attached to v0.6.0 and v0.6.1,
-  plus old mixed-architecture linux-portables CI bundles. Keep Windows/Linux
-  amd64 release downloads, version tags and Git history. Pending push/cleanup
-  verification; VERSION remains v0.6.1. Historical architecture notes below
+- Pushed code cleanup as d443a71. Deleted both ARM64 release assets from v0.6.0
+  and v0.6.1 and eight old mixed-architecture linux-portables CI bundles.
+  Verified both releases now contain only Windows and Linux amd64 downloads;
+  version tags and Git history remain. VERSION/latest remains v0.6.1.
+- CI run 44076661320 passed Windows, Linux, all four distro suites and build.
+  Windows passed on retry after an unexpected downloads.htm in the first run's
+  temporary download folder; no test or application changes were needed.
+  Historical architecture notes below
   describe old releases and must not be treated as current supported targets.
 
 ## Latest completed checkpoint: v0.6.1

@@ -82,10 +82,11 @@ Updated: 2026-11-17 (Asia/Baghdad).
   rather than LTS latest tag), Fedora latest and Arch latest containers. Publishes
   Linux archives alongside Windows on future authorized tags. README documents
   portable use and development dependencies.
-- Verification limitation: this Windows machine has no WSL/Docker; Linux execution
-  and four-distro CI jobs have NOT run yet. Actual desktop launch needs a Linux
-  desktop smoke check. ARM64 is built, not runtime-tested. Do not claim verified
-  distro support until those checks run after an authorized push/on a Linux host.
+- Linux CI verified on main commit 2d783b1: Windows and Ubuntu Firefox suites,
+  Debian stable-slim, Ubuntu rolling, Fedora latest and Arch latest backend/
+  portable-launcher suites, and final build all passed. Workflow run 44058685645.
+  Real Linux desktop launch still needs a manual smoke check; ARM64 is built,
+  not runtime-tested. Local Windows host has no WSL/Docker.
 - User superseded Inter with IBM Plex Sans for English and IBM Plex Sans Arabic
   for Arabic in the main UI. Added AppPlexLatin/AppPlexArabic faces using existing
   bundled files. Latin unicode ranges route Arabic glyphs to the Arabic family;
@@ -96,7 +97,7 @@ Updated: 2026-11-17 (Asia/Baghdad).
   LTR/RTL switches, dark/light layout stability, 390px width and PNG/PDF exports.
   English/light and Arabic/dark home screenshots visually reviewed at
   %TEMP%\inventory-regression-sIJwvv. Test downloads remain isolated in temp.
-  Local CSS/test changes; VERSION remains v0.5.8. No release requested.
+  Local CSS/test changes; VERSION remains v0.5.8. Included in the authorized v0.6.0 release.
 - User reported unrequested invoice PDFs appearing in Downloads. Root cause:
   browser-regression.cjs directly exported a synthetic layout-test invoice before
   setting Browser.setDownloadBehavior; Chrome's isolated profile still defaults
@@ -106,7 +107,7 @@ Updated: 2026-11-17 (Asia/Baghdad).
   during navigation/settings and that the first explicit PDF lands in temp.
   Browser suite passed at %TEMP%\inventory-regression-TD0s1d; existing Downloads
   PDF metadata unchanged after the run. Did not delete the user's existing file.
-  Tests-only fix, no app change or release needed; not pushed. VERSION v0.5.8.
+  Tests-only fix included in v0.6.0. User Downloads stay untouched by test runs.
 - User approved clarity tweaks: default text sizes now show effective pixel
   values, default weight names show Regular/Bold, and color swatches show hex
   values plus Follows accent / Default black / Custom color. Values refresh

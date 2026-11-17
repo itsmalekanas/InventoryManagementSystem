@@ -7,7 +7,8 @@ Choose linux-amd64 for Intel/AMD PCs, or linux-arm64 for ARM64 computers.
 2. Run ./start.sh (or: sh start.sh). It prefers Firefox or Firefox ESR;
    otherwise it asks the desktop to open your default browser.
 3. Use Exit on the Home page to stop the app. Closing a browser tab keeps
-   the app running. Running start.sh again reopens the existing app.
+   the app running. Running start.sh again reuses the existing app server and
+   opens a Firefox window, including when a previous window was minimized.
 
 No administrator access, package installation, Go, Node, FUSE or internet
 connection is required to run the app. A modern browser is required separately.

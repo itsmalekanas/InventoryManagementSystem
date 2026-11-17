@@ -258,6 +258,7 @@ Extract the complete `.tar.gz` archive into a writable folder and run `./start.s
 desktop's default browser. It runs independently of the terminal. Reopening the
 launcher reuses the running app; use **Exit** on Home to stop it. A Linux tray
 icon is not included. Desktop file managers may require executable/trust approval.
+With Firefox, launching opens an app window while reusing the same server and data.
 
 All web assets and fonts are embedded. Running the app needs no Go, Node, FUSE,
 administrator access or internet connection; install a modern browser separately.

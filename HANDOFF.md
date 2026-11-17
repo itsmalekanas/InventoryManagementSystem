@@ -12,7 +12,10 @@ Updated: 2026-11-17 (Asia/Baghdad).
   Chrome: inventory-regression-kW3VeA.
 - Added tests/linux-desktop.cjs and Ubuntu CI step with Xvfb/Openbox/D-Bus.
   Opens a synthetic desktop entry with real Firefox using a temporary profile,
-  checks paths with spaces, minimize/reopen, data and Exit. Await CI verification.
+  checks paths with spaces, minimize/reopen, data and Exit. Passed on commit
+  e3c0d57 in CI run 44072576616; Linux artifacts /tmp/inventory-linux-desktop-Z9vbYf.
+  The first run exposed that --new-tab stayed minimized; Linux Firefox/ESR now
+  uses --new-window so relaunch presents a window and reuses the same app server.
   Does not cover every distro desktop/file-manager trust prompt or ARM64 GUI.
 
 - Follow-up: default weight options now read Regular (Default) or Bold (Default),

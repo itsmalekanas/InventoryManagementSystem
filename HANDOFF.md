@@ -2,6 +2,24 @@
 
 Updated: 2026-11-17 (Asia/Baghdad).
 
+## Latest completed checkpoint: v0.6.0
+
+- Published latest release **v0.6.0**, tag commit `77772de` (implementation
+  `2d783b1`). Tag workflow `44060236075` succeeded: Windows/Ubuntu Firefox,
+  Windows Chrome suites, all four Linux distro backend/launcher suites, and build.
+- All three release assets downloaded and verified against GitHub SHA-256 digests:
+  Windows ZIP, Linux amd64 TAR.GZ, Linux arm64 TAR.GZ. Archive contents checked.
+  Verification files: %TEMP%\inventory-v060-release-870317350ece4caf86dc591324acde92.
+- Per user request, deleted **22 older GitHub releases and their attached assets**,
+  including the old `latest` release. API confirmed only v0.6.0 remains, with all
+  three assets. Git tags and commit history intentionally retained; v0.5.8 and
+  v0.6.0 tags were verified after cleanup.
+- All earlier local UI, download-test isolation and portable Linux work below is
+  included in this release. VERSION and README are v0.6.0. No unfinished code work.
+- Remaining manual checks: Linux desktop/file-manager launch, Windows tray smoke.
+  ARM64 is cross-built but not runtime-tested. Older notes below retain historical
+  checkpoint details; this latest checkpoint takes precedence.
+
 ## Project and published state
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,

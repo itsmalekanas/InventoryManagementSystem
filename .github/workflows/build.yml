@@ -39,8 +39,87 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node tests/browser-finance.cjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Firefox browser regressions
+        shell: pwsh
+        env:
+          INVENTORY_TEST_EXE: ${{ runner.temp }}\Inventory-test.exe
+        run: |
+          npm ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npx playwright install firefox
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tests/browser-firefox.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  linux-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Backend and package checks
+        run: |
+          go test ./...
+          go vet ./...
+      - name: Build static portable Linux archives
+        run: |
+          go run ./tools/build-linux -arch amd64
+          go run ./tools/build-linux -arch arm64
+          CGO_ENABLED=0 go test -c -o dist/linux-tests .
+      - name: Portable launcher and Firefox dispatch
+        run: |
+          version="$(tr -d '\r\n' < VERSION)"
+          export INVENTORY_LINUX_EXE="$PWD/dist/Inventory Management System $version linux-amd64/inventory"
+          go test -run '^TestLinuxPortableLauncher$' -count=1 -v .
+      - name: Firefox regression checks
+        run: |
+          npm ci
+          npx playwright install --with-deps firefox
+          version="$(tr -d '\r\n' < VERSION)"
+          node tests/browser-firefox.cjs "$PWD/dist/Inventory Management System $version linux-amd64/inventory"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-portables
+          path: dist/*.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-test-runner
+          path: dist/linux-tests
+  linux-distros:
+    needs: linux-checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['debian:stable-slim', 'ubuntu:rolling', 'fedora:latest', 'archlinux:latest']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-portables
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-test-runner
+          path: dist
+      - name: Test packaged app on current distribution
+        env:
+          DISTRO_IMAGE: ${{ matrix.image }}
+        run: |
+          version="$(tr -d '\r\n' < VERSION)"
+          mkdir -p linux-package
+          tar -xzf "dist/InventoryManagementSystem-$version-linux-amd64.tar.gz" -C linux-package
+          chmod +x dist/linux-tests
+          docker run --rm \
+            -v "$PWD/linux-package:/packages:ro" \
+            -v "$PWD/dist/linux-tests:/linux-tests:ro" \
+            -e "INVENTORY_LINUX_EXE=/packages/Inventory Management System $version linux-amd64/inventory" \
+            "$DISTRO_IMAGE" /linux-tests -test.v
   build:
-    needs: windows-checks
+    needs: [windows-checks, linux-checks, linux-distros]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +155,10 @@ jobs:
           mkdir -p "dist/$folder"
           GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/$folder/$folder.exe" .
           cd dist && zip -r "InventoryManagementSystem-$version-windows.zip" "$folder"
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-portables
+          path: dist
       - uses: actions/upload-artifact@v4
         with:
           name: InventoryManagementSystem-${{ steps.version.outputs.value }}-windows
@@ -86,7 +169,9 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
-          body: Download InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip, extract it, and run Inventory Management System ${{ steps.version.outputs.value }}.exe inside the matching versioned folder. To keep an existing shop, close the old app and copy its complete data folder beside the new executable.
-          files: dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip
+          body: Windows users can extract the Windows ZIP and run the EXE. Linux users can extract the linux-amd64 (Intel/AMD) or linux-arm64 archive and run start.sh; Firefox/Firefox ESR is preferred. Linux uses the same offline browser interface and web Exit button, with no tray icon. Exit the old app before copying its full data folder or importing a full backup into the new version.
+          files: |
+            dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip
+            dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-linux-*.tar.gz
           prerelease: false
           make_latest: true

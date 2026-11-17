@@ -10,3 +10,6 @@ data-recovery/
 dist/
 *.exe
 *.syso
+
+# Development-only Firefox test dependencies
+node_modules/

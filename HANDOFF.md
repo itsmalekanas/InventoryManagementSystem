@@ -6,15 +6,18 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,
   IQD integer amounts, JSON persistence, images, Windows tray, verified ZIP backups.
-- User authorized publishing all current work as **v0.5.8** latest on 2026-11-17.
+- User authorized publishing all current work as **v0.6.0** latest on 2026-11-17,
+  then deleting older GitHub releases and their downloads. Preserve Git tags/history.
+  Publish and verify all new assets before removing older releases.
+- v0.5.8 published as latest at `c3e54ba` with Windows ZIP; GitHub checks passed.
 - v0.5.7 published as latest at `c65581c` with Windows ZIP; GitHub checks passed.
 - v0.5.6 published as latest at `98e7e18` with Windows ZIP; GitHub checks passed.
 - v0.5.5 published as latest at `aa232f5` with Windows ZIP; GitHub checks passed.
 - v0.5.4 was pushed at `fe00994`; GitHub confirmed the latest release has its
   Windows ZIP. Windows browser checks, Go tests/vet, and JS checks passed on GitHub.
-- `VERSION` and README now use v0.5.8. This release adds one shared text-style
-  reset, explicit default sizes/weights, color hex/source indicators, saved/unsaved
-  status beside Save, and clearer Typography/Layout grouping.
+- `VERSION` and README now use v0.6.0. This release adds portable Linux packages,
+  Firefox checks, IBM Plex UI fonts and test download isolation, on top of the
+  existing invoice styles, exports and Settings improvements.
   Previous text styles, PNG/PDF exports and reliability fixes remain included. Tag push starts the GitHub
   workflow, which publishes the Windows ZIP as latest after checks pass.
 - The Qt experiment was completely removed at the user's request. No desktop
@@ -53,6 +56,57 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 ## User preferences and pending decisions
 
+- User authorized work on portable Linux targeting current Debian stable, latest
+  Ubuntu stable, Fedora stable and Arch, with Firefox as primary browser.
+  User subsequently authorized release/push as v0.6.0.
+- Implemented tools/build-linux (Go, standard library only): static CGO-disabled
+  amd64/arm64 executables, ELF dynamic-loader rejection, portable folder and TAR.GZ
+  with executable permissions. Archive allowlist excludes shop data and logs even
+  when present in output folders; synthetic unit test covers this. Existing dist
+  shop data untouched. Packages built locally under dist/InventoryManagementSystem-
+  v0.5.8-linux-{amd64,arm64}.tar.gz. Build.sh includes these archives.
+- packaging/linux/start.sh uses nohup and logs startup beside the app, keeping it
+  running after terminal closure. Reopening uses existing instance detection;
+  web Exit stops it. No Linux tray. Linux browser opener tries Firefox, Firefox
+  ESR, xdg-open, then gio; Windows/macOS dispatch unchanged. Added Linux-only
+  fallback/packaged launcher tests (spaces, data location, reuse, Exit, restart).
+- Added dev-only locked Playwright dependency and browser-firefox.cjs. Downloaded
+  its isolated Firefox browser (does not change normal Firefox profiles). Passed
+  locally on Windows: offline-only requests, IBM Plex UI/fonts, English/Arabic at
+  desktop/mobile widths, real checkout, settings persistence, PNG/PDF downloads,
+  ZIP preview/cancel/full restore, web Exit and restart. Latest artifacts:
+  %TEMP%\inventory-firefox-VLIZJv. Go tests/vet, 13 JS tests, shell syntax checks,
+  static Linux test-runner cross-compilation, package builds and actionlint passed.
+- CI now gates release on Firefox checks (Windows/Ubuntu) and Linux backend/
+  portable-launcher suite in Debian stable-slim, Ubuntu rolling (latest stable,
+  rather than LTS latest tag), Fedora latest and Arch latest containers. Publishes
+  Linux archives alongside Windows on future authorized tags. README documents
+  portable use and development dependencies.
+- Verification limitation: this Windows machine has no WSL/Docker; Linux execution
+  and four-distro CI jobs have NOT run yet. Actual desktop launch needs a Linux
+  desktop smoke check. ARM64 is built, not runtime-tested. Do not claim verified
+  distro support until those checks run after an authorized push/on a Linux host.
+- User superseded Inter with IBM Plex Sans for English and IBM Plex Sans Arabic
+  for Arabic in the main UI. Added AppPlexLatin/AppPlexArabic faces using existing
+  bundled files. Latin unicode ranges route Arabic glyphs to the Arabic family;
+  Regular/Medium/Bold supported offline. Same stack in LTR/RTL. Invoice font
+  selections untouched; no new assets downloaded. All 13 JS tests and diff check
+  passed. User subsequently requested testing: Go tests/vet, fresh build and
+  browser suite passed. Browser verified AppPlexLatin/AppPlexArabic at 400/500/700,
+  LTR/RTL switches, dark/light layout stability, 390px width and PNG/PDF exports.
+  English/light and Arabic/dark home screenshots visually reviewed at
+  %TEMP%\inventory-regression-sIJwvv. Test downloads remain isolated in temp.
+  Local CSS/test changes; VERSION remains v0.5.8. No release requested.
+- User reported unrequested invoice PDFs appearing in Downloads. Root cause:
+  browser-regression.cjs directly exported a synthetic layout-test invoice before
+  setting Browser.setDownloadBehavior; Chrome's isolated profile still defaults
+  to the user's Downloads folder. App code only exports PDF on button click.
+  Fixed locally by setting a temporary download directory immediately after CDP
+  connection, before opening the app. Added checks for no automatic downloads
+  during navigation/settings and that the first explicit PDF lands in temp.
+  Browser suite passed at %TEMP%\inventory-regression-TD0s1d; existing Downloads
+  PDF metadata unchanged after the run. Did not delete the user's existing file.
+  Tests-only fix, no app change or release needed; not pushed. VERSION v0.5.8.
 - User approved clarity tweaks: default text sizes now show effective pixel
   values, default weight names show Regular/Bold, and color swatches show hex
   values plus Follows accent / Default black / Custom color. Values refresh

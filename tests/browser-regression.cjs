@@ -34,6 +34,10 @@ async function api(url,endpoint,body,method='POST'){
   socket=new WebSocket(endpoint);await new Promise((r,j)=>{socket.onopen=r;socket.onerror=j;});let id=0;const pending=new Map(),events=[];
   socket.onmessage=({data})=>{const m=JSON.parse(data);if(m.id){const item=pending.get(m.id);pending.delete(m.id);m.error?item.reject(new Error(JSON.stringify(m.error))):item.resolve(m.result);}else events.push(m);};
   function command(method,params={},sessionId){return new Promise((resolve,reject)=>{const call=++id;pending.set(call,{resolve,reject});socket.send(JSON.stringify({id:call,method,params,...(sessionId?{sessionId}:{})}));});}
+  // A fresh Chrome profile still uses the user's Downloads folder by default.
+  // Redirect before opening the app, including exports in the early layout check.
+  const defaultDownloads=path.join(artifacts,'downloads');fs.mkdirSync(defaultDownloads);
+  await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:defaultDownloads,eventsEnabled:true});
   const {targetId}=await command('Target.createTarget',{url:'about:blank'}),{sessionId}=await command('Target.attachToTarget',{targetId,flatten:true});
   const c=(method,params)=>command(method,params,sessionId);
   const evaluate=async expression=>{const response=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(response.exceptionDetails)throw new Error(JSON.stringify(response.exceptionDetails));return response.result.value;};
@@ -42,13 +46,19 @@ async function api(url,endpoint,body,method='POST'){
   async function click(selector){await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);}
   async function input(selector,value,event='input'){await evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});el.value=${JSON.stringify(value)};el.dispatchEvent(new Event(${JSON.stringify(event)},{bubbles:true}));})()`);}
   await go('#/','#lang-btn');assert.ok((await evaluate('document.title')).includes('Inventory Management System'));assert.ok((await evaluate('document.querySelector(".home-brand").textContent')).includes('Inventory Management System'));assert.equal(await evaluate('document.querySelector(".app-version").textContent'),fs.readFileSync(path.resolve(__dirname,'../VERSION'),'utf8').trim());
+  await evaluate('document.fonts.ready');
+  assert.ok(await evaluate('getComputedStyle(document.body).fontFamily.startsWith("AppPlexLatin")'));
+  assert.ok(await evaluate('(async()=>{for(const family of ["AppPlexLatin","AppPlexArabic"])for(const weight of [400,500,700]){const faces=await document.fonts.load(weight+" 16px "+family,family==="AppPlexLatin"?"Inventory 0123456789":"\\u0627\\u0644\\u0645\\u062e\\u0632\\u0648\\u0646");if(!faces.length||faces.some(face=>face.status!=="loaded"))return false;}return true;})()'));
+  const uiHomeShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'home-plex-en.png'),Buffer.from(uiHomeShot.data,'base64'));
   const controlRects=()=>evaluate('Array.from(document.querySelectorAll(".home-actions button"),button=>{const rect=button.getBoundingClientRect();return{x:rect.x,y:rect.y,width:rect.width,height:rect.height}})');
   const equalRects=(before,after)=>before.forEach((rect,i)=>Object.keys(rect).forEach(key=>assert.ok(Math.abs(rect[key]-after[i][key])<1,`Control moved: ${key}`)));
   const homeReady=async()=>{await until(()=>evaluate('!document.querySelector("#lang-btn").disabled'));await evaluate('languageStylesReady');};
   const englishControls=await controlRects();await click('#theme-btn');await until(()=>evaluate('document.documentElement.dataset.bsTheme==="dark"'));await homeReady();equalRects(englishControls,await controlRects());
   await click('#lang-btn');await until(()=>evaluate('document.documentElement.dir==="rtl"'));await homeReady();equalRects(englishControls,await controlRects());
+  assert.ok(await evaluate('getComputedStyle(document.body).fontFamily.includes("AppPlexArabic")'));
   const homeShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'home-ar-dark.png'),Buffer.from(homeShot.data,'base64'));
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});const mobileControls=await controlRects();
+  assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
   await click('#lang-btn');await until(()=>evaluate('document.documentElement.dir==="ltr"'));await homeReady();equalRects(mobileControls,await controlRects());assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
   await click('#theme-btn');await until(()=>evaluate('document.documentElement.dataset.bsTheme==="light"'));await homeReady();
   await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
@@ -199,7 +209,11 @@ async function api(url,endpoint,body,method='POST'){
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).paddingTop'),'0px');
   await c('Emulation.setEmulatedMedia',{media:''});
   await evaluate('document.querySelector("#sf-preview .invoice").classList.remove("pdf-page")');
+  assert.deepEqual(fs.readdirSync(defaultDownloads),[], 'Navigation and Settings must not download invoices');
   await evaluate('downloadInvoicePdf(state.db.invoices[0], state.db.settings)');
+  const layoutPdf=path.join(defaultDownloads,seedInvoice.code+'.pdf');
+  await until(()=>fs.existsSync(layoutPdf),60000);
+  assert.equal(fs.readFileSync(layoutPdf).subarray(0,5).toString(),'%PDF-');
   await input('#sf [name=header]','Sample header');await input('#sf [name=footer]','Sample footer');
   for(const [group,selector] of Object.entries({store:'.inv-store',title:'.inv-title',labels:'.inv-label',values:'.inv-value',tableHeadings:'.inv-table th',rows:'.inv-table tbody td',totals:'.inv-total td',header:'.inv-head-text .prewrap',footer:'.inv-foot'})) {
     await input('#text-'+group+'-size','17');await input('#text-'+group+'-weight','500','change');await input('#text-'+group+'-color','#223344');

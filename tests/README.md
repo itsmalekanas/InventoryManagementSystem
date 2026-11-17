@@ -1,5 +1,53 @@
 # Regression checks
 
+## Firefox and portable Linux
+
+Development-only Firefox tests use the locked Playwright dependency. These
+packages are not needed by app users and are not bundled into the executable.
+
+```sh
+npm ci
+npx playwright install firefox
+node tests/browser-firefox.cjs /absolute/path/to/test-executable
+```
+
+On Linux CI, use `npx playwright install --with-deps firefox` to prepare the test
+browser's system libraries. Playwright uses its own isolated Firefox build and
+profile; it never opens the user's regular Firefox profile. Requests outside the
+local app are blocked. Downloads, screenshots and synthetic shop data remain in
+the reported temporary folder. Checks cover offline fonts, English/Arabic and
+mobile layout, checkout, settings, PNG/PDF exports, ZIP preview/cancel/import,
+web Exit and restart persistence. Run against a freshly built executable.
+
+Build portable Linux archives with:
+
+```sh
+go run ./tools/build-linux -arch amd64
+go run ./tools/build-linux -arch arm64
+```
+
+`tools/build-linux` forces `CGO_ENABLED=0`, rejects an ELF dynamic loader,
+preserves executable modes in the archive, and uses an explicit file allowlist
+to exclude any shop data. Its unit test verifies that exclusion.
+
+On Linux, exercise the packaged launcher with paths containing spaces, Firefox
+dispatch, instance reuse, portable data location, Exit and restart:
+
+```sh
+INVENTORY_LINUX_EXE="/absolute/path/to/package/inventory" go test -run '^TestLinuxPortableLauncher$' -v .
+```
+
+The launcher check stubs browser dispatch; actual Firefox rendering is tested
+separately. CI also compiles the backend test runner statically and runs the full
+suite and packaged-launcher check inside `debian:stable-slim`, `ubuntu:rolling`,
+`fedora:latest` and `archlinux:latest`. Ubuntu's `rolling` tag tracks the latest
+stable release, while `latest` tracks LTS. ARM64 is built but not runtime-tested
+by this x86-64 matrix. Full GUI launch checks on real Linux desktops remain
+separate. No WSL/Docker is installed in the current Windows workspace, so these
+Linux execution checks must run in CI or on a Linux host before claiming support.
+
+## Existing backend and Chrome checks
+
 Run backend and compatibility tests with:
 
 ```text

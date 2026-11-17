@@ -113,7 +113,11 @@ func main() {
 	fmt.Println(" " + appName + " " + appVersion + " is running")
 	fmt.Println(" Open:  ", url)
 	fmt.Println(" Data:  ", dataDir)
-	fmt.Println(" Use the tray menu to open or exit the app on Windows.")
+	if runtime.GOOS == "windows" {
+		fmt.Println(" Use the tray menu to open or exit the app on Windows.")
+	} else {
+		fmt.Println(" Use Exit on the Home page to stop the app.")
+	}
 	fmt.Println(" Foreground mode: press Ctrl+C to stop the app.")
 	fmt.Println("==============================================")
 
@@ -277,23 +281,33 @@ func runningURL(port int, dataDir, buildID string) (string, error) {
 }
 
 func openBrowser(url string) {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	case "darwin":
-		cmd = exec.Command("open", url)
-	default:
-		cmd = exec.Command("xdg-open", url)
-	}
-	prepareBrowserCommand(cmd)
-	// Start before returning: a second app instance exits immediately after
-	// opening the already-running app, so a goroutine could be cut off too soon.
-	if err := cmd.Start(); err != nil {
-		showAppError(fmt.Errorf("open this address in your browser: %s (%v)", url, err))
+	var lastErr error
+	for _, args := range browserCommands(runtime.GOOS, url) {
+		cmd := exec.Command(args[0], args[1:]...)
+		prepareBrowserCommand(cmd)
+		// Start before returning: a second app instance exits immediately after
+		// opening the already-running app, so a goroutine could be cut off too soon.
+		if err := cmd.Start(); err != nil {
+			lastErr = err
+			continue
+		}
+		go cmd.Wait()
 		return
 	}
-	go cmd.Wait()
+	showAppError(fmt.Errorf("open this address in your browser: %s (%v)", url, lastErr))
+}
+
+func browserCommands(platform, url string) [][]string {
+	switch platform {
+	case "windows":
+		return [][]string{{"rundll32", "url.dll,FileProtocolHandler", url}}
+	case "darwin":
+		return [][]string{{"open", url}}
+	default:
+		// Prefer Firefox, including Debian's ESR package. Desktop launchers also
+		// cover installations provided by Flatpak or another default browser.
+		return [][]string{{"firefox", "--new-tab", url}, {"firefox-esr", "--new-tab", url}, {"xdg-open", url}, {"gio", "open", url}}
+	}
 }
 
 func fail(err error) {

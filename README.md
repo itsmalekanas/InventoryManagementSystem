@@ -1,6 +1,6 @@
-# Inventory Management System v0.5.8
+# Inventory Management System v0.6.0
 
-**v0.5.8 is an early release under active development.** The application version
+**v0.6.0 is an early release under active development.** The application version
 is stored in `VERSION` and shown on Home, in the browser title, and in the tray
 tooltip. It is independent of the database and backup format version numbers.
 
@@ -98,13 +98,13 @@ stays intact. Full ZIP backups include costs and the return history.
 
 ## How to use it (Windows)
 
-1. Download `InventoryManagementSystem-v0.5.8-windows.zip` from the
-   [early release page](../../releases/tag/v0.5.8) and unzip it anywhere, for example
+1. Download `InventoryManagementSystem-v0.6.0-windows.zip` from the
+   [early release page](../../releases/tag/v0.6.0) and unzip it anywhere, for example
    on the desktop or a USB stick.
-2. Double click `Inventory Management System v0.5.8.exe`. The app opens in your browser and a mint-colored box
+2. Double click `Inventory Management System v0.6.0.exe`. The app opens in your browser and a mint-colored box
    inventory icon appears in the Windows notification area near the clock.
    There is no console window. Windows may place the icon under the **^** arrow.
-3. Running `Inventory Management System v0.5.8.exe` again while it is already open just opens the
+3. Running `Inventory Management System v0.6.0.exe` again while it is already open just opens the
    browser page again, provided it is the same build using the same data folder.
    A copy in another folder uses its own data and an available local port. If an
    older or different build is running for the same data, exit it before opening
@@ -128,8 +128,8 @@ the program is not signed. Click **More info** and then **Run anyway**.
 Everything is saved next to the program, in a folder called `data`:
 
 ```
-Inventory Management System v0.5.8/
-  Inventory Management System v0.5.8.exe
+Inventory Management System v0.6.0/
+  Inventory Management System v0.6.0.exe
   data/
     db.json        all products, customers, invoices and settings (UTF-8, Arabic safe)
     images/        product pictures and the store logo
@@ -144,7 +144,7 @@ from `backups` over `data/db.json`.
 
 Earlier versions used `InventoryApp.exe`, `Inventory System.exe` or the unversioned
 `Inventory Management System.exe`. The new executable is
-`Inventory Management System v0.5.8.exe`; keep it beside the existing `data` folder. The app name
+`Inventory Management System v0.6.0.exe`; keep it beside the existing `data` folder. The app name
 does not change your store name, invoice numbers, data format, or backup support.
 
 The original JSON database and images are supported. Close the old app first
@@ -246,6 +246,33 @@ reserved when the sale succeeds. Numbers can only move forward, from 1 through
 999,999,999; skipped and deleted numbers cannot be reused. Changes apply to the
 current year, leave existing invoices unchanged, and survive restarting the app.
 
+## Portable Linux edition
+
+Linux packages target current Debian stable, Ubuntu's latest stable release,
+Fedora stable, and Arch Linux. The same static executable is used across these
+distributions, with separate `linux-amd64` (Intel/AMD) and `linux-arm64` archives.
+The Linux edition is introduced in v0.6.0 alongside the Windows package.
+
+Extract the complete `.tar.gz` archive into a writable folder and run `./start.sh`
+(or `sh start.sh`). The launcher prefers Firefox, then Firefox ESR, then the
+desktop's default browser. It runs independently of the terminal. Reopening the
+launcher reuses the running app; use **Exit** on Home to stop it. A Linux tray
+icon is not included. Desktop file managers may require executable/trust approval.
+
+All web assets and fonts are embedded. Running the app needs no Go, Node, FUSE,
+administrator access or internet connection; install a modern browser separately.
+Shop files remain in `data/` beside `inventory`. Startup details and the local URL
+are written to `launcher.log` beside it. A USB drive must permit execution and
+writes; otherwise extract to a local writable folder. Full backup ZIPs and JSON
+data remain compatible with Windows. Exit before copying a data folder between
+systems; full backup export/import is the preferred transfer method.
+
+The CI gates include backend/launcher checks on the four current distributions
+and Firefox browser checks on Ubuntu and Windows. Distro containers do not test
+desktop integration; Linux desktop launch behavior still needs a real desktop
+smoke check. ARM64 builds are cross-compiled, not covered by the x86-64 runtime
+matrix.
+
 ## Building from source
 
 Published downloads are built by GitHub Actions from version tags. Local builds
@@ -253,25 +280,30 @@ are optional, for development and Windows integration checks.
 
 You need [Go](https://go.dev/dl/) 1.24 or newer.
 
-- Windows: double click `build.bat`. The program is written to `dist\Inventory Management System v0.5.8\Inventory Management System v0.5.8.exe`.
+- Windows: double click `build.bat`. The program is written to `dist\Inventory Management System v0.6.0\Inventory Management System v0.6.0.exe`.
 - macOS / Linux: run `./build.sh`. Programs for all three systems are written to `dist/`.
+- Linux only, from any supported build host: `go run ./tools/build-linux -arch amd64`
+  or `go run ./tools/build-linux -arch arm64`. This writes a versioned portable
+  folder and `.tar.gz` to `dist/`; only app files are packaged, never existing data.
 - To run it while developing: `go run .` (data is then saved in `./data`).
 - Tests: `go test ./...`
 - Number-entry tests (Node 22+): `node --test tests/numbers.test.cjs`.
 - Windows browser regression tests: `node tests/browser-regression.cjs`
   after building; see [tests/README.md](tests/README.md).
 
-Options (PowerShell): `& ".\Inventory Management System v0.5.8.exe" -port 8750 -data D:\ShopData -no-browser`.
-Use `-version` to print `Inventory Management System v0.5.8` and exit without opening any data.
+Options (PowerShell): `& ".\Inventory Management System v0.6.0.exe" -port 8750 -data D:\ShopData -no-browser`.
+Use `-version` to print `Inventory Management System v0.6.0` and exit without opening any data.
 For foreground development or automation, add `-no-tray`. Linux/macOS builds
-currently run in the foreground with the same browser interface; press Ctrl+C
-to stop. The Windows tray implementation uses native APIs and no CGO, so
+run in the foreground when invoked directly with the same browser interface;
+press Ctrl+C to stop, or use the portable Linux `start.sh` launcher. The Windows
+tray implementation uses native APIs and no CGO, so
 cross-compilation stays available without Linux desktop dependencies.
 
-Pushes to `main` build and test the app. Version tags such as `v0.5.8` publish a
-separate release with the Windows ZIP, marked as latest (see `.github/workflows/build.yml`).
-Update `VERSION` before tagging; the tag must match that file. Older versioned
-releases remain available. The newest published release is also available from
+Pushes to `main` build and test the app. Version tags such as `v0.6.0` publish a
+separate release with the Windows ZIP and Linux archives, marked as latest
+(see `.github/workflows/build.yml`).
+Update `VERSION` before tagging; the tag must match that file. Older version tags remain in Git history; older GitHub releases and their
+downloads were removed at the owner's request for v0.6.0. The newest published release is also available from
 the repository's latest-release link.
 
 ### Development and release workflow
@@ -281,7 +313,7 @@ the repository's latest-release link.
    and builds a Windows artifact without changing published releases.
 3. When ready to release, update `VERSION` and the version references in this
    README, commit and push, then create and push a matching tag (for example
-   `v0.5.8`). The tag workflow publishes its own release and Windows ZIP.
+   `v0.6.0`). The tag workflow publishes its own release and Windows ZIP.
 
 Keep source, tests, build scripts and icon assets in Git. Generated executables,
 `dist/` and `.syso` files are ignored. The icon assets are committed so release
@@ -311,8 +343,8 @@ location and save-prompt preferences.
 تطبيق بسيط وخفيف لإدارة المخزون والمبيعات، يعمل على الحاسوب مباشرة بدون تثبيت
 وبدون إنترنت، ويدعم اللغة العربية بالكامل. العملة هي الدينار العراقي (د.ع).
 
-**طريقة الاستخدام:** فك ضغط الملف `InventoryManagementSystem-v0.5.8-windows.zip` في أي مكان (مثلاً
-على فلاش USB) ثم شغّل `Inventory Management System v0.5.8.exe`. سيفتح التطبيق في المتصفح وتظهر أيقونة
+**طريقة الاستخدام:** فك ضغط الملف `InventoryManagementSystem-v0.6.0-windows.zip` في أي مكان (مثلاً
+على فلاش USB) ثم شغّل `Inventory Management System v0.6.0.exe`. سيفتح التطبيق في المتصفح وتظهر أيقونة
 بنفسجية قرب ساعة ويندوز بدون نافذة سوداء. اضغط عليها بزر الفأرة الأيمن واختر
 `Open app` لفتح التطبيق أو `Exit` لإيقافه. إغلاق المتصفح لا يوقف التطبيق.
 قد تجد الأيقونة ضمن السهم **^**. لتغيير اللغة اضغط زر

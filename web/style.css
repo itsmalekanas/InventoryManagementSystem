@@ -34,12 +34,18 @@
   --bs-tertiary-bg-rgb: 61, 68, 79;
 }
 
+/* Matching bundled UI families for Latin and Arabic, available offline. */
+@font-face { font-family: AppPlexLatin; src: url('vendor/fonts/ibmplexsans-variable.ttf') format('truetype'); font-weight: 100 700; font-style: normal; font-display: swap; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
+@font-face { font-family: AppPlexArabic; src: url('vendor/fonts/ibmplexsansarabic-regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: AppPlexArabic; src: url('vendor/fonts/ibmplexsansarabic-medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: AppPlexArabic; src: url('vendor/fonts/ibmplexsansarabic-bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+
 body {
   background: var(--page);
-  font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", "Noto Sans", Arial, sans-serif;
+  font-family: AppPlexLatin, AppPlexArabic, "Segoe UI", Tahoma, Arial, sans-serif;
 }
 
-[dir="rtl"] body { font-family: "Segoe UI", Tahoma, "Noto Naskh Arabic", "Noto Sans Arabic", Arial, sans-serif; }
+[dir="rtl"] body { font-family: AppPlexLatin, AppPlexArabic, "Segoe UI", Tahoma, Arial, sans-serif; }
 
 .btn-brand {
   --bs-btn-color: var(--brand-button-ink, #fff);

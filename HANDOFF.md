@@ -2,7 +2,23 @@
 
 Updated: 2026-11-17 (Asia/Baghdad).
 
-## Current release work: v0.6.1
+## Latest completed checkpoint: v0.6.1
+
+- Published latest **v0.6.1**, tag commit `395e6ef`. Release workflow 44073131452
+  passed Windows Chrome/Firefox, Ubuntu Firefox and GUI desktop launch, all four
+  Linux distro backend/launcher suites, and final build.
+- Downloaded all three published archives and verified GitHub SHA-256 digests
+  and archive contents. Re-ran tray-smoke.ps1 against the published Windows EXE:
+  passed hidden owner, menu, reuse, active-save drain, restart and web Exit.
+  Verification: %TEMP%\inventory-v061-release-197bb07a8a2c4468a0ebd11571250d35;
+  published tray test: %TEMP%\inventory-tray-afa60f0b44594cb7b7e9f1e24248d930.
+- The Linux GUI check uses an Ubuntu virtual X11 desktop and isolated real Firefox
+  profile. It does not cover every desktop environment/file-manager trust prompt;
+  ARM64 is still cross-built without runtime testing. No unfinished code work.
+- v0.6.0 was retained; older-release deletion was not requested for v0.6.1.
+  All changes below are released. VERSION and README are v0.6.1.
+
+## v0.6.1 change details
 
 - Final local checks passed: Go tests/vet, 13 JS tests, syntax/actionlint, Chrome
   and Firefox browser suites against the release-style v0.6.1 build. Windows
@@ -35,9 +51,8 @@ Updated: 2026-11-17 (Asia/Baghdad).
   reset recovery, save/reload, mobile popup bounds, RTL UI, PNG/PDF and ZIP restore.
   Chrome screenshot: %TEMP%\inventory-regression-JSXDKQ. Latest Firefox artifacts:
   %TEMP%\inventory-firefox-u2FUUR. Desktop/mobile screenshots reviewed.
-- No data/schema changes. User authorized publishing all current work as latest
-  v0.6.1. VERSION/README updated. Push main and verify the new Linux GUI check
-  before tagging. Do not delete older releases unless newly requested.
+- No data/schema changes. Published after main and tag verification.
+  Do not delete older releases unless newly requested.
 
 ## Latest completed checkpoint: v0.6.0
 

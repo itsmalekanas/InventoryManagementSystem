@@ -95,23 +95,43 @@ type Settings struct {
 
 // Optional so older databases retain their original settings unchanged.
 type A4Layout struct {
-	EnglishFont string `json:"englishFont,omitempty"`
-	ArabicFont  string `json:"arabicFont,omitempty"`
-	Emphasis    string `json:"emphasis,omitempty"`
-	Margin      int    `json:"margin"`
-	Font        string `json:"font"`
-	FontSize    int    `json:"fontSize"`
-	StoreSize   int    `json:"storeSize"`
-	TitleSize   int    `json:"titleSize"`
-	HeaderAlign string `json:"headerAlign"`
-	FooterAlign string `json:"footerAlign"`
-	HeaderGap   int    `json:"headerGap"`
-	FooterGap   int    `json:"footerGap"`
+	TextStyles  map[string]InvoiceTextStyle `json:"textStyles,omitempty"`
+	EnglishFont string                      `json:"englishFont,omitempty"`
+	ArabicFont  string                      `json:"arabicFont,omitempty"`
+	Emphasis    string                      `json:"emphasis,omitempty"`
+	Margin      int                         `json:"margin"`
+	Font        string                      `json:"font"`
+	FontSize    int                         `json:"fontSize"`
+	StoreSize   int                         `json:"storeSize"`
+	TitleSize   int                         `json:"titleSize"`
+	HeaderAlign string                      `json:"headerAlign"`
+	FooterAlign string                      `json:"footerAlign"`
+	HeaderGap   int                         `json:"headerGap"`
+	FooterGap   int                         `json:"footerGap"`
+}
+
+// Optional overrides preserve the appearance of existing layouts and snapshots.
+type InvoiceTextStyle struct {
+	Size   int    `json:"size,omitempty"`
+	Weight int    `json:"weight,omitempty"`
+	Color  string `json:"color,omitempty"`
 }
 
 func validA4Layout(v *A4Layout) bool {
 	if v == nil {
 		return true
+	}
+	for key, style := range v.TextStyles {
+		switch key {
+		case "store", "title", "labels", "values", "tableHeadings", "rows", "totals", "header", "footer":
+		default:
+			return false
+		}
+		if (style.Size != 0 && (style.Size < 8 || style.Size > 48)) ||
+			(style.Weight != 0 && style.Weight != 400 && style.Weight != 500 && style.Weight != 700) ||
+			(style.Color != "" && !colorRe.MatchString(style.Color)) {
+			return false
+		}
 	}
 	align := func(s string) bool { return s == "start" || s == "center" || s == "end" }
 	if (v.EnglishFont != "" && v.EnglishFont != "segoe" && v.EnglishFont != "arial" && v.EnglishFont != "georgia" && v.EnglishFont != "inter" && v.EnglishFont != "lora" && v.EnglishFont != "sourcesans3" && v.EnglishFont != "googlesans") ||

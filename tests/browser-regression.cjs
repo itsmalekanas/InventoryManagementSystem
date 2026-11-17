@@ -136,11 +136,23 @@ async function api(url,endpoint,body,method='POST'){
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-save")).boxShadow'),'none');
   const fontsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'invoice-font-gallery.png'),Buffer.from(fontsShot.data,'base64'));
   await input('#a4-headerAlign','end','change');
-  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-meta b")).fontWeight'),'400');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-meta .inv-value")).fontWeight'),'400');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-table th")).fontWeight'),'400');
-  await input('#a4-emphasis','headings','change');
+  assert.ok(await evaluate('Array.from(document.querySelectorAll("#sf-preview .inv-label"), el=>getComputedStyle(el).fontWeight).every(weight=>weight==="400")'));
+  await input('#text-labels-weight','700','change');
+  await input('#text-tableHeadings-weight','700','change');
+  await input('#text-values-size','14');await input('#text-values-color','#123456');
+  await input('#text-totals-weight','500','change');await input('#text-totals-size','22');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).fontSize'),'14px');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).color'),'rgb(18, 52, 86)');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-total td")).fontWeight'),'500');
+  await input('#text-values-size','99');await click('#sf-save');
+  assert.equal(await evaluate('document.activeElement.id'),'text-values-size');
+  await input('#text-values-size','14');
+  assert.ok(await evaluate('Array.from(document.querySelectorAll("#sf-preview .inv-label"), el=>getComputedStyle(el).fontWeight).every(weight=>weight==="700")'));
+  assert.ok(await evaluate('Array.from(document.querySelectorAll("#sf-preview .inv-value"), el=>getComputedStyle(el).fontWeight).every(weight=>weight==="400")'));
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-table th")).fontWeight'),'700');
-  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-meta b")).fontWeight'),'400');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-meta .inv-value")).fontWeight'),'400');
   assert.ok(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontFamily.includes("InvoiceLatin-googlesans")'));
   assert.ok(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontFamily.includes("InvoiceArabic-cairo")'));
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontSize'),'18px');
@@ -152,6 +164,12 @@ async function api(url,endpoint,body,method='POST'){
   assert.equal(await evaluate('document.querySelector("input[name=arabicFont]:checked").value'),'cairo');
   assert.equal(await evaluate('document.querySelector("input[name=englishFont]:checked").value'),'googlesans');
   assert.ok(await evaluate('pageCss(state.db.settings).includes("20mm")'));
+  assert.equal(await evaluate('document.querySelector("#text-values-size").value'),'14');
+  assert.equal(await evaluate('document.querySelector("#text-totals-weight").value'),'500');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-label")).fontWeight'),'700');
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
+  assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+  await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
   await evaluate('document.querySelector("#sf-preview .invoice").classList.add("pdf-page")');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).paddingTop'),'0px');
   await c('Emulation.setEmulatedMedia',{media:'print'});
@@ -159,6 +177,18 @@ async function api(url,endpoint,body,method='POST'){
   await c('Emulation.setEmulatedMedia',{media:''});
   await evaluate('document.querySelector("#sf-preview .invoice").classList.remove("pdf-page")');
   await evaluate('downloadInvoicePdf(state.db.invoices[0], state.db.settings)');
+  await input('#sf [name=header]','Sample header');await input('#sf [name=footer]','Sample footer');
+  for(const [group,selector] of Object.entries({store:'.inv-store',title:'.inv-title',labels:'.inv-label',values:'.inv-value',tableHeadings:'.inv-table th',rows:'.inv-table tbody td',totals:'.inv-total td',header:'.inv-head-text .prewrap',footer:'.inv-foot'})) {
+    await input('#text-'+group+'-size','17');await input('#text-'+group+'-weight','500','change');await input('#text-'+group+'-color','#223344');
+    const style=await evaluate('(()=>{const s=getComputedStyle(document.querySelector('+JSON.stringify('#sf-preview '+selector)+'));return [s.fontSize,s.fontWeight,s.color]})()');
+    assert.deepEqual(style,['17px','500','rgb(34, 51, 68)'],group);
+  }
+  await click('[data-text-reset=labels]');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-label")).fontWeight'),'400');
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).fontWeight'),'500');
+  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+  await evaluate('window.scrollTo({top:document.querySelector("#sf-text-styles").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+  const stylesShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'invoice-text-styles.png'),Buffer.from(stylesShot.data,'base64'));
   await click('#sf-a4-reset');await click('#sf-save');await until(async()=>!(await data(url)).db.settings.a4Layout);
   await evaluate('leaveGuard=null');
   await go('#/pos','#sale-btn');await evaluate(`document.querySelector('.pcard[data-id="${product}"]').click()`);await input('#c-name','Browser buyer');await input('.cart-line .qty','-1','change');assert.equal(await evaluate('!!document.querySelector(".qty.is-invalid")'),true);await click('#sale-btn');assert.equal((await data(url)).db.invoices.length,1);await input('.cart-line .qty','٢','change');
@@ -187,8 +217,33 @@ async function api(url,endpoint,body,method='POST'){
     await c('Emulation.setEmulatedMedia',{media:'print'});assert.equal(await evaluate('document.querySelector(".inv-date-time")?.textContent||""'),shown);await c('Emulation.setEmulatedMedia',{media:''});
     const folder=path.join(artifacts,`pdf-${showDate}-${showTime}`);fs.mkdirSync(folder);await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:folder,eventsEnabled:true});
     await evaluate(`window.baseHtml2pdf=html2pdf;window.html2pdf=function(){const worker=baseHtml2pdf();const set=worker.set;worker.set=function(options){if(options?.html2canvas)options.html2canvas.onclone=doc=>{window.exportDateTime=doc.querySelector('.html2pdf__container .inv-date-time')?.textContent||''};return set.call(this,options)};return worker;}`);
-    await click('#inv-pdf');await until(()=>fs.existsSync(path.join(folder,seedInvoice.code+'.pdf')),60000);assert.equal(await evaluate('window.exportDateTime'),shown);await evaluate('window.html2pdf=window.baseHtml2pdf');
+    await click('#inv-pdf');await until(()=>fs.existsSync(path.join(folder,seedInvoice.code+'.pdf')),60000);assert.equal(await evaluate('window.exportDateTime'),shown);
+    await until(()=>evaluate('!document.querySelector("#inv-png").disabled'));
+    await click('#inv-png');
+    assert.equal(await evaluate('document.querySelector("#inv-pdf").disabled'),true);
+    const pngPath=path.join(folder,seedInvoice.code+'.png');
+    await until(()=>fs.existsSync(pngPath),60000);
+    const png=fs.readFileSync(pngPath);assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+    assert.ok(png.readUInt32BE(16)>1000);assert.ok(png.readUInt32BE(20)>1000);
+    assert.equal(await evaluate('window.exportDateTime'),shown);
+    await until(()=>evaluate('!document.querySelector("#inv-pdf").disabled&&!document.querySelector("#inv-png").disabled'));
+    await evaluate('window.html2pdf=window.baseHtml2pdf');
   }
+  // A short receipt and a long invoice both download as one complete PNG.
+  const pngFolder=path.join(artifacts,'png-layouts');fs.mkdirSync(pngFolder);
+  await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:pngFolder,eventsEnabled:true});
+  await evaluate(`downloadInvoicePng({...state.db.invoices[0],code:'PNG-RECEIPT'},{...state.db.settings,paper:'receipt'})`);
+  await until(()=>fs.existsSync(path.join(pngFolder,'PNG-RECEIPT.png')),60000);
+  const receiptPng=fs.readFileSync(path.join(pngFolder,'PNG-RECEIPT.png'));assert.ok(receiptPng.readUInt32BE(16)<1000);
+  await evaluate(`downloadInvoicePng({...state.db.invoices[0],code:'PNG-LONG',items:Array.from({length:300},(_,i)=>({...state.db.invoices[0].items[0],name:'Synthetic row '+i}))},{...state.db.settings,paper:'a4'})`);
+  await until(()=>fs.existsSync(path.join(pngFolder,'PNG-LONG.png')),60000);
+  const longPng=fs.readFileSync(path.join(pngFolder,'PNG-LONG.png'));assert.ok(longPng.readUInt32BE(20)>10000);assert.ok(longPng.readUInt32BE(20)<=16384);
+  // Failed rendering re-enables both export actions and cleans temporary DOM.
+  await evaluate('window.baseHtml2pdf=html2pdf;window.html2pdf=()=>{throw new Error("simulated renderer failure")};document.querySelector("#inv-png").click()');
+  await until(()=>evaluate('!document.querySelector("#inv-png").disabled&&!document.querySelector("#inv-pdf").disabled'));
+  assert.ok(await evaluate('document.querySelector("#toasts").textContent.includes(t("pngError"))'));
+  assert.equal(await evaluate('document.querySelectorAll(".invoice-png-host, .html2pdf__overlay").length'),0);
+  await evaluate('window.html2pdf=window.baseHtml2pdf');
   assert.equal(events.filter(event=>event.method==='Runtime.exceptionThrown').length,0);
   console.log(JSON.stringify({passed:true,artifacts,checks:'separate app-copy data folders and reuse, invalid price/stock/quantity/settings input, Arabic digits, dropped checkout response, original invoice selection, reload recovery, cancellation/late delivery, independent date/time preview/print/PDF combinations'},null,2));await command('Browser.close');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>{socket?.close();chrome?.kill();for(const child of children)child.kill();});

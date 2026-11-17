@@ -6,12 +6,13 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,
   IQD integer amounts, JSON persistence, images, Windows tray, verified ZIP backups.
-- User authorized publishing **v0.5.5** as latest on 2026-11-17.
+- User authorized publishing all current work as **v0.5.6** latest on 2026-11-17.
+- v0.5.5 published as latest at `aa232f5` with Windows ZIP; GitHub checks passed.
 - v0.5.4 was pushed at `fe00994`; GitHub confirmed the latest release has its
   Windows ZIP. Windows browser checks, Go tests/vet, and JS checks passed on GitHub.
-- `VERSION` and README now use v0.5.5. This release adds compact font grids,
-  Bootstrap Settings buttons, and the sticky Save toolbar to the reliability
-  work below and visible Invoice settings sections. Tag push starts the GitHub
+- `VERSION` and README now use v0.5.6. This release adds independent invoice
+  text styles and direct offline PNG download beside PDF, building on the
+  existing reliability fixes and visible Settings sections. Tag push starts the GitHub
   workflow, which publishes the Windows ZIP as latest after checks pass.
 - The Qt experiment was completely removed at the user's request. No desktop
   migration is active. Continue work on the existing web app.
@@ -49,6 +50,38 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 ## User preferences and pending decisions
 
+- Added Download PNG beside Download PDF on the invoice page (English/Arabic).
+  Uses bundled html2pdf canvas rendering offline, waits for fonts/images/styles,
+  and downloads one white-background PNG named after the invoice code. A4 and
+  receipt supported. Long images reduce scale to stay within 16384px and a
+  32-million-pixel budget. PDF/PNG share a busy guard and restore buttons after
+  errors; temporary render elements are cleaned up.
+  Syntax, 13 JS tests and expanded browser suite passed: four date/time variants
+  in actual PNG/PDF downloads, PNG signatures/dimensions, receipt, 300-row image,
+  failed-render recovery and cleanup. Exported PNG visually reviewed.
+  Latest artifacts: %TEMP%\inventory-regression-fwtPkf. Included in v0.5.6.
+- User approved independent invoice text styles, replacing the single weight
+  selector. Implemented nine visible groups: store, title, detail labels, values,
+  table headings, rows, totals/paid, header, footer. Each has size (8–48px),
+  Default/Regular/Medium/Bold weight, color, and independent Reset. Shared fonts
+  and sticky preview retained. A4-only, like the existing typography controls.
+- Optional a4Layout.textStyles overrides are validated on the server and before
+  rendering; missing overrides retain legacy layout/emphasis/color behavior.
+  Existing layout fields remain supported. Store/title numeric controls moved
+  into their style groups; old stored values still supply defaults.
+- Verification: all Go tests (including original-data compatibility, old ZIP
+  import and new styles ZIP/restart round-trip), vet, 13 JS tests, syntax and
+  browser suite passed. Browser checks cover every group's size/weight/color,
+  independent reset, validation, save/reload, narrow screens and print/PDF.
+  Latest browser artifacts: %TEMP%\inventory-regression-BoA74T.
+  Included in v0.5.6; user authorized release/push.
+- After v0.5.5, user requested bold invoice labels with normal values. Invoice
+  number, date/time, customer, phone and address now use separate label/value
+  elements. A4 labels follow the existing headings/regular weight setting;
+  values stay regular. Shared markup applies to preview, print and PDF.
+  Syntax, all 11 JS tests, build and checkout/UI browser suite passed, including
+  computed weights for all labels/values in both modes. Included in v0.5.6;
+  independent text styles now supersede the single weight selector.
 - User approved moving Settings Save beside the tabs in a sticky toolbar.
   Implemented a Bootstrap brand Save outside the tablist, linked to the existing
   form. Settings header scrolls away so the toolbar stays at the viewport top;

@@ -12,6 +12,8 @@ const I18N = {
     'uploadWait': 'Please wait for the logo upload to finish.',
     invoiceSpacing: 'Page spacing', invoiceCompact: 'Compact', invoiceStandard: 'Standard', invoiceSpacious: 'Spacious', invoiceTextSize: 'Text size', invoiceSmall: 'Small', invoiceLarge: 'Large', invoiceCustom: 'Custom (saved values)', invoiceAdvanced: 'Advanced layout', invoiceMoreFonts: 'Previously available fonts', invoiceFontSample: 'Invoice · My Store · 0123456789', invoiceFontsOffline: 'Preview each font below. New fonts are included in the app and work offline. Existing font choices are preserved until you change them.',
     invoiceBranding: 'Branding', invoiceContent: 'Invoice content', invoiceTypography: 'Typography', invoiceLayout: 'Layout',
+    textStyles: 'Text styles', textStylesHint: 'Set each group independently. Reset restores its original style. Shared fonts above apply to all groups.', textStyleSize: 'Size (px)', textStyleWeight: 'Weight', textStyleColor: 'Color', textStyleRegular: 'Regular', textStyleMedium: 'Medium', textStyleBold: 'Bold', textStyleReset: 'Reset', textStyleDefault: 'Default',
+    textStyleStore: 'Store name', textStyleTitle: 'Invoice title', textStyleLabels: 'Detail labels', textStyleValues: 'Detail values', textStyleTableHeadings: 'Table headings', textStyleRows: 'Product rows', textStyleTotals: 'Totals & paid', textStyleHeader: 'Header message', textStyleFooter: 'Footer message',
     settingsInvoice: 'Invoice', settingsData: 'Data & backup', settingsSaveHint: 'Save changes from all tabs.',
     a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
     a4FontHint: 'English and Arabic fonts apply to their own letters, including mixed text. Uses installed fonts offline; unavailable fonts fall back to a similar style.',
@@ -81,6 +83,7 @@ const I18N = {
     'err.checkoutStorage': 'The browser could not keep the checkout recovery record. Enable browser storage before completing the sale.',
     addCustomer: 'Add customer', editCustomer: 'Edit customer', noCustomers: 'No customers yet. They are added automatically with each sale.',
     invoicesCount: 'Invoices', totalSpent: 'Total bought', viewInvoices: 'Invoices',
+    downloadPng: 'Download PNG', creatingPng: 'Creating PNG…', pngError: 'Could not create the PNG. Please try again.',
     confirmDeleteCustomer: 'Delete the customer “{name}”? Their invoices are kept.',
     invoice: 'Invoice', invoiceNo: 'Invoice no.', date: 'Date', product: 'Product', qty: 'Qty',
     nextInvoiceNumber: 'Next invoice number', changeNumber: 'Change', automaticNumber: 'Use automatic number',
@@ -150,6 +153,8 @@ const I18N = {
     'uploadWait': 'يرجى الانتظار حتى يكتمل رفع الشعار.',
     invoiceSpacing: 'تباعد الصفحة', invoiceCompact: 'مضغوط', invoiceStandard: 'قياسي', invoiceSpacious: 'واسع', invoiceTextSize: 'حجم النص', invoiceSmall: 'صغير', invoiceLarge: 'كبير', invoiceCustom: 'مخصص (القيم المحفوظة)', invoiceAdvanced: 'إعدادات التخطيط المتقدمة', invoiceMoreFonts: 'الخطوط المتوفرة سابقاً', invoiceFontSample: 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩', invoiceFontsOffline: 'عاين الخطوط أدناه. الخطوط الجديدة مضمنة وتعمل دون إنترنت. يبقى اختيار الخط الحالي محفوظاً حتى تغييره.',
     invoiceBranding: 'الهوية', invoiceContent: 'محتوى الفاتورة', invoiceTypography: 'الخطوط', invoiceLayout: 'التخطيط',
+    textStyles: 'أنماط النص', textStylesHint: 'خصص كل مجموعة بشكل مستقل. تعيد إعادة الضبط نمطها الأصلي. تطبق الخطوط المشتركة أعلاه على جميع المجموعات.', textStyleSize: 'الحجم (بكسل)', textStyleWeight: 'الوزن', textStyleColor: 'اللون', textStyleRegular: 'عادي', textStyleMedium: 'متوسط', textStyleBold: 'عريض', textStyleReset: 'إعادة ضبط', textStyleDefault: 'افتراضي',
+    textStyleStore: 'اسم المتجر', textStyleTitle: 'عنوان الفاتورة', textStyleLabels: 'تسميات التفاصيل', textStyleValues: 'قيم التفاصيل', textStyleTableHeadings: 'عناوين الجدول', textStyleRows: 'صفوف المنتجات', textStyleTotals: 'المجاميع وحالة الدفع', textStyleHeader: 'نص الترويسة', textStyleFooter: 'نص التذييل',
     settingsInvoice: 'الفاتورة', settingsData: 'البيانات والنسخ الاحتياطي', settingsSaveHint: 'حفظ التغييرات في جميع علامات التبويب.',
     a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
     a4FontHint: 'يطبق كل خط على حروف لغته حتى في النص المختلط. تستخدم الخطوط المثبتة دون إنترنت، مع خط بديل عند عدم توفر الخط المحدد.',
@@ -219,6 +224,7 @@ const I18N = {
     'err.checkoutStorage': 'تعذّر حفظ سجل استرداد البيع في المتصفح. فعّل تخزين المتصفح قبل إتمام البيع.',
     addCustomer: 'إضافة زبون', editCustomer: 'تعديل الزبون', noCustomers: 'لا يوجد زبائن بعد. يُضافون تلقائياً مع كل عملية بيع.',
     invoicesCount: 'الفواتير', totalSpent: 'مجموع المشتريات', viewInvoices: 'الفواتير',
+    downloadPng: 'تنزيل PNG', creatingPng: 'جارٍ إنشاء PNG…', pngError: 'تعذّر إنشاء صورة PNG. يرجى المحاولة مجدداً.',
     confirmDeleteCustomer: 'حذف الزبون «{name}»؟ ستبقى فواتيره محفوظة.',
     invoice: 'فاتورة', invoiceNo: 'رقم الفاتورة', date: 'التاريخ', product: 'المنتج', qty: 'الكمية',
     nextInvoiceNumber: 'رقم الفاتورة التالية', changeNumber: 'تغيير', automaticNumber: 'استخدام الترقيم التلقائي',
@@ -1356,10 +1362,24 @@ function formatInvoiceCode(year, number) { return `INV-HS-${year}-${String(numbe
 function nextInvoiceCode() { const n = invoiceNumbering(); return formatInvoiceCode(n.year, n.nextNumber); }
 
 // Builds the printable invoice. Used by the invoice page and the settings preview.
+const invoiceTextGroups = ['store', 'title', 'labels', 'values', 'tableHeadings', 'rows', 'totals', 'header', 'footer'];
+
+function invoiceTextStyles(styles) {
+  const result = {};
+  for (const key of invoiceTextGroups) {
+    const source = styles?.[key] || {}, style = {};
+    if (Number.isInteger(source.size) && source.size >= 8 && source.size <= 48) style.size = source.size;
+    if ([400, 500, 700].includes(source.weight)) style.weight = source.weight;
+    if (/^#[0-9a-fA-F]{6}$/.test(source.color || '')) style.color = source.color;
+    if (Object.keys(style).length) result[key] = style;
+  }
+  return result;
+}
+
 function a4Layout(s) {
   const v = s.a4Layout || {};
   const number = (key, fallback, min, max) => Number.isInteger(v[key]) && v[key] >= min && v[key] <= max ? v[key] : fallback;
-  return { margin: number('margin', 12, 5, 30), fontSize: number('fontSize', 16, 10, 22),
+  return { textStyles: invoiceTextStyles(v.textStyles), margin: number('margin', 12, 5, 30), fontSize: number('fontSize', 16, 10, 22),
     storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
     headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
     font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
@@ -1371,31 +1391,37 @@ function a4Layout(s) {
 }
 
 function invoiceHtml(inv, s) {
+  const layout = a4Layout(s);
+  const textStyle = key => {
+    if (s.paper === 'receipt') return '';
+    const style = layout.textStyles[key];
+    if (!style) return '';
+    return `style="${style.size ? `font-size:${style.size}px;` : ''}${style.weight ? `font-weight:${style.weight};` : ''}${style.color ? `color:${style.color};` : ''}"`;
+  };
   const align = ['start', 'center', 'end'].includes(s.logoAlign) ? s.logoAlign : 'center';
   const showName = s.showStoreName && s.storeName;
-  const headText = (showName ? `<div class="inv-store"><bdi>${esc(s.storeName)}</bdi></div>` : '') +
-    (s.header ? `<div class="prewrap">${rich(s.header)}</div>` : '');
+  const headText = (showName ? `<div class="inv-store" ${textStyle('store')}><bdi>${esc(s.storeName)}</bdi></div>` : '') +
+    (s.header ? `<div class="prewrap" ${textStyle('header')}>${rich(s.header)}</div>` : '');
   const logo = s.logo ? `<img src="${imgUrl(s.logo)}" alt="" style="height:${Number(s.logoSize) || 80}px">` : '';
   const pieces = inv.items.reduce((sum, it) => sum + it.qty, 0);
-  const layout = a4Layout(s);
   const fontFamily = `InvoiceLatin-${layout.englishFont}, InvoiceArabic-${layout.arabicFont}, Tahoma, Arial, sans-serif`;
   const style = `--accent:${safeColor(s.accentColor, '#714b67')};--row:${safeColor(s.rowColor, '#f3edf2')};--a4-font:${fontFamily};--a4-emphasis:${layout.emphasis === 'headings' ? 700 : 400}` +
     (s.paper !== 'receipt' && s.a4Layout ? `;--a4-margin:${layout.margin}mm;--a4-height:${297 - layout.margin * 2 - 3}mm;--a4-font:${fontFamily};--a4-size:${layout.fontSize}px;--store-size:${layout.storeSize}px;--title-size:${layout.titleSize}px;--header-align:${layout.headerAlign};--footer-align:${layout.footerAlign};--header-gap:${layout.headerGap}px;--footer-gap:${layout.footerGap}px` : '');
   return `<div class="invoice paper-${s.paper === 'receipt' ? 'receipt' : 'a4'}" data-bs-theme="light" style="${style}">
     ${logo || headText ? `<div class="inv-head align-${align}">${logo}${headText ? `<div class="inv-head-text">${headText}</div>` : ''}</div>` : ''}
-    <div class="inv-title"><bdi>${esc(s.invoiceTitle || t('invoice'))}</bdi></div>
+    <div class="inv-title" ${textStyle('title')}><bdi>${esc(s.invoiceTitle || t('invoice'))}</bdi></div>
     <div class="inv-meta">
-      <div>${t('invoiceNo')}: <b class="num" dir="ltr">${esc(invCode(inv))}</b></div>
-      ${invoiceDateTime(inv.date, s) ? `<div class="inv-date-time">${t(s.showDate !== false ? 'date' : 'time')}: <b class="num" dir="ltr">${invoiceDateTime(inv.date, s)}</b></div>` : ''}
+      <div><strong class="inv-label" ${textStyle('labels')}>${t('invoiceNo')}:</strong> <span class="inv-value num" dir="ltr" ${textStyle('values')}>${esc(invCode(inv))}</span></div>
+      ${invoiceDateTime(inv.date, s) ? `<div class="inv-date-time"><strong class="inv-label" ${textStyle('labels')}>${t(s.showDate !== false ? 'date' : 'time')}:</strong> <span class="inv-value num" dir="ltr" ${textStyle('values')}>${invoiceDateTime(inv.date, s)}</span></div>` : ''}
     </div>
     <div class="inv-cust">
-      <div>${t('customer')}: <b><bdi>${esc(inv.customerName)}</bdi></b></div>
-      ${inv.customerPhone ? `<div>${t('phone')}: <b dir="ltr" class="num">${esc(inv.customerPhone)}</b></div>` : ''}
-      ${inv.customerAddress ? `<div>${t('address')}: <span class="prewrap">${rich(inv.customerAddress)}</span></div>` : ''}
+      <div><strong class="inv-label" ${textStyle('labels')}>${t('customer')}:</strong> <span class="inv-value" ${textStyle('values')}><bdi>${esc(inv.customerName)}</bdi></span></div>
+      ${inv.customerPhone ? `<div><strong class="inv-label" ${textStyle('labels')}>${t('phone')}:</strong> <span dir="ltr" class="inv-value num" ${textStyle('values')}>${esc(inv.customerPhone)}</span></div>` : ''}
+      ${inv.customerAddress ? `<div><strong class="inv-label" ${textStyle('labels')}>${t('address')}:</strong> <span class="inv-value prewrap" ${textStyle('values')}>${rich(inv.customerAddress)}</span></div>` : ''}
     </div>
     <table class="inv-table">
-      <thead><tr><th>#</th><th>${t('product')}</th><th class="r">${t('price')}</th><th class="r">${t('qty')}</th><th class="r">${t('total')}</th></tr></thead>
-      <tbody>${inv.items.map((it, i) => `<tr>
+      <thead><tr><th ${textStyle('tableHeadings')}>#</th><th ${textStyle('tableHeadings')}>${t('product')}</th><th class="r" ${textStyle('tableHeadings')}>${t('price')}</th><th class="r" ${textStyle('tableHeadings')}>${t('qty')}</th><th class="r" ${textStyle('tableHeadings')}>${t('total')}</th></tr></thead>
+      <tbody ${textStyle('rows')}>${inv.items.map((it, i) => `<tr>
         <td class="num">${i + 1}</td>
         <td><bdi>${esc(it.name)}</bdi></td>
         <td class="r num">${int(it.price)}</td>
@@ -1403,12 +1429,12 @@ function invoiceHtml(inv, s) {
         <td class="r num">${int(it.total)}</td>
       </tr>`).join('')}</tbody>
       <tfoot><tr class="inv-total">
-        <td colspan="3">${t('total')}</td>
-        <td class="r num">${int(pieces)}</td>
-        <td class="r">${money(inv.total)}</td>
-      </tr>${s.showPaid ? `<tr class="inv-paid-row"><td colspan="4" class="inv-blank"></td><td class="inv-paid">${t('paid')}</td></tr>` : ''}</tfoot>
+        <td colspan="3" ${textStyle('totals')}>${t('total')}</td>
+        <td class="r num" ${textStyle('totals')}>${int(pieces)}</td>
+        <td class="r" ${textStyle('totals')}>${money(inv.total)}</td>
+      </tr>${s.showPaid ? `<tr class="inv-paid-row"><td colspan="4" class="inv-blank"></td><td class="inv-paid" ${textStyle('totals')}>${t('paid')}</td></tr>` : ''}</tfoot>
     </table>
-    ${s.footer ? `<div class="inv-foot">${rich(s.footer)}</div>` : ''}
+    ${s.footer ? `<div class="inv-foot" ${textStyle('footer')}>${rich(s.footer)}</div>` : ''}
   </div>`;
 }
 
@@ -1517,6 +1543,52 @@ async function downloadInvoicePdf(inv, s) {
   }
 }
 
+async function downloadInvoicePng(inv, s) {
+  const receipt = s.paper === 'receipt';
+  const host = document.createElement('div');
+  host.className = 'invoice-png-host';
+  host.style.cssText = 'position:fixed;left:-100000px;top:0;pointer-events:none';
+  host.setAttribute('aria-hidden', 'true');
+  host.dir = lang() === 'ar' ? 'rtl' : 'ltr';
+  host.innerHTML = invoiceHtml(inv, s);
+  document.body.appendChild(host);
+  let worker;
+  try {
+    if (!await languageStylesReady) throw new Error('Invoice stylesheet could not be loaded');
+    const invoice = $('.invoice', host);
+    invoice.style.width = receipt ? '80mm' : '210mm';
+    invoice.style.maxWidth = 'none';
+    invoice.style.boxShadow = 'none';
+    invoice.dir = host.dir;
+    if (document.fonts) await document.fonts.ready;
+    await Promise.all($$('img', host).map(img => img.decode()));
+    const { width, height } = invoice.getBoundingClientRect();
+    // Export the whole invoice as one image, reducing resolution for long lists
+    // to stay within browser canvas dimensions and a bounded pixel budget.
+    const scale = Math.min(2, 16384 / Math.max(width, height), Math.sqrt(32000000 / (width * height)));
+    worker = html2pdf().set({ margin: 0, enableLinks: false, pagebreak: { mode: [] },
+      html2canvas: { scale, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: 'mm', format: receipt ? [80, 297] : 'a4', orientation: 'portrait' },
+    });
+    const canvas = await worker.from(invoice).toCanvas().get('canvas');
+    const blob = await new Promise((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error('PNG encoding failed')), 'image/png'));
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = invCode(inv) + '.png';
+    document.body.appendChild(link);
+    try { link.click(); } finally { link.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); }
+  } finally {
+    if (worker) {
+      const overlay = await worker.get('overlay').catch(() => null);
+      if (overlay) overlay.remove();
+    }
+    host.remove();
+  }
+}
+
+let invoiceExportInProgress = false;
+
 function renderInvoice(id) {
   const inv = state.db.invoices.find(i => i.id === id);
   if (!inv) {
@@ -1535,6 +1607,7 @@ function renderInvoice(id) {
         <button class="btn btn-outline-secondary" id="inv-return"><i class="bi bi-arrow-return-left"></i> ${t('returnItems')}</button>
         <button class="btn btn-outline-danger ms-auto" id="inv-del"${inv.returns?.length ? ' disabled' : ''}><i class="bi bi-trash"></i> ${t('delete')}</button>
         <button class="btn btn-outline-secondary" id="inv-pdf"><i class="bi bi-file-earmark-pdf"></i> ${t('downloadPdf')}</button>
+        <button class="btn btn-outline-secondary" id="inv-png"><i class="bi bi-file-earmark-image"></i> ${t('downloadPng')}</button>
         <button class="btn btn-brand" id="inv-print"><i class="bi bi-printer"></i> ${t('print')}</button>
       </div>
       <section class="bg-white rounded p-3 mb-3 no-print" id="invoice-returns">
@@ -1550,20 +1623,26 @@ function renderInvoice(id) {
     </div>`;
   $('#inv-print').onclick = () => window.print();
   $('#inv-return').onclick = () => returnForm(inv);
-  $('#inv-pdf').onclick = async e => {
+  const exportInvoice = (format, exporter) => async e => {
+    if (invoiceExportInProgress) return;
+    invoiceExportInProgress = true;
     const button = e.currentTarget;
     const label = button.innerHTML;
-    button.disabled = true;
-    button.textContent = t('creatingPdf');
+    const buttons = [$('#inv-pdf'), $('#inv-png')];
+    buttons.forEach(control => { control.disabled = true; });
+    button.textContent = t(format === 'png' ? 'creatingPng' : 'creatingPdf');
     try {
-      await downloadInvoicePdf(inv, s);
+      await exporter(inv, s);
     } catch (err) {
-      toast(t('pdfError'), true);
+      toast(t(format === 'png' ? 'pngError' : 'pdfError'), true);
     } finally {
-      button.disabled = false;
+      invoiceExportInProgress = false;
+      buttons.forEach(control => { control.disabled = false; });
       button.innerHTML = label;
     }
   };
+  $('#inv-pdf').onclick = exportInvoice('pdf', downloadInvoicePdf);
+  $('#inv-png').onclick = exportInvoice('png', downloadInvoicePng);
   $('#inv-del').onclick = () => {
     const box = openModal(`
       <div class="modal-header"><h5 class="modal-title">${t('deleteInvoice')}</h5>
@@ -1736,6 +1815,15 @@ function renderSettings() {
   const spacingPresets = { compact: { margin: 8, headerGap: 8, footerGap: 12 }, standard: { margin: 12, headerGap: 16, footerGap: 24 }, spacious: { margin: 20, headerGap: 28, footerGap: 36 } };
   const sizePresets = { small: { fontSize: 14, storeSize: 21, titleSize: 18 }, standard: { fontSize: 16, storeSize: 24, titleSize: 21 }, large: { fontSize: 18, storeSize: 28, titleSize: 24 } };
   const selectedPreset = presets => Object.entries(presets).find(([, values]) => Object.entries(values).every(([key, value]) => layout[key] === value))?.[0] || 'custom';
+  const textGroupLabels = { store: 'textStyleStore', title: 'textStyleTitle', labels: 'textStyleLabels', values: 'textStyleValues', tableHeadings: 'textStyleTableHeadings', rows: 'textStyleRows', totals: 'textStyleTotals', header: 'textStyleHeader', footer: 'textStyleFooter' };
+  const textStyleControls = () => invoiceTextGroups.map(key => {
+    const style = layout.textStyles[key] || {};
+    return `<fieldset class="invoice-text-style"><legend class="h6">${t(textGroupLabels[key])}</legend><div class="row g-2 align-items-end">
+      <div class="col-4"><label class="form-label small" for="text-${key}-size">${t('textStyleSize')}</label><input class="form-control form-control-sm" id="text-${key}-size" data-text-group="${key}" data-text-prop="size" type="number" min="8" max="48" step="1" placeholder="${esc(t('textStyleDefault'))}" value="${style.size || ''}"></div>
+      <div class="col-5"><label class="form-label small" for="text-${key}-weight">${t('textStyleWeight')}</label><select class="form-select form-select-sm" id="text-${key}-weight" data-text-group="${key}" data-text-prop="weight">${[['', 'textStyleDefault'], [400, 'textStyleRegular'], [500, 'textStyleMedium'], [700, 'textStyleBold']].map(([value, label]) => `<option value="${value}"${String(style.weight || '') === String(value) ? ' selected' : ''}>${t(label)}</option>`).join('')}</select></div>
+      <div class="col-3"><label class="form-label small" for="text-${key}-color">${t('textStyleColor')}</label><input class="form-control form-control-color form-control-sm w-100" id="text-${key}-color" data-text-group="${key}" data-text-prop="color" type="color" value="${style.color || safeColor(['store', 'title', 'tableHeadings', 'totals'].includes(key) ? d.accentColor : '#000000', '#000000')}"></div>
+    </div><button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-text-reset="${key}" aria-label="${esc(t('textStyleReset') + ': ' + t(textGroupLabels[key]))}">${t('textStyleReset')}</button></fieldset>`;
+  }).join('');
   const fontGallery = (key, label, prefix, fonts, legacy) => {
     const cards = choices => choices.map(([value, name]) => `<label class="invoice-font-card"><input type="radio" name="${key}" data-a4="${key}" value="${value}"${layout[key] === value ? ' checked' : ''}><span><span class="invoice-font-name">${name}</span><span class="invoice-font-sample" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${value},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</span></span></label>`).join('');
     return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards([...fonts, ...legacy])}</div></fieldset>`;
@@ -1840,13 +1928,15 @@ function renderSettings() {
               <p class="form-text">${t('invoiceFontsOffline')}</p>
               ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['googlesans', 'Google Sans'], ['inter', 'Inter'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
               ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['cairo', 'Cairo — القاهرة'], ['tajawal', 'Tajawal — تجوّل'], ['amiri', 'Amiri — أميري']], [['tahoma', 'Tahoma'], ['arial', 'Arial'], ['traditional', 'Traditional Arabic']])}
-              <div class="mb-3"><label class="form-label" for="a4-emphasis">${t('a4Emphasis')}</label><select class="form-select" id="a4-emphasis" data-a4="emphasis">${opt('regular', t('a4Regular'), layout.emphasis)}${opt('headings', t('a4Headings'), layout.emphasis)}</select></div>
+              <h6>${t('textStyles')}</h6>
+              <p class="form-text">${t('textStylesHint')}</p>
+              <div id="sf-text-styles">${textStyleControls()}</div>
               </section>
               <section class="invoice-settings-section" aria-labelledby="invoice-layout-heading">
               <h5 id="invoice-layout-heading">${t('invoiceLayout')}</h5>
                 <div class="mb-3"><label class="form-label" for="a4-spacing">${t('invoiceSpacing')}</label><select class="form-select" id="a4-spacing">${opt('custom', t('invoiceCustom'), selectedPreset(spacingPresets))}${opt('compact', t('invoiceCompact'), selectedPreset(spacingPresets))}${opt('standard', t('invoiceStandard'), selectedPreset(spacingPresets))}${opt('spacious', t('invoiceSpacious'), selectedPreset(spacingPresets))}</select></div>
               <div id="a4-advanced" class="row g-3 mb-3">
-              ${Object.entries(layoutRanges).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
+              ${Object.entries(layoutRanges).filter(([key]) => !['storeSize', 'titleSize'].includes(key)).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
               </div>
               ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
               <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
@@ -1922,6 +2012,9 @@ function renderSettings() {
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
     Object.values(colorPickers).forEach(picker => picker.sync());
+    $$('[data-text-prop="color"]', f).forEach(control => {
+      if (!layout.textStyles[control.dataset.textGroup]?.color) control.value = safeColor(['store', 'title', 'tableHeadings', 'totals'].includes(control.dataset.textGroup) ? d.accentColor : '#000000', '#000000');
+    });
     $$('[data-header-color]').forEach(button => {
       const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();
       button.classList.toggle('active', selected);
@@ -1967,7 +2060,31 @@ function renderSettings() {
     });
     $('#a4-spacing').value = selectedPreset(spacingPresets);
     $('#a4-text-size').value = selectedPreset(sizePresets);
+    $$('[data-text-group]', f).forEach(control => {
+      const style = layout.textStyles[control.dataset.textGroup] || {};
+      control.value = style[control.dataset.textProp] || (control.type === 'color' ? safeColor(['store', 'title', 'tableHeadings', 'totals'].includes(control.dataset.textGroup) ? d.accentColor : '#000000', '#000000') : '');
+    });
   };
+  $$('[data-text-group]', f).forEach(control => {
+    const update = () => {
+      if (control.type === 'number' && control.value && !control.checkValidity()) return;
+      const key = control.dataset.textGroup, prop = control.dataset.textProp;
+      const style = { ...layout.textStyles[key] };
+      if (!control.value) delete style[prop];
+      else style[prop] = prop === 'color' ? control.value : Number(control.value);
+      if (Object.keys(style).length) layout.textStyles[key] = style;
+      else delete layout.textStyles[key];
+      d.a4Layout = { ...layout };
+      read();
+    };
+    control.oninput = update;
+    control.onchange = update;
+  });
+  $$('[data-text-reset]', f).forEach(button => { button.onclick = () => {
+    delete layout.textStyles[button.dataset.textReset];
+    d.a4Layout = { ...layout };
+    syncLayout(); read();
+  }; });
   [['#a4-spacing', spacingPresets], ['#a4-text-size', sizePresets]].forEach(([selector, presets]) => {
     $(selector).onchange = event => {
       if (!presets[event.target.value]) { event.target.value = selectedPreset(presets); return; }

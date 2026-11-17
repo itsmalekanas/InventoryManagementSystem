@@ -239,6 +239,8 @@ body {
 .invoice-settings-section > h5 { margin-bottom: 20px; }
 .invoice-settings-section > :last-child { margin-bottom: 0 !important; }
 .invoice-a4-settings { min-width: 0; margin-bottom: 0; }
+.invoice-text-style { min-width: 0; padding-block: 12px; border-top: 1px solid var(--line); }
+.invoice-text-style legend { float: none; width: auto; margin-bottom: 8px; }
 #sf-logo-del, .invoice-settings-controls label.btn { white-space: normal; }
 .settings-topbar { position: static; }
 .settings-toolbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; margin-bottom: 24px; border-bottom: 1px solid var(--line); background: var(--page); }
@@ -267,6 +269,8 @@ body {
 .paper-a4 b, .paper-a4 strong, .paper-a4 .inv-meta, .paper-a4 .inv-cust { font-weight: 400; }
 .paper-a4 .inv-store, .paper-a4 .inv-title, .paper-a4 .inv-table th,
 .paper-a4 .inv-table .inv-total td, .paper-a4 .inv-table .inv-paid-row .inv-paid { font-weight: var(--a4-emphasis, 400); }
+.paper-a4 .inv-label { font-weight: var(--a4-emphasis, 400); }
+.invoice .inv-value { font-weight: 400; }
 .invoice.paper-a4[style*="--a4-margin"] { padding: var(--a4-margin); font-family: var(--a4-font); font-size: var(--a4-size); }
 .paper-a4[style*="--a4-margin"] .inv-store { font-size: var(--store-size); }
 .paper-a4[style*="--a4-margin"] .inv-title { font-size: var(--title-size); }

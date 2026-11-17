@@ -2,18 +2,30 @@
 
 Updated: 2026-11-17 (Asia/Baghdad).
 
-## v0.6.2 release in progress
+## Latest completed checkpoint: v0.6.2
 
-- User authorized a proper changelog and publishing latest v0.6.2. VERSION and
-  README updated; CHANGELOG.md documents v0.6.2 plus v0.6.1/v0.6.0 history.
-  Release workflow extracts the matching changelog section as its release body.
-  Do not delete older releases; this request only adds v0.6.2 as latest.
+- Published latest v0.6.2, tag commit 8a2b242. VERSION and README match.
+  CHANGELOG.md documents v0.6.2 plus v0.6.1/v0.6.0 history. Release workflow
+  extracts the matching changelog section as its release body; exact published
+  notes verified. Older releases retained. No unfinished release work.
+- Main workflow 44085206069 passed. Tag workflow 44085206088 passed all shared,
+  Windows Chrome/Firefox, Linux Firefox/desktop, four distro suites and build.
+  Tag attempt 1 stalled in finance after Chrome/backup succeeded; cancelled and
+  reran only affected jobs on a fresh runner. Attempt 2 passed with no code or
+  test changes. Main and local finance checks also passed.
+- Downloaded both published archives and verified GitHub SHA-256 digests and
+  archive contents (Windows EXE only; Linux inventory/start.sh/README/icon only).
+  API confirms v0.6.2 is latest, public, non-draft and non-prerelease.
+  Verification: %TEMP%\inventory-v062-release-3437eaf0cb314863b05cfc7b4b34a3fd.
+  Published Windows EXE tray smoke passed (menu, active-save drain, unchanged
+  startup data and restart): %TEMP%\inventory-tray-4d875e1e33c34d739cc271bc10fc8618.
 - Local release checks passed: checked Windows build (Go tests/vet, 15 JS tests,
   script syntax), Linux amd64 package, actionlint, changelog extraction and diff
   whitespace. Chrome: %TEMP%\inventory-regression-pwoK85; Firefox:
   %TEMP%\inventory-firefox-jwfWKf; Windows tray lifecycle:
   %TEMP%\inventory-tray-259ea74445c142718b467ef6587ca665. All synthetic data.
-  Push/tag, GitHub checks and published-archive verification are pending.
+  All implementation notes below are included in the published v0.6.2 release;
+  their earlier pending/no-push statements are historical checkpoints.
 
 ## v0.6.2 implementation details (supersedes earlier pending notes)
 

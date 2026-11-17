@@ -2,6 +2,71 @@
 
 Updated: 2026-11-17 (Asia/Baghdad).
 
+## v0.6.2 release in progress
+
+- User authorized a proper changelog and publishing latest v0.6.2. VERSION and
+  README updated; CHANGELOG.md documents v0.6.2 plus v0.6.1/v0.6.0 history.
+  Release workflow extracts the matching changelog section as its release body.
+  Do not delete older releases; this request only adds v0.6.2 as latest.
+- Local release checks passed: checked Windows build (Go tests/vet, 15 JS tests,
+  script syntax), Linux amd64 package, actionlint, changelog extraction and diff
+  whitespace. Chrome: %TEMP%\inventory-regression-pwoK85; Firefox:
+  %TEMP%\inventory-firefox-jwfWKf; Windows tray lifecycle:
+  %TEMP%\inventory-tray-259ea74445c142718b467ef6587ca665. All synthetic data.
+  Push/tag, GitHub checks and published-archive verification are pending.
+
+## v0.6.2 implementation details (supersedes earlier pending notes)
+
+- Latest request: only IBM Plex Sans (English) and IBM Plex Sans Arabic (Arabic)
+  for invoices for now. Both dropdowns retain one option and their preview.
+  Regular/Medium/Bold remain. a4Layout renders both families for every saved
+  font choice and default, preserving numeric/text-style settings. Backend still
+  accepts previous font IDs so old JSON and ZIPs remain readable without forced
+  rewrites. Removed every non-Plex font file/license/CSS face/manifest entry;
+  four font files and two licenses remain, shared with the existing Plex UI.
+  Updated English/Arabic hints, docs and font/export regression expectations.
+- Latest verification passed: checked Windows build (Go tests/vet, JS syntax,
+  15 JS tests), Linux amd64 package build, Chrome regression (inventory-
+  regression-co4RYK), Firefox offline regression (inventory-firefox-DsDFnu).
+  Both browsers tested PDF/PNG; Firefox checks exactly one option per language,
+  all three font weights, English/Arabic/mobile, backup restore and restart.
+  Artifacts are in %TEMP%; only synthetic data was used. No push/version bump.
+- User approved smoother Settings preview, removing Google Sans, splitting the
+  frontend, consistent amd64 build scripts and consolidating CI checks. Leave
+  list pagination and database performance work for later. No release/version
+  change requested; VERSION/latest stays v0.6.1. Base Git commit is ec69e79.
+- Settings coalesces invoice DOM renders with frameUpdate (render-scheduler.js),
+  uses the latest draft, renders initially immediately and ignores detached
+  previews after navigation. Draft values, save status and validation remain
+  synchronous. Firefox verifies 20 edits yield one render and immediate dirty
+  status. Chrome assertions now wait for preview frames; sticky-preview checks
+  use instant scrolling so they measure the target position rather than a
+  smooth-scroll animation.
+- Removed Google Sans dropdown entry, CSS face, 4,974,940-byte font, license and
+  source-manifest entry. Existing googlesans identifiers remain accepted by the
+  backend for data/ZIP compatibility and now render as IBM Plex Sans without rewriting
+  stored records. Added legacy-font rendering and backup/restart tests including
+  an invoice; existing backup compatibility coverage also exercises that ID.
+- Split app.js into i18n.js, ui.js, products.js, pos.js, customers.js,
+  invoices.js, invoice-export.js, reports.js, settings.js and backup.js. app.js
+  retains router/Home/startup. Plain scripts load in index.html order with no
+  bundler/runtime dependency. Tests read that actual order via frontend-source.
+- tools/check.cjs runs Go tests/vet, JS syntax and all JS unit tests and is used
+  by build.bat/build.sh and the CI shared-checks job. Windows builds now explicitly
+  set windows/amd64/CGO_ENABLED=0. CI removes duplicate shared checks from its
+  Linux/package jobs, retains native Windows backend and browser tests, Linux
+  browser/desktop tests and four distro suites, and gates packaging on all jobs.
+- Passed locally: complete build.bat and Git Bash build.sh (both with shared
+  checks), 15 JS tests, backend/backup compatibility tests, Go vet, all browser
+  script syntax, actionlint v1.7.12, shell syntax and git diff --check.
+  Fresh Windows executable and static Linux amd64 archive built successfully.
+  Chrome regression: inventory-regression-YQLYCk; Firefox: inventory-firefox-
+  Qw2G4Z; backup: inventory-backup-e2e-sShj8n; finance: inventory-finance-qg0eNe
+  (all under %TEMP%, all synthetic data/profiles/downloads). Firefox blocks
+  external requests and checks English/Arabic/mobile, exports and ZIP restore.
+  New Linux runtime/GUI/distro CI has not run: no push requested and this host
+  has no WSL/Docker. Workflow validated locally; no claim of CI execution.
+
 ## Current platform policy: Intel/AMD 64-bit only
 
 - User requested removing ARM64 from code/builds and GitHub downloads altogether.

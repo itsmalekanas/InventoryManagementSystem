@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const source = fs.readFileSync(path.join(__dirname, '../web/app.js'), 'utf8');
+const source = require('./frontend-source.cjs').source;
 const translations = source.slice(source.indexOf('const I18N'), source.indexOf('const state'));
 
 test('English and Arabic provide the same messages and placeholder names', () => {
@@ -14,7 +14,7 @@ test('English and Arabic provide the same messages and placeholder names', () =>
   assert.deepEqual(Object.keys(en).sort(), Object.keys(ar).sort());
   const slots = text => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
   for (const key of Object.keys(en)) assert.deepEqual(slots(en[key]), slots(ar[key]), key);
-  for (const file of ['app.js', 'checkout.js']) {
+  for (const file of require('./frontend-source.cjs').scripts) {
     const script = fs.readFileSync(path.join(__dirname, '../web', file), 'utf8');
     for (const match of script.matchAll(/\bt\(\s*(['"])(.*?)\1/g)) {
       assert.ok(Object.hasOwn(en, match[2]), `Missing translation ${match[2]} in ${file}`);

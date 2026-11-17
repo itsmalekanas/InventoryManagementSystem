@@ -110,6 +110,36 @@ func TestAllInvoiceFontsAccepted(t *testing.T) {
 	}
 }
 
+func TestRetiredGoogleSansBackupAndRestart(t *testing.T) {
+	source, s, _ := newTestServer(t)
+	settings := s.db.Settings
+	settings.A4Layout = &A4Layout{Margin: 12, Font: "system", FontSize: 16, StoreSize: 24, TitleSize: 21, HeaderAlign: "center", FooterAlign: "center", HeaderGap: 16, FooterGap: 24, EnglishFont: "googlesans", ArabicFont: "cairo"}
+	if code, _ := call(t, source, "PUT", "/api/settings", settings); code != 200 {
+		t.Fatalf("legacy font settings rejected: %d", code)
+	}
+	_, result := call(t, source, "POST", "/api/products", Product{Name: "Synthetic font test", Price: 100, Stock: 1})
+	if code, _ := call(t, source, "POST", "/api/sales", map[string]any{"customer": map[string]string{"name": "Synthetic customer"}, "items": []map[string]any{{"productId": result.DB.Products[0].ID, "qty": 1}}}); code != 200 {
+		t.Fatalf("legacy font invoice rejected: %d", code)
+	}
+	original := s.db.Invoices[0]
+	archive := exportForTest(t, source)
+	destination, restored, dir := newTestServer(t)
+	t.Cleanup(restored.cleanupTransfers)
+	preview := previewForTest(t, destination, archive)
+	if code, raw, _ := commitForTest(t, destination, preview.Token); code != 200 {
+		t.Fatalf("legacy font import: %d %s", code, raw)
+	}
+	reopened, err := OpenStore(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, db := range []*DB{&restored.db, &reopened.db} {
+		if !reflect.DeepEqual(settings, db.Settings) || len(db.Invoices) != 1 || !reflect.DeepEqual(original, db.Invoices[0]) {
+			t.Fatal("legacy font settings or invoice changed during backup/restart")
+		}
+	}
+}
+
 func TestLegacyA4BackupPreservesCustomLayout(t *testing.T) {
 	source, s, _ := newTestServer(t)
 	settings := s.db.Settings

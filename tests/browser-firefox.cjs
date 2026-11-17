@@ -54,6 +54,31 @@ async function until(fn, timeout = 30000) {
   assert.equal(downloads.length, 0, 'Ordinary navigation/checkout must not download files');
   // Configure new offline fonts and text overrides, save, and reload.
   await go('#/settings', '#sf'); await page.locator('#settings-tab-invoice').click();
+  assert.equal(await page.locator('#a4-englishFont option[value=googlesans]').count(), 0);
+  assert.deepEqual(await page.locator('#a4-englishFont option').evaluateAll(options => options.map(option => option.value)), ['ibmplexsans']);
+  assert.deepEqual(await page.locator('#a4-arabicFont option').evaluateAll(options => options.map(option => option.value)), ['ibmplexsansarabic']);
+  // Burst edits must produce a single invoice render with the final draft.
+  const burst = await page.evaluate(async () => {
+    await new Promise(requestAnimationFrame);
+    const target = document.querySelector('#sf-preview');
+    const input = document.querySelector('#sf').storeName;
+    const original = input.value;
+    let renders = 0;
+    const observer = new MutationObserver(records => { renders += records.filter(record => record.target === target).length; });
+    observer.observe(target, { childList: true });
+    for (let i = 0; i < 20; i++) {
+      input.value = 'Preview burst ' + i;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const dirtyImmediately = document.querySelector('#sf-save-status').dataset.unsaved;
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const result = { renders, dirtyImmediately, latest: target.textContent.includes('Preview burst 19') };
+    observer.disconnect();
+    input.value = original; input.dispatchEvent(new Event('input', { bubbles: true }));
+    await new Promise(requestAnimationFrame);
+    return result;
+  });
+  assert.deepEqual(burst, { renders: 1, dirtyImmediately: 'true', latest: true });
   await page.locator('#a4-englishFont').selectOption('ibmplexsans');
   await page.locator('#a4-arabicFont').selectOption('ibmplexsansarabic');
   await page.locator('#text-labels-weight').selectOption('700');

@@ -1,6 +1,12 @@
 @echo off
-REM Builds the versioned Windows folder (needs Go from https://go.dev/dl/)
+setlocal
+REM Checks and builds the Windows Intel/AMD 64-bit folder (needs Go and Node 22+).
 cd /d "%~dp0"
+node tools/check.cjs
+if errorlevel 1 (pause & exit /b 1)
+set "GOOS=windows"
+set "GOARCH=amd64"
+set "CGO_ENABLED=0"
 set /p APP_VERSION=<VERSION
 set "APP_FOLDER=Inventory Management System %APP_VERSION%"
 if not exist "dist\%APP_FOLDER%" mkdir "dist\%APP_FOLDER%"

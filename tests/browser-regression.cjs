@@ -43,8 +43,8 @@ async function api(url,endpoint,body,method='POST'){
   const evaluate=async expression=>{const response=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(response.exceptionDetails)throw new Error(JSON.stringify(response.exceptionDetails));return response.result.value;};
   await c('Runtime.enable');await c('Page.enable');await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
   async function go(hash,selector){await c('Page.navigate',{url:url+'/'+hash});await until(()=>evaluate(`!!document.querySelector(${JSON.stringify(selector)})`));await evaluate('languageStylesReady');}
-  async function click(selector){await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);}
-  async function input(selector,value,event='input'){await evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});el.value=${JSON.stringify(value)};el.dispatchEvent(new Event(${JSON.stringify(event)},{bubbles:true}));})()`);}
+  async function click(selector){await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);await evaluate('new Promise(requestAnimationFrame)');}
+  async function input(selector,value,event='input'){await evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});el.value=${JSON.stringify(value)};el.dispatchEvent(new Event(${JSON.stringify(event)},{bubbles:true}));})()`);await evaluate('new Promise(requestAnimationFrame)');}
   await go('#/','#lang-btn');assert.ok((await evaluate('document.title')).includes('Inventory Management System'));assert.ok((await evaluate('document.querySelector(".home-brand").textContent')).includes('Inventory Management System'));assert.equal(await evaluate('document.querySelector(".app-version").textContent'),fs.readFileSync(path.resolve(__dirname,'../VERSION'),'utf8').trim());
   await evaluate('document.fonts.ready');
   assert.ok(await evaluate('getComputedStyle(document.body).fontFamily.startsWith("AppPlexLatin")'));
@@ -98,11 +98,11 @@ async function api(url,endpoint,body,method='POST'){
   assert.equal(await evaluate('!!document.querySelector(".settings-toolbar #sf-save")'),true);
   assert.ok(await evaluate('document.querySelector("#sf-preview .inv-cust").textContent.includes("0000 000 0000")'));
   assert.ok(await evaluate('document.querySelector("#sf-preview .inv-cust").textContent.includes(t("sampleAddress"))'));
-  const stickyTop=await evaluate('window.scrollTo(0,600);new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
-  const stickyLower=await evaluate('window.scrollTo(0,1000);new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
+  const stickyTop=await evaluate('window.scrollTo({top:600,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
+  const stickyLower=await evaluate('window.scrollTo({top:1000,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
   assert.ok(Math.abs(stickyTop-stickyLower)<2,'Preview stays pinned when scrolling down');
   assert.ok(await evaluate('document.querySelector("#sf-save").getBoundingClientRect().top>=0'), 'Save stays visible while scrolling');
-  const stickyBack=await evaluate('window.scrollTo(0,700);new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
+  const stickyBack=await evaluate('window.scrollTo({top:700,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
   assert.ok(Math.abs(stickyBack-stickyLower)<2,'Preview stays pinned when scrolling up');
   assert.ok(await evaluate('document.querySelector("#sf-preview").clientHeight<innerHeight'));
   assert.ok(await evaluate('document.querySelector("#sf-preview").scrollHeight>document.querySelector("#sf-preview").clientHeight'));
@@ -159,13 +159,13 @@ async function api(url,endpoint,body,method='POST'){
   await click('#sf-text-reset');await input('#sf [name=accentColor]','#714b67');
   assert.equal(await evaluate('document.querySelector("[data-color-picker=textStyle_store] .color-picker-value").textContent'),'#714B67');
   assert.equal(await evaluate('document.querySelector("[data-color-picker=textStyle_values] .color-picker-value").textContent'),'#000000');
-  await input('select[name=englishFont]','googlesans','change');await input('select[name=arabicFont]','cairo','change');
+  await input('select[name=englishFont]','ibmplexsans','change');await input('select[name=arabicFont]','ibmplexsansarabic','change');
   await evaluate('document.fonts.ready');
-  await evaluate('document.fonts.load("18px InvoiceLatin-inter", "Invoice")');
-  assert.ok(await evaluate('document.fonts.check("18px InvoiceLatin-inter", "Invoice")'));
-  assert.ok(await evaluate('(async()=>{const faces=await document.fonts.load("18px InvoiceLatin-googlesans","Invoice");return faces.length>0&&faces.every(face=>face.status==="loaded");})()'));
-  assert.ok(await evaluate('document.fonts.check("18px InvoiceArabic-cairo", "فاتورة")'));
-  assert.ok(await evaluate('(async()=>{for(const [font,text] of [["InvoiceLatin-inter","Invoice"],["InvoiceLatin-sourcesans3","Invoice"],["InvoiceLatin-lora","Invoice"],["InvoiceArabic-cairo","فاتورة"],["InvoiceArabic-tajawal","فاتورة"],["InvoiceArabic-amiri","فاتورة"]]){const loaded=await document.fonts.load("18px "+font,text);if(!loaded.length||loaded.some(face=>face.status!=="loaded"))return false;}return true;})()'));
+  await evaluate('document.fonts.load("18px InvoiceLatin-ibmplexsans", "Invoice")');
+  assert.ok(await evaluate('document.fonts.check("18px InvoiceLatin-ibmplexsans", "Invoice")'));
+  assert.ok(await evaluate('(async()=>{const faces=await document.fonts.load("18px InvoiceLatin-ibmplexsans","Invoice");return faces.length>0&&faces.every(face=>face.status==="loaded");})()'));
+  assert.ok(await evaluate('document.fonts.check("18px InvoiceArabic-ibmplexsansarabic", "فاتورة")'));
+  assert.ok(await evaluate('(async()=>{for(const [font,text] of [["InvoiceLatin-ibmplexsans","Invoice"],["InvoiceArabic-ibmplexsansarabic","فاتورة"]]){const loaded=await document.fonts.load("18px "+font,text);if(!loaded.length||loaded.some(face=>face.status!=="loaded"))return false;}return true;})()'));
   await evaluate('document.querySelector("#sf-a4").scrollIntoView();document.querySelectorAll(".modal-backdrop").forEach(el=>el.remove());document.querySelector("#toasts").innerHTML=""');
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
@@ -193,8 +193,8 @@ async function api(url,endpoint,body,method='POST'){
   assert.ok(await evaluate('Array.from(document.querySelectorAll("#sf-preview .inv-value"), el=>getComputedStyle(el).fontWeight).every(weight=>weight==="400")'));
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-table th")).fontWeight'),'700');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-meta .inv-value")).fontWeight'),'400');
-  assert.ok(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontFamily.includes("InvoiceLatin-googlesans")'));
-  assert.ok(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontFamily.includes("InvoiceArabic-cairo")'));
+  assert.ok(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontFamily.includes("InvoiceLatin-ibmplexsans")'));
+  assert.ok(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontFamily.includes("InvoiceArabic-ibmplexsansarabic")'));
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .invoice")).fontSize'),'18px');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-head-text")).textAlign'),'end');
   assert.ok(await evaluate('pageCss(state.db.settings).includes("12mm")'));
@@ -202,8 +202,8 @@ async function api(url,endpoint,body,method='POST'){
   await until(async()=>(await data(url)).db.settings.a4Layout?.margin===20);
   await go('#/settings','#sf');assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
   assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'false');
-  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'cairo');
-  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'googlesans');
+  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'ibmplexsansarabic');
+  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'ibmplexsans');
   assert.ok(await evaluate('pageCss(state.db.settings).includes("20mm")'));
   assert.equal(await evaluate('document.querySelector("#text-values-size").value'),'14');
   assert.equal(await evaluate('document.querySelector("#text-totals-weight").value'),'500');
@@ -234,7 +234,7 @@ async function api(url,endpoint,body,method='POST'){
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-label")).fontWeight'),'400');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).fontWeight'),'400');
   assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
-  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'googlesans');
+  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'ibmplexsans');
   assert.ok(await evaluate('Array.from(document.querySelectorAll("[data-text-prop=size], [data-text-prop=weight]"),control=>control.value).every(value=>value==="")'));
   await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
   await evaluate('window.scrollTo({top:document.querySelector("#sf-text-styles").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
@@ -262,7 +262,7 @@ async function api(url,endpoint,body,method='POST'){
 
   // Four independent date/time combinations, preview, print and actual PDF.
   for(const [showDate,showTime] of [[true,true],[true,false],[false,true],[false,false]]){
-    await go('#/settings','#sf');await evaluate(`document.querySelector('#sf-date').checked=${showDate};document.querySelector('#sf-time').checked=${showTime};document.querySelector('#sf').dispatchEvent(new Event('change',{bubbles:true}))`);const preview=await evaluate('document.querySelector("#sf-preview .inv-date-time")?.textContent||""');assert.equal(/\d{4}-\d{2}-\d{2}/.test(preview),showDate);assert.equal(/\d{2}:\d{2}/.test(preview),showTime);await click('#sf-save');await until(()=>evaluate('!document.querySelector("#sf-save").disabled'));
+    await go('#/settings','#sf');await evaluate(`document.querySelector('#sf-date').checked=${showDate};document.querySelector('#sf-time').checked=${showTime};document.querySelector('#sf').dispatchEvent(new Event('change',{bubbles:true}));new Promise(requestAnimationFrame)`);const preview=await evaluate('document.querySelector("#sf-preview .inv-date-time")?.textContent||""');assert.equal(/\d{4}-\d{2}-\d{2}/.test(preview),showDate);assert.equal(/\d{2}:\d{2}/.test(preview),showTime);await click('#sf-save');await until(()=>evaluate('!document.querySelector("#sf-save").disabled'));
     await go('#/invoice/'+seedInvoice.id,'#inv-pdf');const shown=await evaluate('document.querySelector(".inv-date-time")?.textContent||""');assert.equal(/\d{4}-\d{2}-\d{2}/.test(shown),showDate);assert.equal(/\d{2}:\d{2}/.test(shown),showTime);assert.equal((await data(url)).db.invoices[0].date,seedDate);
     await c('Emulation.setEmulatedMedia',{media:'print'});assert.equal(await evaluate('document.querySelector(".inv-date-time")?.textContent||""'),shown);await c('Emulation.setEmulatedMedia',{media:''});
     const folder=path.join(artifacts,`pdf-${showDate}-${showTime}`);fs.mkdirSync(folder);await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:folder,eventsEnabled:true});
@@ -297,7 +297,7 @@ async function api(url,endpoint,body,method='POST'){
   // New font families must load all supported weights from this app, offline.
   await c('Network.enable');await c('Network.setBlockedURLs',{urls:['https://*']});
   await go('#/settings','#sf');await click('#settings-tab-invoice');
-  const newFonts=[['englishFont','manrope'],['englishFont','ibmplexsans'],['englishFont','notosans'],['arabicFont','ibmplexsansarabic'],['arabicFont','notosansarabic'],['arabicFont','notonaskharabic']];
+  const newFonts=[['englishFont','ibmplexsans'],['arabicFont','ibmplexsansarabic']];
   for(const [key,value] of newFonts) {
     await input('select[name='+key+']',value,'change');
     assert.ok(await evaluate('document.querySelector("[data-font-sample='+key+']").style.fontFamily.includes('+JSON.stringify(value)+')'));
@@ -314,8 +314,8 @@ async function api(url,endpoint,body,method='POST'){
   await input('#sf [name=language]','ar','change');await click('#sf-save');
   await until(()=>evaluate('document.documentElement.dir==="rtl"&&!document.querySelector("#sf-save").disabled'));
   await go('#/settings','#sf');await click('#settings-tab-invoice');
-  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'notosans');
-  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'notonaskharabic');
+  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'ibmplexsans');
+  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'ibmplexsansarabic');
   await go('#/invoice/'+seedInvoice.id,'#inv-png');
   const fontExportFolder=path.join(artifacts,'new-fonts-export');fs.mkdirSync(fontExportFolder);
   await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:fontExportFolder,eventsEnabled:true});

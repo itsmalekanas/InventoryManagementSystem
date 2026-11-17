@@ -1,5 +1,17 @@
 # Regression checks
 
+Run all shared backend tests, Go static checks, browser-script syntax checks and
+JavaScript unit tests with `node tools/check.cjs` (Go and Node 22+ required).
+Both build scripts use this same command. CI runs shared checks once, retains
+Windows backend tests and both browsers, and retains the Linux desktop/distro
+checks. Packaging waits for all checks to pass.
+
+Browser code stays in plain scripts loaded in the order listed in
+`web/index.html`: shared translations/UI helpers, screen files, and finally
+`app.js` for routing/startup. Invoice exports live in `invoice-export.js`;
+settings preview renders are combined per animation frame. No frontend build
+step or external runtime requests are required.
+
 ## Firefox and portable Linux
 
 Development-only Firefox tests use the locked Playwright dependency. These

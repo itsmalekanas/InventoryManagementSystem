@@ -11,8 +11,24 @@ permissions:
   contents: write
 
 jobs:
+  shared-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Backend, static and JavaScript checks
+        run: node tools/check.cjs
   windows-checks:
     runs-on: windows-latest
+    env:
+      GOOS: windows
+      GOARCH: amd64
+      CGO_ENABLED: '0'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -24,6 +40,8 @@ jobs:
       - name: Build isolated Windows test executable
         shell: pwsh
         run: |
+          go test ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           go run github.com/akavel/rsrc@v0.10.2 -ico assets/app.ico -o rsrc_windows_amd64.syso
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           go build -trimpath -ldflags '-s -w -H=windowsgui' -o "$env:RUNNER_TEMP\Inventory-test.exe" .
@@ -60,10 +78,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Backend and package checks
-        run: |
-          go test ./...
-          go vet ./...
       - name: Build static portable Linux archives
         run: |
           go run ./tools/build-linux
@@ -124,16 +138,13 @@ jobs:
             -e "INVENTORY_LINUX_EXE=/packages/Inventory Management System $version linux-amd64/inventory" \
             "$DISTRO_IMAGE" /linux-tests -test.v
   build:
-    needs: [windows-checks, linux-checks, linux-distros]
+    needs: [shared-checks, windows-checks, linux-checks, linux-distros]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
       - name: Read application version
         id: version
         run: |
@@ -143,22 +154,25 @@ jobs:
             test "$GITHUB_REF_NAME" = "$version"
           fi
           echo "value=$version" >> "$GITHUB_OUTPUT"
-      - name: Test
-        run: go test ./...
-      - name: Go static checks
-        run: go vet ./...
-      - name: Check browser scripts
+      - name: Read release notes from changelog
+        env:
+          APP_VERSION: ${{ steps.version.outputs.value }}
         run: |
-          for file in web/*.js; do node --check "$file"; done
-      - name: JavaScript regression tests
-        run: node --test tests/*.test.cjs
+          mkdir -p dist
+          awk -v version="$APP_VERSION" '
+            index($0, "## [" version "] - ") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found && /^\[v/ { exit }
+            found { print }
+          ' CHANGELOG.md > dist/release-notes.md
+          test -s dist/release-notes.md
       - name: Build
         run: |
           go run github.com/akavel/rsrc@v0.10.2 -ico assets/app.ico -o rsrc_windows_amd64.syso
           version="${{ steps.version.outputs.value }}"
           folder="Inventory Management System $version"
           mkdir -p "dist/$folder"
-          GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/$folder/$folder.exe" .
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w -H=windowsgui" -o "dist/$folder/$folder.exe" .
           cd dist && zip -r "InventoryManagementSystem-$version-windows.zip" "$folder"
       - uses: actions/download-artifact@v4
         with:
@@ -174,7 +188,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Inventory Management System ${{ steps.version.outputs.value }} — Early release
-          body: Windows users can extract the Windows ZIP and run the EXE. Linux users can extract the linux-amd64 (Intel/AMD) archive and run start.sh; Firefox/Firefox ESR is preferred. Linux uses the same offline browser interface and web Exit button, with no tray icon. Exit the old app before copying its full data folder or importing a full backup into the new version.
+          body_path: dist/release-notes.md
           files: |
             dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-windows.zip
             dist/InventoryManagementSystem-${{ steps.version.outputs.value }}-linux-amd64.tar.gz

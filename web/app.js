@@ -1738,16 +1738,18 @@ function renderSettings() {
   const selectedPreset = presets => Object.entries(presets).find(([, values]) => Object.entries(values).every(([key, value]) => layout[key] === value))?.[0] || 'custom';
   const fontGallery = (key, label, prefix, fonts, legacy) => {
     const cards = choices => choices.map(([value, name]) => `<label class="invoice-font-card"><input type="radio" name="${key}" data-a4="${key}" value="${value}"${layout[key] === value ? ' checked' : ''}><span><span class="invoice-font-name">${name}</span><span class="invoice-font-sample" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${value},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</span></span></label>`).join('');
-    const oldChoice = legacy.find(([value]) => value === layout[key]);
-    return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards(fonts)}</div><div class="invoice-legacy-fonts mt-3"><div class="form-text mb-2">${t('invoiceMoreFonts')}<span data-font-legacy="${key}">${oldChoice ? ` · ${oldChoice[1]}` : ''}</span></div><div class="invoice-font-gallery">${cards(legacy)}</div></div></fieldset>`;
+    return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards([...fonts, ...legacy])}</div></fieldset>`;
   };
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
   $('#app').innerHTML = `
-    ${topbar(t('settings'), `<button type="submit" form="sf" class="btn settings-save-action" id="sf-save" title="${esc(t('settingsSaveHint'))}"><i class="bi bi-check-lg" aria-hidden="true"></i> ${t('save')}</button>`)}
+    ${topbar(t('settings'))}
     <div class="page settings-page">
+      <div class="settings-toolbar">
       <div class="settings-tabs" role="tablist" aria-label="${esc(t('settings'))}">
-        ${[['general', 'general'], ['invoice', 'settingsInvoice'], ['data', 'settingsData']].map(([key, label]) => `<button type="button" class="btn settings-tab" id="settings-tab-${key}" role="tab" aria-controls="settings-panel-${key}" aria-selected="false" tabindex="-1" data-settings-tab="${key}">${t(label)}</button>`).join('')}
+        ${[['general', 'general'], ['invoice', 'settingsInvoice'], ['data', 'settingsData']].map(([key, label]) => `<button type="button" class="btn btn-outline-primary settings-tab" id="settings-tab-${key}" role="tab" aria-controls="settings-panel-${key}" aria-selected="false" tabindex="-1" data-settings-tab="${key}">${t(label)}</button>`).join('')}
+      </div>
+      <button type="submit" form="sf" class="btn btn-brand settings-save-action" id="sf-save" title="${esc(t('settingsSaveHint'))}"><i class="bi bi-check-lg" aria-hidden="true"></i> ${t('save')}</button>
       </div>
       <form id="sf" novalidate>
         <section id="settings-panel-general" role="tabpanel" aria-labelledby="settings-tab-general" tabindex="0" hidden class="settings-general bg-white rounded shadow-sm p-3 p-md-4">
@@ -1872,6 +1874,7 @@ function renderSettings() {
       </form>
     </div>`;
 
+  $('.topbar').classList.add('settings-topbar');
   const f = $('#sf');
   const selectTab = (key, focus = false) => {
     if (!['general', 'invoice', 'data'].includes(key)) key = 'general';
@@ -1919,10 +1922,6 @@ function renderSettings() {
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
     Object.values(colorPickers).forEach(picker => picker.sync());
-    $$('[data-font-legacy]').forEach(label => {
-      const selected = $(`input[name="${label.dataset.fontLegacy}"]:checked`, f);
-      label.textContent = selected && !['googlesans', 'inter', 'lora', 'sourcesans3', 'cairo', 'tajawal', 'amiri'].includes(selected.value) ? ` · ${selected.closest('label').querySelector('.invoice-font-name').textContent}` : '';
-    });
     $$('[data-header-color]').forEach(button => {
       const selected = button.dataset.headerColor === safeColor(d.topbarColor, '#714b67').toLowerCase();
       button.classList.toggle('active', selected);

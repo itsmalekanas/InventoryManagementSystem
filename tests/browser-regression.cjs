@@ -77,12 +77,13 @@ async function api(url,endpoint,body,method='POST'){
   await click('#settings-tab-invoice');
   assert.equal(await evaluate('document.querySelectorAll("#sf-save").length'),1);
   assert.equal(await evaluate('document.querySelector("#sf-save").form.id'),'sf');
-  assert.equal(await evaluate('!!document.querySelector(".topbar #sf-save")'),true);
+  assert.equal(await evaluate('!!document.querySelector(".settings-toolbar #sf-save")'),true);
   assert.ok(await evaluate('document.querySelector("#sf-preview .inv-cust").textContent.includes("0000 000 0000")'));
   assert.ok(await evaluate('document.querySelector("#sf-preview .inv-cust").textContent.includes(t("sampleAddress"))'));
   const stickyTop=await evaluate('window.scrollTo(0,600);new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
   const stickyLower=await evaluate('window.scrollTo(0,1000);new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
   assert.ok(Math.abs(stickyTop-stickyLower)<2,'Preview stays pinned when scrolling down');
+  assert.ok(await evaluate('document.querySelector("#sf-save").getBoundingClientRect().top>=0'), 'Save stays visible while scrolling');
   const stickyBack=await evaluate('window.scrollTo(0,700);new Promise(resolve=>requestAnimationFrame(()=>resolve(document.querySelector(".settings-preview").getBoundingClientRect().top)))');
   assert.ok(Math.abs(stickyBack-stickyLower)<2,'Preview stays pinned when scrolling up');
   assert.ok(await evaluate('document.querySelector("#sf-preview").clientHeight<innerHeight'));

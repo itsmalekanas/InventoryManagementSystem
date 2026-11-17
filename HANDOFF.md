@@ -6,8 +6,11 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,
   IQD integer amounts, JSON persistence, images, Windows tray, verified ZIP backups.
-- User authorized publishing **v0.5.4** as latest on 2026-11-17.
-- `VERSION` and README now use v0.5.4. The release includes the reliability
+- User authorized publishing **v0.5.5** as latest on 2026-11-17.
+- v0.5.4 was pushed at `fe00994`; GitHub confirmed the latest release has its
+  Windows ZIP. Windows browser checks, Go tests/vet, and JS checks passed on GitHub.
+- `VERSION` and README now use v0.5.5. This release adds compact font grids,
+  Bootstrap Settings buttons, and the sticky Save toolbar to the reliability
   work below and visible Invoice settings sections. Tag push starts the GitHub
   workflow, which publishes the Windows ZIP as latest after checks pass.
 - The Qt experiment was completely removed at the user's request. No desktop
@@ -46,6 +49,22 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 ## User preferences and pending decisions
 
+- User approved moving Settings Save beside the tabs in a sticky toolbar.
+  Implemented a Bootstrap brand Save outside the tablist, linked to the existing
+  form. Settings header scrolls away so the toolbar stays at the viewport top;
+  small screens put Save on a second row. Shared save/upload guards unchanged.
+  Syntax, 11 JS tests, fresh build and checkout/UI browser suite passed, including
+  sticky Save visibility. Included in v0.5.5.
+- User requested Bootstrap buttons after reporting uneven Settings tab corners.
+  Settings tabs now use btn btn-outline-primary and Bootstrap's active state.
+  Removed custom tab borders/padding/background/focus rules and the global 8px
+  button-radius override. Brand colors and shared keyboard focus retained.
+  Syntax, 11 JS tests and diff check passed. Included in v0.5.5.
+- After v0.5.4, user requested compact font controls: one grid per language,
+  all fonts together without the Previously available fonts subgroup, retaining
+  every font sample. Implemented locally in web/app.js and web/style.css.
+  Syntax, all 11 JS tests, fresh Go build and browser regression passed with
+  synthetic data, including narrow-screen overflow checks. Included in v0.5.5.
 - Maintain backward compatibility with old data and backups.
 - No keyboard-shortcut additions requested.
 - No database-transfer/performance redesign requested.
@@ -59,8 +78,8 @@ Updated: 2026-11-17 (Asia/Baghdad).
   narrow-screen overflow and sticky preview checks passed. No persistence changes.
 - Existing invoice features include spacing/text-size presets, Advanced numeric
   controls, bundled offline English/Arabic fonts including Google Sans, visual
-  font cards, Settings tabs, shared header Save, and generic preview details.
-- Release verification: final Go tests and vet passed before v0.5.4 publication.
+  font cards, Settings tabs, shared sticky-toolbar Save, and generic preview details.
+- Release verification: final Go tests and vet passed before v0.5.5 publication.
   Check GitHub Actions and the latest-release page for publication completion.
 
 ## Development environment

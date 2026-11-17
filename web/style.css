@@ -247,12 +247,19 @@ body {
 .invoice-settings-section > h5 { margin-bottom: 20px; }
 .invoice-settings-section > :last-child { margin-bottom: 0 !important; }
 .invoice-a4-settings { min-width: 0; margin-bottom: 0; }
-.invoice-text-style { min-width: 0; padding-block: 12px; border-top: 1px solid var(--line); }
-.invoice-text-style legend { float: none; width: auto; margin-bottom: 8px; }
-.text-style-color-info { display: flex; justify-content: flex-end; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.text-style-color-field { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.text-style-color-field input { width: 32px; padding: 2px; flex-shrink: 0; }
-.text-style-color-field code { color: var(--ink); font-size: .75rem; }
+.invoice-text-style { min-width: 0; padding-block: 8px 10px; border: 0; border-bottom: 1px solid var(--line); }
+.invoice-text-style legend { float: none; width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px; font-size: .85rem; font-weight: 600; }
+.invoice-text-style .text-style-color-source { font-size: .7rem; font-weight: 400; color: var(--muted); text-align: end; }
+.invoice-text-style .form-label { font-size: .75rem; margin-bottom: 3px; }
+.invoice-text-style .color-picker { position: relative; }
+.invoice-text-style .color-picker-trigger { min-height: 31px; padding: 3px 6px; gap: 6px; border-radius: var(--bs-border-radius-sm); }
+.invoice-text-style .color-picker-swatch { width: 18px; height: 18px; border-radius: 4px; }
+.invoice-text-style .color-picker-value { font-size: .75rem; }
+.invoice-text-style .color-picker-panel { position: absolute; z-index: 12; inset-inline-end: 0; width: min(280px, calc(100vw - 56px)); max-height: min(420px, 65dvh); overflow: auto; margin-top: 6px; }
+@media (max-width: 575px) {
+  .invoice-text-style .color-picker-trigger { gap: 4px; }
+  .invoice-text-style .color-picker-value { font-size: .65rem; }
+}
 .settings-save-group { display: flex; gap: 12px; align-items: center; justify-content: flex-end; }
 #sf-save-status[data-unsaved="true"] { color: var(--ink) !important; font-weight: 600; }
 #sf-logo-del, .invoice-settings-controls label.btn { white-space: normal; }

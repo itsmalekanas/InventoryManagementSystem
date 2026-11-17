@@ -80,6 +80,12 @@ jobs:
           npx playwright install --with-deps firefox
           version="$(tr -d '\r\n' < VERSION)"
           node tests/browser-firefox.cjs "$PWD/dist/Inventory Management System $version linux-amd64/inventory"
+      - name: Linux Firefox desktop-launch smoke
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends openbox xdotool x11-utils dbus-x11 xvfb xauth
+          version="$(tr -d '\r\n' < VERSION)"
+          xvfb-run -a dbus-run-session -- node tests/linux-desktop.cjs "$PWD/dist/Inventory Management System $version linux-amd64/inventory"
       - uses: actions/upload-artifact@v4
         with:
           name: linux-portables

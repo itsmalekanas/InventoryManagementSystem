@@ -1803,9 +1803,9 @@ function renderReports() {
 /* ---------------- settings ---------------- */
 
 function renderSettings() {
-  const pickerHtml = (name, value, label) => InventoryColorPicker.html(name, safeColor(value, '#714b67'), esc(label), {
+  const pickerHtml = (name, value, label, options) => InventoryColorPicker.html(name, safeColor(value, '#714b67'), esc(label), {
     hue: esc(t('colorHue')), saturation: esc(t('colorSaturation')), brightness: esc(t('colorBrightness')), hex: esc(t('colorHex')),
-  });
+  }, options);
   const headerPresets = [['#a6e3e1', 'presetMint'], ['#714b67', 'presetPurple'], ['#334155', 'presetSlate'], ['#245a81', 'presetBlue'], ['#28634c', 'presetGreen'], ['#353a43', 'presetCharcoal']];
   const saved = JSON.stringify(state.db.settings);
   const savedSettingsToken = state.settingsToken;
@@ -1829,11 +1829,10 @@ function renderSettings() {
   };
   const textStyleControls = () => invoiceTextGroups.map(key => {
     const style = layout.textStyles[key] || {};
-    return `<fieldset class="invoice-text-style"><legend class="h6">${t(textGroupLabels[key])}</legend><div class="row g-2 align-items-end">
-      <div class="col-4"><label class="form-label small" for="text-${key}-size">${t('textStyleSize')}</label><input class="form-control form-control-sm" id="text-${key}-size" data-text-group="${key}" data-text-prop="size" type="number" min="8" max="48" step="1" placeholder="${esc(t('textStyleDefault'))}" value="${style.size || ''}"></div>
-      <div class="col-5"><label class="form-label small" for="text-${key}-weight">${t('textStyleWeight')}</label><select class="form-select form-select-sm" id="text-${key}-weight" data-text-group="${key}" data-text-prop="weight">${[['', 'textStyleDefault'], [400, 'textStyleRegular'], [500, 'textStyleMedium'], [700, 'textStyleBold']].map(([value, label]) => `<option value="${value}"${String(style.weight || '') === String(value) ? ' selected' : ''}>${t(label)}</option>`).join('')}</select></div>
-      <div class="col-3"><label class="form-label small" for="text-${key}-color">${t('textStyleColor')}</label><div class="text-style-color-field"><input class="form-control form-control-color form-control-sm" id="text-${key}-color" data-text-group="${key}" data-text-prop="color" type="color" value="${style.color || textDefaults(key).color}" aria-describedby="text-${key}-color-info"><code dir="ltr" data-text-hex="${key}"></code></div></div>
-      <div class="col-12 text-style-color-info" id="text-${key}-color-info"><span class="small text-secondary" data-text-color-source="${key}"></span></div>
+    return `<fieldset class="invoice-text-style"><legend><span>${t(textGroupLabels[key])}</span><span class="text-style-color-source" id="text-${key}-color-info" data-text-color-source="${key}"></span></legend><div class="row g-2 align-items-end">
+      <div class="col-4"><label class="form-label" for="text-${key}-size">${t('textStyleSize')}</label><input class="form-control form-control-sm" id="text-${key}-size" data-text-group="${key}" data-text-prop="size" type="number" min="8" max="48" step="1" placeholder="${esc(t('textStyleDefault'))}" value="${style.size || ''}"></div>
+      <div class="col-4"><label class="form-label" for="text-${key}-weight">${t('textStyleWeight')}</label><select class="form-select form-select-sm" id="text-${key}-weight" data-text-group="${key}" data-text-prop="weight">${[['', 'textStyleDefault'], [400, 'textStyleRegular'], [500, 'textStyleMedium'], [700, 'textStyleBold']].map(([value, label]) => `<option value="${value}"${String(style.weight || '') === String(value) ? ' selected' : ''}>${t(label)}</option>`).join('')}</select></div>
+      <div class="col-4"><div class="form-label">${t('textStyleColor')}</div>${pickerHtml('textStyle_' + key, style.color || textDefaults(key).color, t(textGroupLabels[key]) + ': ' + t('textStyleColor'), { sourceId: `text-${key}-color`, textGroup: key, descriptionId: `text-${key}-color-info` })}</div>
     </div></fieldset>`;
   }).join('');
   const fontGallery = (key, label, prefix, fonts, legacy) => {
@@ -2031,17 +2030,16 @@ function renderSettings() {
     });
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
-    Object.values(colorPickers).forEach(picker => picker.sync());
     $$('[data-text-prop="color"]', f).forEach(control => {
       const key = control.dataset.textGroup, style = layout.textStyles[key] || {}, defaults = textDefaults(key);
       if (!style.color) control.value = defaults.color;
-      $(`[data-text-hex="${key}"]`, f).textContent = control.value.toUpperCase();
       $(`[data-text-color-source="${key}"]`, f).textContent = t(style.color ? 'textColorCustom' : defaults.accent ? 'textColorAccent' : 'textColorDefault');
       const size = $(`#text-${key}-size`, f);
       size.placeholder = `${t('textStyleDefault')} (${defaults.size})`;
       size.title = `${t('textStyleDefault')}: ${defaults.size}px`;
-      $(`#text-${key}-weight option[value=""]`, f).textContent = `${t('textStyleDefault')} · ${t(defaults.weight === 700 ? 'textStyleBold' : 'textStyleRegular')}`;
+      $(`#text-${key}-weight option[value=""]`, f).textContent = `${t(defaults.weight === 700 ? 'textStyleBold' : 'textStyleRegular')} (${t('textStyleDefault')})`;
     });
+    Object.values(colorPickers).forEach(picker => picker.sync());
     const signature = draftSignature();
     if (savedDraft === undefined) savedDraft = signature;
     const unsaved = signature !== savedDraft || logoUploads > 0;
@@ -2085,7 +2083,7 @@ function renderSettings() {
   };
   f.oninput = read;
   f.onchange = read;
-  const syncLayout = () => {
+  const syncLayout = (resetColors = false) => {
     $$('[data-a4]', f).forEach(control => {
       if (control.type === 'radio') control.checked = control.value === layout[control.dataset.a4];
       else control.value = layout[control.dataset.a4];
@@ -2094,8 +2092,9 @@ function renderSettings() {
     $('#a4-text-size').value = selectedPreset(sizePresets);
     $$('[data-text-group]', f).forEach(control => {
       const style = layout.textStyles[control.dataset.textGroup] || {};
-      control.value = style[control.dataset.textProp] || (control.type === 'color' ? safeColor(['store', 'title', 'tableHeadings', 'totals'].includes(control.dataset.textGroup) ? d.accentColor : '#000000', '#000000') : '');
+      control.value = style[control.dataset.textProp] || (control.dataset.textProp === 'color' ? textDefaults(control.dataset.textGroup).color : '');
     });
+    if (resetColors) invoiceTextGroups.forEach(key => colorPickers['textStyle_' + key]?.sync(true));
   };
   $$('[data-text-group]', f).forEach(control => {
     const update = () => {
@@ -2115,7 +2114,7 @@ function renderSettings() {
   $('#sf-text-reset').onclick = () => {
     layout.textStyles = {};
     d.a4Layout = { ...layout };
-    syncLayout(); read();
+    syncLayout(true); read();
   };
   [['#a4-spacing', spacingPresets], ['#a4-text-size', sizePresets]].forEach(([selector, presets]) => {
     $(selector).onchange = event => {
@@ -2142,7 +2141,7 @@ function renderSettings() {
   $('#sf-a4-reset').onclick = () => {
     delete d.a4Layout;
     Object.assign(layout, a4Layout(d));
-    syncLayout();
+    syncLayout(true);
     read();
   };
   colorPickers = InventoryColorPicker.mount(f);
@@ -2154,7 +2153,7 @@ function renderSettings() {
   f.onsubmit = async e => {
     e.preventDefault();
     if (logoUploads || settingsSaving) { if (logoUploads) toast(t('uploadWait'), true); return; }
-    const invalidColor = $('.color-picker-hex[aria-invalid="true"]', f);
+    const invalidColor = $$('.color-picker-hex[aria-invalid="true"]', f).find(control => f.paper.value !== 'receipt' || !control.closest('#sf-a4'));
     if (invalidColor) {
       revealControl(invalidColor);
       colorPickers[invalidColor.closest('[data-color-picker]').dataset.colorPicker].open();

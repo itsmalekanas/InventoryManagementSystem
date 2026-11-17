@@ -58,11 +58,25 @@ async function until(fn, timeout = 30000) {
   await page.locator('#a4-arabicFont').selectOption('ibmplexsansarabic');
   await page.locator('#text-labels-weight').selectOption('700');
   await page.locator('#text-values-size').fill('14');
+  assert.equal(await page.locator('#sf-text-styles input[type=color]').count(), 0);
+  assert.equal(await page.locator('#sf-text-styles .color-picker-trigger').count(), 9);
+  await page.locator('[data-color-picker=textStyle_labels] .color-picker-trigger').click();
+  const styleHex = page.locator('#picker-textStyle_labels .color-picker-hex');
+  await styleHex.fill('#12'); await page.locator('#sf-save').click();
+  assert.equal(await styleHex.getAttribute('aria-invalid'), 'true');
+  assert.equal(await styleHex.evaluate(el => el === document.activeElement), true);
+  await page.locator('#sf-text-reset').click();
+  assert.equal(await styleHex.getAttribute('aria-invalid'), 'false');
+  await page.locator('#text-labels-weight').selectOption('700');
+  await page.locator('#text-values-size').fill('14');
+  await styleHex.fill('#123456'); await styleHex.press('Escape');
+  assert.equal(await page.locator('#picker-textStyle_labels').isVisible(), false);
   await page.locator('#sf-save').click(); await until(async () => (await data()).db.settings.a4Layout?.textStyles?.labels?.weight === 700);
   await go('#/settings', '#sf'); await page.locator('#settings-tab-invoice').click();
   assert.equal(await page.locator('#a4-englishFont').inputValue(), 'ibmplexsans');
   assert.equal(await page.locator('#a4-arabicFont').inputValue(), 'ibmplexsansarabic');
   assert.equal(await page.locator('#text-values-size').inputValue(), '14');
+  assert.equal(await page.locator('#text-labels-color').inputValue(), '#123456');
   assert.equal(await page.locator('#sf-save-status').getAttribute('data-unsaved'), 'false');
   assert.equal(await page.evaluate(async () => {
     for (const family of ['AppPlexLatin', 'AppPlexArabic', 'InvoiceLatin-ibmplexsans', 'InvoiceArabic-ibmplexsansarabic']) {
@@ -74,7 +88,15 @@ async function until(fn, timeout = 30000) {
   }), true);
   await page.setViewportSize({ width: 390, height: 900 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.locator('[data-color-picker=textStyle_labels] .color-picker-trigger').click();
+  const panelBox = await page.locator('#picker-textStyle_labels').boundingBox();
+  assert.ok(panelBox.x >= 0 && panelBox.x + panelBox.width <= 390);
+  assert.ok(panelBox.y >= 0 && panelBox.y + panelBox.height <= 900);
+  await page.screenshot({ path: path.join(artifacts, 'text-style-picker-mobile.png') });
+  await styleHex.press('Escape');
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.evaluate(() => window.scrollTo({ top: document.querySelector('#sf-text-styles').getBoundingClientRect().top + scrollY - document.querySelector('.settings-toolbar').getBoundingClientRect().height - 12, behavior: 'instant' }));
+  await page.screenshot({ path: path.join(artifacts, 'text-styles-compact.png') });
   await go('#/invoice/' + saved.db.invoices[0].id, '#inv-png');
   await page.screenshot({ path: path.join(artifacts, 'invoice-arabic-firefox.png'), fullPage: true });
   assert.equal(await page.locator('.inv-label').first().evaluate(el => getComputedStyle(el).fontWeight), '700');

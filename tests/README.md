@@ -42,9 +42,20 @@ separately. CI also compiles the backend test runner statically and runs the ful
 suite and packaged-launcher check inside `debian:stable-slim`, `ubuntu:rolling`,
 `fedora:latest` and `archlinux:latest`. Ubuntu's `rolling` tag tracks the latest
 stable release, while `latest` tracks LTS. ARM64 is built but not runtime-tested
-by this x86-64 matrix. Full GUI launch checks on real Linux desktops remain
-separate. No WSL/Docker is installed in the current Windows workspace, so these
-Linux execution checks must run in CI or on a Linux host before claiming support.
+by this x86-64 matrix. Linux execution checks run in CI because the current
+Windows workspace has no WSL/Docker.
+
+The Linux CI job also installs Openbox/xdotool/Xvfb and runs a real Firefox GUI
+in an isolated virtual X11 display and D-Bus session:
+
+```sh
+xvfb-run -a dbus-run-session -- node tests/linux-desktop.cjs /absolute/path/to/package/inventory
+```
+
+This uses a synthetic desktop entry and temporary Firefox profile to verify
+desktop dispatch, paths with spaces, browser-window minimize/reopen, portable
+data and Exit. It does not verify every distribution's desktop environment or
+file-manager trust prompts. Regular user browser profiles are never opened.
 
 ## Existing backend and Chrome checks
 

@@ -2,6 +2,40 @@
 
 Updated: 2026-11-17 (Asia/Baghdad).
 
+## Current release work: v0.6.1
+
+- Final local checks passed: Go tests/vet, 13 JS tests, syntax/actionlint, Chrome
+  and Firefox browser suites against the release-style v0.6.1 build. Windows
+  tray-smoke.ps1 passed: hidden owner, menu, reuse, active-save drain on Exit,
+  restart persistence and web Exit. Tray artifacts: %TEMP%\inventory-tray-
+  9ebd7bbf60cc48f1b1c5f0b1dc338de9. Firefox: inventory-firefox-p6yDS2;
+  Chrome: inventory-regression-kW3VeA.
+- Added tests/linux-desktop.cjs and Ubuntu CI step with Xvfb/Openbox/D-Bus.
+  Opens a synthetic desktop entry with real Firefox using a temporary profile,
+  checks paths with spaces, minimize/reopen, data and Exit. Await CI verification.
+  Does not cover every distro desktop/file-manager trust prompt or ARM64 GUI.
+
+- Follow-up: default weight options now read Regular (Default) or Bold (Default),
+  matching the inherited weight, with Arabic equivalents. Syntax and 13 JS tests
+  passed after this label-only change.
+- User requested the shared in-app color picker for all nine invoice text groups,
+  with more compact rows and smaller color-source notes. Replaced native color
+  inputs with InventoryColorPicker, preserving existing style source IDs/data
+  bindings. Size/weight/color use equal columns; source notes now sit beside group
+  titles. Shorter labels, controls and spacing; one Reset text styles retained.
+- Text color panels are popovers that do not expand rows, stay within small-screen
+  width, scroll into view and close previous text-style popovers. Escape closes
+  them. Reset clears unfinished/invalid hex drafts as well as overrides. Inactive
+  receipt-mode A4 color drafts follow existing numeric-validation behavior.
+- Checked syntax, all 13 JS tests and Chrome regression suite. Expanded Firefox
+  suite passed: all nine shared pickers/no native inputs, invalid hex blocking,
+  reset recovery, save/reload, mobile popup bounds, RTL UI, PNG/PDF and ZIP restore.
+  Chrome screenshot: %TEMP%\inventory-regression-JSXDKQ. Latest Firefox artifacts:
+  %TEMP%\inventory-firefox-u2FUUR. Desktop/mobile screenshots reviewed.
+- No data/schema changes. User authorized publishing all current work as latest
+  v0.6.1. VERSION/README updated. Push main and verify the new Linux GUI check
+  before tagging. Do not delete older releases unless newly requested.
+
 ## Latest completed checkpoint: v0.6.0
 
 - Published latest release **v0.6.0**, tag commit `77772de` (implementation

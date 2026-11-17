@@ -19,12 +19,12 @@ const InventoryColorPicker = (() => {
     if (/^[\da-f]{3}$/i.test(hex)) return '#' + hex.split('').map(c => c + c).join('').toLowerCase();
     return null;
   }
-  function html(name, color, label, labels) {
+  function html(name, color, label, labels, options = {}) {
     // Callers provide fixed field names, validated hex colors and escaped labels.
     const id = 'picker-' + name;
     return `<div class="color-picker" data-color-picker="${name}">
-      <input type="hidden" id="${name === 'topbarColor' ? 'sf-topbar-color' : 'picker-source-' + name}" name="${name}" value="${color}">
-      <button type="button" class="color-picker-trigger" aria-expanded="false" aria-controls="${id}" aria-label="${label}">
+      <input type="hidden" id="${options.sourceId || (name === 'topbarColor' ? 'sf-topbar-color' : 'picker-source-' + name)}" name="${name}" value="${color}"${options.textGroup ? ` data-text-group="${options.textGroup}" data-text-prop="color"` : ''}>
+      <button type="button" class="color-picker-trigger" aria-expanded="false" aria-controls="${id}" aria-label="${label}"${options.descriptionId ? ` aria-describedby="${options.descriptionId}"` : ''}>
         <span class="color-picker-swatch" aria-hidden="true"></span><span class="color-picker-value" dir="ltr"></span><i class="bi bi-chevron-down" aria-hidden="true"></i>
       </button>
       <div class="color-picker-panel" id="${id}" hidden>
@@ -59,8 +59,18 @@ const InventoryColorPicker = (() => {
       };
       const sync = (force = false) => { const value = normalize(source.value); if (value && (force || value !== currentHex)) { hsv = toHSV(value); paint(); } };
       const emit = () => { paint(); source.dispatchEvent(new Event('input', { bubbles: true })); };
-      const open = () => { panel.hidden = false; trigger.setAttribute('aria-expanded', 'true'); };
-      trigger.onclick = () => { panel.hidden = !panel.hidden; trigger.setAttribute('aria-expanded', String(!panel.hidden)); };
+      const open = () => {
+        if (root.closest('.invoice-text-style')) {
+          form.querySelectorAll('.invoice-text-style .color-picker').forEach(other => {
+            if (other === root) return;
+            other.querySelector('.color-picker-panel').hidden = true;
+            other.querySelector('.color-picker-trigger').setAttribute('aria-expanded', 'false');
+          });
+        }
+        panel.hidden = false; trigger.setAttribute('aria-expanded', 'true');
+        if (root.closest('.invoice-text-style')) panel.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
+      };
+      trigger.onclick = () => { if (panel.hidden) open(); else { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); } };
       root.onkeydown = event => { if (event.key === 'Escape' && !panel.hidden) { event.preventDefault(); panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); trigger.focus(); } };
       hue.oninput = () => { hsv.h = Number(hue.value); emit(); };
       saturation.oninput = () => { hsv.s = Number(saturation.value) / 100; emit(); };

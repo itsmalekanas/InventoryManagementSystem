@@ -235,8 +235,13 @@ body {
 .invoice-font-card > span { min-width: 0; flex: 1; }
 .invoice-font-name { display: block; font-size: .85rem; font-weight: 600; }
 .invoice-font-sample { display: block; font-size: 20px; line-height: 1.8; overflow-wrap: anywhere; }
-.invoice-advanced { padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
-.invoice-advanced summary, .invoice-font-gallery + details summary { cursor: pointer; }
+.invoice-settings-section + .invoice-settings-section,
+.invoice-a4-settings { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 28px; }
+.invoice-settings-section > h5 { margin-bottom: 20px; }
+.invoice-settings-section > :last-child { margin-bottom: 0 !important; }
+.invoice-a4-settings { min-width: 0; margin-bottom: 0; }
+.invoice-legacy-fonts { border-inline-start: 2px solid var(--line); padding-inline-start: 12px; }
+#sf-logo-del, .invoice-settings-controls label.btn { white-space: normal; }
 .settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-bottom: 24px; padding-bottom: 12px; }
 .settings-tab { color: var(--ink); border: 1px solid transparent; }
 .settings-tab:hover { background: var(--brand-soft); color: var(--ink); }

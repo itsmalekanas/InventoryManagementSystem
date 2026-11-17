@@ -11,6 +11,7 @@ const I18N = {
     'backupWarning': 'Your data was saved, but the automatic daily backup needs attention. Check the backups folder and available disk space, then export a full backup.',
     'uploadWait': 'Please wait for the logo upload to finish.',
     invoiceSpacing: 'Page spacing', invoiceCompact: 'Compact', invoiceStandard: 'Standard', invoiceSpacious: 'Spacious', invoiceTextSize: 'Text size', invoiceSmall: 'Small', invoiceLarge: 'Large', invoiceCustom: 'Custom (saved values)', invoiceAdvanced: 'Advanced layout', invoiceMoreFonts: 'Previously available fonts', invoiceFontSample: 'Invoice · My Store · 0123456789', invoiceFontsOffline: 'Preview each font below. New fonts are included in the app and work offline. Existing font choices are preserved until you change them.',
+    invoiceBranding: 'Branding', invoiceContent: 'Invoice content', invoiceTypography: 'Typography', invoiceLayout: 'Layout',
     settingsInvoice: 'Invoice', settingsData: 'Data & backup', settingsSaveHint: 'Save changes from all tabs.',
     a4EnglishFont: 'English font', a4ArabicFont: 'Arabic font', a4Emphasis: 'Font weights', a4Regular: 'Uniform regular weight', a4Headings: 'Bold headings and totals',
     a4FontHint: 'English and Arabic fonts apply to their own letters, including mixed text. Uses installed fonts offline; unavailable fonts fall back to a similar style.',
@@ -148,6 +149,7 @@ const I18N = {
     'backupWarning': 'حفظت البيانات، لكن النسخة الاحتياطية اليومية تحتاج إلى متابعة. تحقق من مجلد النسخ والمساحة المتوفرة، ثم صدّر نسخة احتياطية كاملة.',
     'uploadWait': 'يرجى الانتظار حتى يكتمل رفع الشعار.',
     invoiceSpacing: 'تباعد الصفحة', invoiceCompact: 'مضغوط', invoiceStandard: 'قياسي', invoiceSpacious: 'واسع', invoiceTextSize: 'حجم النص', invoiceSmall: 'صغير', invoiceLarge: 'كبير', invoiceCustom: 'مخصص (القيم المحفوظة)', invoiceAdvanced: 'إعدادات التخطيط المتقدمة', invoiceMoreFonts: 'الخطوط المتوفرة سابقاً', invoiceFontSample: 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩', invoiceFontsOffline: 'عاين الخطوط أدناه. الخطوط الجديدة مضمنة وتعمل دون إنترنت. يبقى اختيار الخط الحالي محفوظاً حتى تغييره.',
+    invoiceBranding: 'الهوية', invoiceContent: 'محتوى الفاتورة', invoiceTypography: 'الخطوط', invoiceLayout: 'التخطيط',
     settingsInvoice: 'الفاتورة', settingsData: 'البيانات والنسخ الاحتياطي', settingsSaveHint: 'حفظ التغييرات في جميع علامات التبويب.',
     a4EnglishFont: 'الخط الإنجليزي', a4ArabicFont: 'الخط العربي', a4Emphasis: 'أوزان الخط', a4Regular: 'وزن عادي موحد', a4Headings: 'عناوين ومجاميع عريضة',
     a4FontHint: 'يطبق كل خط على حروف لغته حتى في النص المختلط. تستخدم الخطوط المثبتة دون إنترنت، مع خط بديل عند عدم توفر الخط المحدد.',
@@ -1737,7 +1739,7 @@ function renderSettings() {
   const fontGallery = (key, label, prefix, fonts, legacy) => {
     const cards = choices => choices.map(([value, name]) => `<label class="invoice-font-card"><input type="radio" name="${key}" data-a4="${key}" value="${value}"${layout[key] === value ? ' checked' : ''}><span><span class="invoice-font-name">${name}</span><span class="invoice-font-sample" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${value},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</span></span></label>`).join('');
     const oldChoice = legacy.find(([value]) => value === layout[key]);
-    return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards(fonts)}</div><details class="mt-2"><summary>${t('invoiceMoreFonts')}<span data-font-legacy="${key}">${oldChoice ? ` · ${oldChoice[1]}` : ''}</span></summary><div class="invoice-font-gallery mt-2">${cards(legacy)}</div></details></fieldset>`;
+    return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards(fonts)}</div><div class="invoice-legacy-fonts mt-3"><div class="form-text mb-2">${t('invoiceMoreFonts')}<span data-font-legacy="${key}">${oldChoice ? ` · ${oldChoice[1]}` : ''}</span></div><div class="invoice-font-gallery">${cards(legacy)}</div></div></fieldset>`;
   };
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
@@ -1776,18 +1778,13 @@ function renderSettings() {
         <section id="settings-panel-invoice" role="tabpanel" aria-labelledby="settings-tab-invoice" tabindex="0" hidden>
           <div class="row g-4">
             <div class="col-lg-5">
-              <div class="bg-white rounded shadow-sm p-3 p-md-4">
-            <h5 class="mb-3">${t('invoiceDesign')}</h5>
+              <div class="invoice-settings-controls bg-white rounded shadow-sm p-3 p-md-4">
+            <section class="invoice-settings-section" aria-labelledby="invoice-branding-heading">
+            <h5 id="invoice-branding-heading">${t('invoiceBranding')}</h5>
             <div class="mb-3"><label class="form-label">${t('storeName')}</label>
               <input class="form-control" name="storeName" maxlength="200" dir="auto" value="${esc(d.storeName)}"></div>
-            <div class="mb-3">
-              <label class="form-label" for="sf-next-number">${t('nextInvoiceNumber')} (${numbering.year})</label>
-              <div class="input-group" dir="ltr"><span class="input-group-text">INV-HS-${numbering.year}-</span>
-                <input class="form-control" id="sf-next-number" name="nextInvoiceNumber" inputmode="numeric" value="${numbering.nextNumber}"></div>
-              <div class="form-text">${t('numberingHint')}</div>
-            </div>
 
-            <h5 class="mt-4 mb-3">${t('logo')}</h5>
+            <h6 class="mt-4 mb-3">${t('logo')}</h6>
             <div class="d-flex gap-2 mb-3 align-items-center">
               <label class="btn btn-outline-secondary"><i class="bi bi-upload"></i> ${t('uploadLogo')}
                 <input type="file" accept="image/*" hidden id="sf-logo"></label>
@@ -1799,7 +1796,15 @@ function renderSettings() {
             <div class="mb-3"><label class="form-label">${t('logoAlign')}</label>
               <select class="form-select" name="logoAlign">${opt('start', t('alignStart'), d.logoAlign)}${opt('center', t('alignCenter'), d.logoAlign)}${opt('end', t('alignEnd'), d.logoAlign)}</select></div>
 
-            <h5 class="mt-4 mb-3">${t('invoiceDesign')}</h5>
+            </section>
+            <section class="invoice-settings-section" aria-labelledby="invoice-content-heading">
+            <h5 id="invoice-content-heading">${t('invoiceContent')}</h5>
+            <div class="mb-3">
+              <label class="form-label" for="sf-next-number">${t('nextInvoiceNumber')} (${numbering.year})</label>
+              <div class="input-group" dir="ltr"><span class="input-group-text">INV-HS-${numbering.year}-</span>
+                <input class="form-control" id="sf-next-number" name="nextInvoiceNumber" inputmode="numeric" value="${numbering.nextNumber}"></div>
+              <div class="form-text">${t('numberingHint')}</div>
+            </div>
             <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="showStoreName" id="sf-show"${d.showStoreName ? ' checked' : ''}>
               <label class="form-check-label" for="sf-show">${t('showStoreName')}</label></div>
             <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="showPaid" id="sf-paid"${d.showPaid ? ' checked' : ''}>
@@ -1823,23 +1828,27 @@ function renderSettings() {
             <div class="mb-3"><label class="form-label">${t('paper')}</label>
               <select class="form-select" name="paper">${opt('a4', t('paperA4'), d.paper)}${opt('receipt', t('paperReceipt'), d.paper)}</select></div>
 
-            <fieldset id="sf-a4" class="mb-4"${d.paper === 'receipt' ? ' hidden' : ''}>
-              <legend class="h5">${t('a4Layout')}</legend>
+            </section>
+            <fieldset id="sf-a4" class="invoice-a4-settings"${d.paper === 'receipt' ? ' hidden' : ''}>
+              <legend class="visually-hidden">${t('a4Layout')}</legend>
+              <section class="invoice-settings-section" aria-labelledby="invoice-typography-heading">
+              <h5 id="invoice-typography-heading">${t('invoiceTypography')}</h5>
               <p class="form-text">${t('a4Hint')}</p>
-              <div class="row g-3 mb-3">
-                <div class="col-sm-6"><label class="form-label" for="a4-spacing">${t('invoiceSpacing')}</label><select class="form-select" id="a4-spacing">${opt('custom', t('invoiceCustom'), selectedPreset(spacingPresets))}${opt('compact', t('invoiceCompact'), selectedPreset(spacingPresets))}${opt('standard', t('invoiceStandard'), selectedPreset(spacingPresets))}${opt('spacious', t('invoiceSpacious'), selectedPreset(spacingPresets))}</select></div>
-                <div class="col-sm-6"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
-              </div>
+                <div class="mb-3"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
               <p class="form-text">${t('invoiceFontsOffline')}</p>
               ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['googlesans', 'Google Sans'], ['inter', 'Inter'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
               ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['cairo', 'Cairo — القاهرة'], ['tajawal', 'Tajawal — تجوّل'], ['amiri', 'Amiri — أميري']], [['tahoma', 'Tahoma'], ['arial', 'Arial'], ['traditional', 'Traditional Arabic']])}
               <div class="mb-3"><label class="form-label" for="a4-emphasis">${t('a4Emphasis')}</label><select class="form-select" id="a4-emphasis" data-a4="emphasis">${opt('regular', t('a4Regular'), layout.emphasis)}${opt('headings', t('a4Headings'), layout.emphasis)}</select></div>
-              <details id="a4-advanced" class="invoice-advanced mb-3"><summary>${t('invoiceAdvanced')}</summary><div class="row g-3 my-1">
+              </section>
+              <section class="invoice-settings-section" aria-labelledby="invoice-layout-heading">
+              <h5 id="invoice-layout-heading">${t('invoiceLayout')}</h5>
+                <div class="mb-3"><label class="form-label" for="a4-spacing">${t('invoiceSpacing')}</label><select class="form-select" id="a4-spacing">${opt('custom', t('invoiceCustom'), selectedPreset(spacingPresets))}${opt('compact', t('invoiceCompact'), selectedPreset(spacingPresets))}${opt('standard', t('invoiceStandard'), selectedPreset(spacingPresets))}${opt('spacious', t('invoiceSpacious'), selectedPreset(spacingPresets))}</select></div>
+              <div id="a4-advanced" class="row g-3 mb-3">
               ${Object.entries(layoutRanges).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
               </div>
               ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
-              </details>
               <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
+              </section>
             </fieldset>
               </div>
             </div>
@@ -2008,7 +2017,6 @@ function renderSettings() {
     const low = parseWhole(f.lowStock.value);
     const invalidLayout = $('#sf-a4 input[type="number"]:invalid');
     if (invalidLayout && d.paper !== 'receipt') {
-      $('#a4-advanced').open = true;
       revealControl(invalidLayout); invalidLayout.reportValidity(); return;
     }
     if (isNaN(low) || low > 1e6) { revealControl(f.lowStock); return toast(t('err.badStock'), true); }

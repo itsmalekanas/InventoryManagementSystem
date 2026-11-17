@@ -113,7 +113,8 @@ async function api(url,endpoint,body,method='POST'){
   await evaluate('window.scrollTo(0,0)');
   await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
   const settingsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'settings-invoice-tab.png'),Buffer.from(settingsShot.data,'base64'));
-  assert.equal(await evaluate('document.querySelector("#a4-advanced").open'),false);
+  assert.equal(await evaluate('document.querySelectorAll("#settings-panel-invoice details").length'),0);
+  assert.equal(await evaluate('document.querySelector("#a4-margin").getClientRects().length>0'),true);
   assert.equal(await evaluate('document.querySelectorAll("#sf-a4 input[type=range]").length'),0);
   await input('#a4-spacing','spacious','change');await input('#a4-text-size','large','change');
   assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
@@ -124,7 +125,7 @@ async function api(url,endpoint,body,method='POST'){
   assert.ok(await evaluate('(async()=>{const faces=await document.fonts.load("18px InvoiceLatin-googlesans","Invoice");return faces.length>0&&faces.every(face=>face.status==="loaded");})()'));
   assert.ok(await evaluate('document.fonts.check("18px InvoiceArabic-cairo", "فاتورة")'));
   assert.ok(await evaluate('(async()=>{for(const [font,text] of [["InvoiceLatin-inter","Invoice"],["InvoiceLatin-sourcesans3","Invoice"],["InvoiceLatin-lora","Invoice"],["InvoiceArabic-cairo","فاتورة"],["InvoiceArabic-tajawal","فاتورة"],["InvoiceArabic-amiri","فاتورة"]]){const loaded=await document.fonts.load("18px "+font,text);if(!loaded.length||loaded.some(face=>face.status!=="loaded"))return false;}return true;})()'));
-  await evaluate('document.querySelector("#sf-a4").scrollIntoView();document.querySelectorAll("#sf-a4 details:not(#a4-advanced)").forEach(el=>el.open=false);document.querySelectorAll(".modal-backdrop").forEach(el=>el.remove());document.querySelector("#toasts").innerHTML=""');
+  await evaluate('document.querySelector("#sf-a4").scrollIntoView();document.querySelectorAll(".modal-backdrop").forEach(el=>el.remove());document.querySelector("#toasts").innerHTML=""');
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
   await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
@@ -133,7 +134,7 @@ async function api(url,endpoint,body,method='POST'){
   await evaluate('document.querySelector("#sf-save").focus()');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-save")).boxShadow'),'none');
   const fontsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'invoice-font-gallery.png'),Buffer.from(fontsShot.data,'base64'));
-  await evaluate('document.querySelector("#a4-advanced").open=true');await input('#a4-headerAlign','end','change');
+  await input('#a4-headerAlign','end','change');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-meta b")).fontWeight'),'400');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-table th")).fontWeight'),'400');
   await input('#a4-emphasis','headings','change');

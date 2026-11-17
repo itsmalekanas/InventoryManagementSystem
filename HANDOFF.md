@@ -6,8 +6,10 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,
   IQD integer amounts, JSON persistence, images, Windows tray, verified ZIP backups.
-- Published latest release: **v0.5.3**, commit `71ba1db`.
-- `VERSION` remains v0.5.3. The reliability work below is not released or pushed.
+- User authorized publishing **v0.5.4** as latest on 2026-11-17.
+- `VERSION` and README now use v0.5.4. The release includes the reliability
+  work below and visible Invoice settings sections. Tag push starts the GitHub
+  workflow, which publishes the Windows ZIP as latest after checks pass.
 - The Qt experiment was completely removed at the user's request. No desktop
   migration is active. Continue work on the existing web app.
 
@@ -31,8 +33,7 @@ Updated: 2026-11-17 (Asia/Baghdad).
   during logo uploads and reload protection.
 - GitHub Actions now has a Windows job for checkout, backup and finance browser
   tests; the existing build/release job depends on it. The interactive tray
-  smoke test remains separate. This workflow change still needs validation on
-  GitHub after an authorized push.
+  smoke test remains separate. Check the v0.5.4 tag workflow for GitHub validation.
 
 ## Verification completed locally
 
@@ -48,14 +49,19 @@ Updated: 2026-11-17 (Asia/Baghdad).
 - Maintain backward compatibility with old data and backups.
 - No keyboard-shortcut additions requested.
 - No database-transfer/performance redesign requested.
-- User asked what would improve the Invoice tab. Proposed collapsible sections:
-  Branding, Content, Typography, Advanced; retain the sticky live preview and all
-  controls. **This layout change has not been approved or implemented.**
+- User rejected collapsible Invoice settings and approved visible stacked sections.
+  Implemented Branding, Invoice content, Typography, and Layout with dividers,
+  retaining the sticky preview and shared Save. Legacy fonts and numeric layout
+  controls are always expanded. A4-only controls still follow the paper selection.
+  Changes are included in v0.5.4 in web/app.js, web/style.css, and the browser suite.
+  JavaScript syntax, all 11 unit tests, fresh Go build, and checkout/UI browser
+  regression passed using synthetic temporary data. Desktop screenshot reviewed;
+  narrow-screen overflow and sticky preview checks passed. No persistence changes.
 - Existing invoice features include spacing/text-size presets, Advanced numeric
   controls, bundled offline English/Arabic fonts including Google Sans, visual
   font cards, Settings tabs, shared header Save, and generic preview details.
-- Next step: user can review/publish reliability fixes or decide on the Invoice
-  tab proposal. Do not infer a request to release from resuming this checkpoint.
+- Release verification: final Go tests and vet passed before v0.5.4 publication.
+  Check GitHub Actions and the latest-release page for publication completion.
 
 ## Development environment
 

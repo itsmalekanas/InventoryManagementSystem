@@ -6,13 +6,14 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 - Offline Go inventory/sales app with embedded HTML/CSS/JavaScript; Arabic/English,
   IQD integer amounts, JSON persistence, images, Windows tray, verified ZIP backups.
-- User authorized publishing all current work as **v0.5.6** latest on 2026-11-17.
+- User authorized publishing all current work as **v0.5.7** latest on 2026-11-17.
+- v0.5.6 published as latest at `98e7e18` with Windows ZIP; GitHub checks passed.
 - v0.5.5 published as latest at `aa232f5` with Windows ZIP; GitHub checks passed.
 - v0.5.4 was pushed at `fe00994`; GitHub confirmed the latest release has its
   Windows ZIP. Windows browser checks, Go tests/vet, and JS checks passed on GitHub.
-- `VERSION` and README now use v0.5.6. This release adds independent invoice
-  text styles and direct offline PNG download beside PDF, building on the
-  existing reliability fixes and visible Settings sections. Tag push starts the GitHub
+- `VERSION` and README now use v0.5.7. This release adds six offline invoice
+  font families and compact dropdown selectors with live selected-font samples.
+  Previous text styles, PNG/PDF exports and reliability fixes remain included. Tag push starts the GitHub
   workflow, which publishes the Windows ZIP as latest after checks pass.
 - The Qt experiment was completely removed at the user's request. No desktop
   migration is active. Continue work on the existing web app.
@@ -50,6 +51,26 @@ Updated: 2026-11-17 (Asia/Baghdad).
 
 ## User preferences and pending decisions
 
+- User requested font dropdowns to save space while retaining previews. Replaced
+  both grids with Bootstrap selects, each with a live selected-font sample below.
+  All font choices preserved; changing/resetting fonts updates the sample and
+  invoice preview. Fonts now load on selection rather than for every font card.
+  Syntax, 13 JS tests and browser suite passed (all new choices/weights, sample
+  family updates, save/reload, mobile layout, external HTTPS blocked, PNG/PDF).
+  Dropdown screenshot reviewed: %TEMP%\inventory-regression-425hxy.
+  Included in v0.5.7; user authorized push and latest release.
+- After v0.5.6, added six invoice font families: English Manrope, IBM Plex Sans,
+  Noto Sans; Arabic IBM Plex Sans Arabic, Noto Sans Arabic, Noto Naskh Arabic.
+  Dropdowns retain all previous choices/defaults with live font samples.
+  Bundled unmodified TTFs and OFL licenses from the existing pinned Google Fonts
+  commit; sources.json records hashes. Added ~4.6MB of raw font files.
+  All six support real Regular/Medium/Bold (Arabic Plex has three static files).
+- Font verification: Go tests/vet, all 13 JS tests (hashes/licenses included),
+  backup/restart with new font choices, and expanded browser suite passed.
+  Browser loaded all six at 400/500/700 with external HTTPS blocked, checked local
+  font resource origins, saved/reloaded selections, mobile width, and Arabic RTL
+  PNG/PDF downloads with Noto Sans + Noto Naskh Arabic. Cards and PNG reviewed.
+  Artifacts: %TEMP%\inventory-regression-yy0Av1. Included in v0.5.7.
 - Added Download PNG beside Download PDF on the invoice page (English/Arabic).
   Uses bundled html2pdf canvas rendering offline, waits for fonts/images/styles,
   and downloads one white-background PNG named after the invoice code. A4 and

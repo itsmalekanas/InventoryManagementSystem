@@ -134,8 +134,8 @@ func validA4Layout(v *A4Layout) bool {
 		}
 	}
 	align := func(s string) bool { return s == "start" || s == "center" || s == "end" }
-	if (v.EnglishFont != "" && v.EnglishFont != "segoe" && v.EnglishFont != "arial" && v.EnglishFont != "georgia" && v.EnglishFont != "inter" && v.EnglishFont != "lora" && v.EnglishFont != "sourcesans3" && v.EnglishFont != "googlesans") ||
-		(v.ArabicFont != "" && v.ArabicFont != "tahoma" && v.ArabicFont != "arial" && v.ArabicFont != "traditional" && v.ArabicFont != "cairo" && v.ArabicFont != "tajawal" && v.ArabicFont != "amiri") ||
+	if (v.EnglishFont != "" && v.EnglishFont != "segoe" && v.EnglishFont != "arial" && v.EnglishFont != "georgia" && v.EnglishFont != "inter" && v.EnglishFont != "lora" && v.EnglishFont != "sourcesans3" && v.EnglishFont != "googlesans" && v.EnglishFont != "manrope" && v.EnglishFont != "ibmplexsans" && v.EnglishFont != "notosans") ||
+		(v.ArabicFont != "" && v.ArabicFont != "tahoma" && v.ArabicFont != "arial" && v.ArabicFont != "traditional" && v.ArabicFont != "cairo" && v.ArabicFont != "tajawal" && v.ArabicFont != "amiri" && v.ArabicFont != "ibmplexsansarabic" && v.ArabicFont != "notosansarabic" && v.ArabicFont != "notonaskharabic") ||
 		(v.Emphasis != "" && v.Emphasis != "regular" && v.Emphasis != "headings") {
 		return false
 	}

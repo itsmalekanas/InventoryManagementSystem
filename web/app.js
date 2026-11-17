@@ -1383,8 +1383,8 @@ function a4Layout(s) {
     storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
     headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
     font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
-    englishFont: ['segoe', 'arial', 'georgia', 'inter', 'lora', 'sourcesans3', 'googlesans'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
-    arabicFont: ['tahoma', 'arial', 'traditional', 'cairo', 'tajawal', 'amiri'].includes(v.arabicFont) ? v.arabicFont : 'tahoma',
+    englishFont: ['segoe', 'arial', 'georgia', 'inter', 'lora', 'sourcesans3', 'googlesans', 'manrope', 'ibmplexsans', 'notosans'].includes(v.englishFont) ? v.englishFont : (v.font === 'serif' ? 'georgia' : v.font === 'sans' ? 'arial' : 'segoe'),
+    arabicFont: ['tahoma', 'arial', 'traditional', 'cairo', 'tajawal', 'amiri', 'ibmplexsansarabic', 'notosansarabic', 'notonaskharabic'].includes(v.arabicFont) ? v.arabicFont : 'tahoma',
     emphasis: v.emphasis === 'headings' ? 'headings' : 'regular',
     headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign : 'center',
     footerAlign: ['start', 'center', 'end'].includes(v.footerAlign) ? v.footerAlign : 'center' };
@@ -1825,8 +1825,9 @@ function renderSettings() {
     </div><button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-text-reset="${key}" aria-label="${esc(t('textStyleReset') + ': ' + t(textGroupLabels[key]))}">${t('textStyleReset')}</button></fieldset>`;
   }).join('');
   const fontGallery = (key, label, prefix, fonts, legacy) => {
-    const cards = choices => choices.map(([value, name]) => `<label class="invoice-font-card"><input type="radio" name="${key}" data-a4="${key}" value="${value}"${layout[key] === value ? ' checked' : ''}><span><span class="invoice-font-name">${name}</span><span class="invoice-font-sample" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${value},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</span></span></label>`).join('');
-    return `<fieldset class="mb-4"><legend class="h6">${t(label)}</legend><div class="invoice-font-gallery">${cards([...fonts, ...legacy])}</div></fieldset>`;
+    return `<div class="mb-3 invoice-font-picker"><label class="form-label" for="a4-${key}">${t(label)}</label>
+      <select class="form-select" id="a4-${key}" name="${key}" data-a4="${key}" aria-describedby="font-sample-${key}">${[...fonts, ...legacy].map(([value, name]) => `<option value="${value}"${layout[key] === value ? ' selected' : ''}>${esc(name)}</option>`).join('')}</select>
+      <div class="invoice-font-sample mt-2" id="font-sample-${key}" data-font-sample="${key}" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${layout[key]},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</div></div>`;
   };
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
@@ -1926,8 +1927,8 @@ function renderSettings() {
               <p class="form-text">${t('a4Hint')}</p>
                 <div class="mb-3"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
               <p class="form-text">${t('invoiceFontsOffline')}</p>
-              ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['googlesans', 'Google Sans'], ['inter', 'Inter'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
-              ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['cairo', 'Cairo — القاهرة'], ['tajawal', 'Tajawal — تجوّل'], ['amiri', 'Amiri — أميري']], [['tahoma', 'Tahoma'], ['arial', 'Arial'], ['traditional', 'Traditional Arabic']])}
+              ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['googlesans', 'Google Sans'], ['inter', 'Inter'], ['manrope', 'Manrope'], ['ibmplexsans', 'IBM Plex Sans'], ['notosans', 'Noto Sans'], ['sourcesans3', 'Source Sans 3'], ['lora', 'Lora']], [['segoe', 'Segoe UI'], ['arial', 'Arial'], ['georgia', 'Georgia']])}
+              ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['cairo', 'Cairo — القاهرة'], ['tajawal', 'Tajawal — تجوّل'], ['ibmplexsansarabic', 'IBM Plex Sans Arabic — آي بي إم'], ['notosansarabic', 'Noto Sans Arabic — نوتو سانس'], ['notonaskharabic', 'Noto Naskh Arabic — نوتو نسخ'], ['amiri', 'Amiri — أميري']], [['tahoma', 'Tahoma'], ['arial', 'Arial'], ['traditional', 'Traditional Arabic']])}
               <h6>${t('textStyles')}</h6>
               <p class="form-text">${t('textStylesHint')}</p>
               <div id="sf-text-styles">${textStyleControls()}</div>
@@ -2009,6 +2010,10 @@ function renderSettings() {
   let colorPickers = {};
   const preview = () => {
     $('#sf-preview').innerHTML = invoiceHtml(sample, d);
+    $$('[data-font-sample]', f).forEach(sample => {
+      const key = sample.dataset.fontSample;
+      sample.style.fontFamily = `${key === 'arabicFont' ? 'InvoiceArabic' : 'InvoiceLatin'}-${layout[key]}, sans-serif`;
+    });
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
     Object.values(colorPickers).forEach(picker => picker.sync());

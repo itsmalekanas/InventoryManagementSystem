@@ -43,5 +43,45 @@
         "file":  "googlesans-variable.ttf",
         "source":  "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/googlesans/GoogleSans%5BGRAD%2Copsz%2Cwght%5D.ttf",
         "sha256":  "D0A87D835A944B8B40D0E82A5651BB59AB97B936A2AEED5946EB57E7B2A3A90A"
+    },
+    {
+        "file": "manrope-variable.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/manrope/Manrope%5Bwght%5D.ttf",
+        "sha256": "3AE11C49DB0455A3CC33E37D380F20FDB8C7F8B41DC07625C177E3D87A9D6AE6"
+    },
+    {
+        "file": "ibmplexsans-variable.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/ibmplexsans/IBMPlexSans%5Bwdth%2Cwght%5D.ttf",
+        "sha256": "3B031AA4216174205BD8471F88A49B91F093169E9E87BD5262242BC5967FE2E3"
+    },
+    {
+        "file": "notosans-variable.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf",
+        "sha256": "BFB7BB691513F12E734DC346C03A03F784912432D7E3FA8E56EFCF906FE86B3D"
+    },
+    {
+        "file": "notosansarabic-variable.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notosansarabic/NotoSansArabic%5Bwdth%2Cwght%5D.ttf",
+        "sha256": "63111B5B2E074DD48CC67692E0A2726D86EE94C1C37FE8598257B7B4E87E869E"
+    },
+    {
+        "file": "ibmplexsansarabic-regular.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/ibmplexsansarabic/IBMPlexSansArabic-Regular.ttf",
+        "sha256": "6F611412270A132BBAC838DA9259D4C68569B4175F3B3B8FA3FA36A30B56DAB9"
+    },
+    {
+        "file": "ibmplexsansarabic-medium.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/ibmplexsansarabic/IBMPlexSansArabic-Medium.ttf",
+        "sha256": "B8363AB9F733DFA4F8E96B8B2102C24B5CF4110FB96D1D3D9A9412F6FB49CF74"
+    },
+    {
+        "file": "ibmplexsansarabic-bold.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf",
+        "sha256": "691E0C891A38637AE6BBDB69700F8042CB0724A137BEE615068FFDB92244F61F"
+    },
+    {
+        "file": "notonaskharabic-variable.ttf",
+        "source": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notonaskharabic/NotoNaskhArabic%5Bwght%5D.ttf",
+        "sha256": "67B5A525A661B607971FBD3F96A81B89D3A768E74534FCA84F18AC97E6FAB72F"
     }
 ]

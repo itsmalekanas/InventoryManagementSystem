@@ -120,8 +120,9 @@ async function api(url,endpoint,body,method='POST'){
   await input('#a4-spacing','spacious','change');await input('#a4-text-size','large','change');
   assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
   assert.equal(await evaluate('document.querySelector("#a4-fontSize").value'),'18');
-  await click('input[name=englishFont][value=googlesans]');await click('input[name=arabicFont][value=cairo]');
+  await input('select[name=englishFont]','googlesans','change');await input('select[name=arabicFont]','cairo','change');
   await evaluate('document.fonts.ready');
+  await evaluate('document.fonts.load("18px InvoiceLatin-inter", "Invoice")');
   assert.ok(await evaluate('document.fonts.check("18px InvoiceLatin-inter", "Invoice")'));
   assert.ok(await evaluate('(async()=>{const faces=await document.fonts.load("18px InvoiceLatin-googlesans","Invoice");return faces.length>0&&faces.every(face=>face.status==="loaded");})()'));
   assert.ok(await evaluate('document.fonts.check("18px InvoiceArabic-cairo", "فاتورة")'));
@@ -161,8 +162,8 @@ async function api(url,endpoint,body,method='POST'){
   await input('#sf [name=lowStock]','5');await click('#sf-save');
   await until(async()=>(await data(url)).db.settings.a4Layout?.margin===20);
   await go('#/settings','#sf');assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
-  assert.equal(await evaluate('document.querySelector("input[name=arabicFont]:checked").value'),'cairo');
-  assert.equal(await evaluate('document.querySelector("input[name=englishFont]:checked").value'),'googlesans');
+  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'cairo');
+  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'googlesans');
   assert.ok(await evaluate('pageCss(state.db.settings).includes("20mm")'));
   assert.equal(await evaluate('document.querySelector("#text-values-size").value'),'14');
   assert.equal(await evaluate('document.querySelector("#text-totals-weight").value'),'500');
@@ -244,6 +245,34 @@ async function api(url,endpoint,body,method='POST'){
   assert.ok(await evaluate('document.querySelector("#toasts").textContent.includes(t("pngError"))'));
   assert.equal(await evaluate('document.querySelectorAll(".invoice-png-host, .html2pdf__overlay").length'),0);
   await evaluate('window.html2pdf=window.baseHtml2pdf');
+  // New font families must load all supported weights from this app, offline.
+  await c('Network.enable');await c('Network.setBlockedURLs',{urls:['https://*']});
+  await go('#/settings','#sf');await click('#settings-tab-invoice');
+  const newFonts=[['englishFont','manrope'],['englishFont','ibmplexsans'],['englishFont','notosans'],['arabicFont','ibmplexsansarabic'],['arabicFont','notosansarabic'],['arabicFont','notonaskharabic']];
+  for(const [key,value] of newFonts) {
+    await input('select[name='+key+']',value,'change');
+    assert.ok(await evaluate('document.querySelector("[data-font-sample='+key+']").style.fontFamily.includes('+JSON.stringify(value)+')'));
+    const family=(key==='englishFont'?'InvoiceLatin-':'InvoiceArabic-')+value;
+    assert.ok(await evaluate(`(async()=>{for(const weight of [400,500,700]){const faces=await document.fonts.load(weight+' 18px '+${JSON.stringify(family)},${JSON.stringify(key==='englishFont'?'Invoice 0123456789':'\u0641\u0627\u062a\u0648\u0631\u0629')});if(!faces.length||faces.some(face=>face.status!=='loaded'))return false;}return true;})()`));
+    assert.ok(await evaluate(`getComputedStyle(document.querySelector('#sf-preview .invoice')).fontFamily.includes(${JSON.stringify(family)})`));
+  }
+  assert.ok(await evaluate('performance.getEntriesByType("resource").filter(entry=>entry.name.includes("/vendor/fonts/")).every(entry=>new URL(entry.name).origin===location.origin)'));
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
+  assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+  await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
+  await evaluate('window.scrollTo({top:document.querySelector("select[name=englishFont]").closest(".invoice-font-picker").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+  const arabicFontsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'new-arabic-fonts.png'),Buffer.from(arabicFontsShot.data,'base64'));
+  await input('#sf [name=language]','ar','change');await click('#sf-save');
+  await until(()=>evaluate('document.documentElement.dir==="rtl"&&!document.querySelector("#sf-save").disabled'));
+  await go('#/settings','#sf');await click('#settings-tab-invoice');
+  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'notosans');
+  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'notonaskharabic');
+  await go('#/invoice/'+seedInvoice.id,'#inv-png');
+  const fontExportFolder=path.join(artifacts,'new-fonts-export');fs.mkdirSync(fontExportFolder);
+  await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:fontExportFolder,eventsEnabled:true});
+  await click('#inv-png');await until(()=>fs.existsSync(path.join(fontExportFolder,seedInvoice.code+'.png')),60000);
+  await until(()=>evaluate('!document.querySelector("#inv-pdf").disabled'));await click('#inv-pdf');
+  await until(()=>fs.existsSync(path.join(fontExportFolder,seedInvoice.code+'.pdf')),60000);
   assert.equal(events.filter(event=>event.method==='Runtime.exceptionThrown').length,0);
   console.log(JSON.stringify({passed:true,artifacts,checks:'separate app-copy data folders and reuse, invalid price/stock/quantity/settings input, Arabic digits, dropped checkout response, original invoice selection, reload recovery, cancellation/late delivery, independent date/time preview/print/PDF combinations'},null,2));await command('Browser.close');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>{socket?.close();chrome?.kill();for(const child of children)child.kill();});

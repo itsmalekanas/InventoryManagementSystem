@@ -75,6 +75,7 @@ func TestInvoiceTextStylesBackupRoundTrip(t *testing.T) {
 	source, s, _ := newTestServer(t)
 	settings := s.db.Settings
 	settings.A4Layout = &A4Layout{Margin: 12, Font: "system", FontSize: 16, StoreSize: 24, TitleSize: 21, HeaderAlign: "center", FooterAlign: "center", HeaderGap: 16, FooterGap: 24,
+		EnglishFont: "manrope", ArabicFont: "notosansarabic",
 		TextStyles: map[string]InvoiceTextStyle{"labels": {Weight: 700}, "values": {Size: 14, Color: "#000000"}, "footer": {Size: 12, Weight: 500, Color: "#123456"}}}
 	if code, _ := call(t, source, "PUT", "/api/settings", settings); code != 200 {
 		t.Fatalf("save: %d", code)
@@ -99,8 +100,8 @@ func TestInvoiceTextStylesBackupRoundTrip(t *testing.T) {
 }
 
 func TestAllInvoiceFontsAccepted(t *testing.T) {
-	for _, english := range []string{"", "segoe", "arial", "georgia", "inter", "lora", "sourcesans3", "googlesans"} {
-		for _, arabic := range []string{"", "tahoma", "arial", "traditional", "cairo", "tajawal", "amiri"} {
+	for _, english := range []string{"", "segoe", "arial", "georgia", "inter", "lora", "sourcesans3", "googlesans", "manrope", "ibmplexsans", "notosans"} {
+		for _, arabic := range []string{"", "tahoma", "arial", "traditional", "cairo", "tajawal", "amiri", "ibmplexsansarabic", "notosansarabic", "notonaskharabic"} {
 			layout := &A4Layout{Margin: 12, Font: "system", FontSize: 16, StoreSize: 24, TitleSize: 21, HeaderAlign: "center", FooterAlign: "center", HeaderGap: 16, FooterGap: 24, EnglishFont: english, ArabicFont: arabic}
 			if !validA4Layout(layout) {
 				t.Fatalf("rejected supported fonts %q, %q", english, arabic)

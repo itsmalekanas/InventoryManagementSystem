@@ -1,6 +1,20 @@
 # Resume here
 
-Updated: 2026-11-17 (Asia/Baghdad).
+Updated: 2026-11-19 (Asia/Baghdad).
+
+## Latest completed checkpoint: v0.6.3
+
+- Published v0.6.3 as latest at tag commit `197f6b6`. VERSION, README and
+  CHANGELOG match. Verified the published notes against the changelog.
+- Main workflow 44418546271 and tag workflow 44418546217 passed. Downloaded
+  both published archives and verified their GitHub SHA-256 digests and file
+  lists. Artifacts: %TEMP%\inventory-v063-release-a12b0dcd71d24052a36644412415b99d.
+- The initial A4 text-style edit now preserves the existing header alignment.
+  PDF and PNG omit unavailable logos and complete the export. Long text wraps
+  within the invoice, and PDF table columns keep their widths across pages.
+- Shared checks and local Chrome/Firefox suites passed with synthetic data.
+  Firefox verified a 65-row PDF with every row, consistent columns, totals on
+  the final page and no blank pages. No data or backup format changes.
 
 ## Latest completed checkpoint: v0.6.2
 

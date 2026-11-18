@@ -79,6 +79,13 @@ async function until(fn, timeout = 30000) {
     return result;
   });
   assert.deepEqual(burst, { renders: 1, dirtyImmediately: 'true', latest: true });
+  // A first typography edit must preserve the header alignment inherited from the logo.
+  assert.equal((await data()).db.settings.a4Layout, undefined);
+  await page.locator('#sf [name=logoAlign]').selectOption('start');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#sf-preview .inv-store')).textAlign === 'end');
+  await page.locator('#text-store-weight').selectOption('500');
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('#sf-preview .inv-store')).fontWeight === '500');
+  assert.equal(await page.locator('#sf-preview .inv-store').evaluate(el => getComputedStyle(el).textAlign), 'end');
   await page.locator('#a4-englishFont').selectOption('ibmplexsans');
   await page.locator('#a4-arabicFont').selectOption('ibmplexsansarabic');
   await page.locator('#text-labels-weight').selectOption('700');
@@ -92,6 +99,7 @@ async function until(fn, timeout = 30000) {
   assert.equal(await styleHex.evaluate(el => el === document.activeElement), true);
   await page.locator('#sf-text-reset').click();
   assert.equal(await styleHex.getAttribute('aria-invalid'), 'false');
+  await page.locator('#text-store-weight').selectOption('500');
   await page.locator('#text-labels-weight').selectOption('700');
   await page.locator('#text-values-size').fill('14');
   await styleHex.fill('#123456'); await styleHex.press('Escape');
@@ -125,6 +133,10 @@ async function until(fn, timeout = 30000) {
   await go('#/invoice/' + saved.db.invoices[0].id, '#inv-png');
   await page.screenshot({ path: path.join(artifacts, 'invoice-arabic-firefox.png'), fullPage: true });
   assert.equal(await page.locator('.inv-label').first().evaluate(el => getComputedStyle(el).fontWeight), '700');
+  assert.deepEqual(await page.locator('.inv-store').evaluate(el => {
+    const style = getComputedStyle(el);
+    return [style.textAlign, style.fontWeight];
+  }), ['end', '500']);
   for (const format of ['png', 'pdf']) {
     const pending = page.waitForEvent('download', { timeout: 60000 });
     await page.locator('#inv-' + format).click(); const download = await pending;
@@ -135,6 +147,51 @@ async function until(fn, timeout = 30000) {
     await page.locator('#inv-' + format).waitFor({ state: 'visible' });
     await page.waitForFunction(() => !document.querySelector('#inv-pdf').disabled);
   }
+  // Keep long product names within the page and verify that pagination
+  // includes every row in order, with identical columns and no blank pages.
+  const longPdf = page.waitForEvent('download', { timeout: 60000 });
+  const pages = await page.evaluate(async () => {
+    const original = window.html2pdf;
+    const pages = [];
+    window.html2pdf = () => {
+      const worker = original();
+      const set = worker.set;
+      worker.set = function(options) {
+        options.html2canvas.onclone = doc => {
+          const invoice = doc.querySelector('.html2pdf__container .invoice');
+          const table = invoice.querySelector('.inv-table');
+          pages.push({
+            rows: Array.from(table.tBodies[0].rows, row => Number(row.cells[0].textContent)),
+            columns: Array.from(table.querySelectorAll('col'), col => col.style.width),
+            fits: table.getBoundingClientRect().width <= invoice.getBoundingClientRect().width,
+            totals: Boolean(table.tFoot),
+            logo: Boolean(invoice.querySelector('img')),
+          });
+        };
+        return set.call(this, options);
+      };
+      return worker;
+    };
+    try {
+      const inv = state.db.invoices[0];
+      const items = Array.from({ length: 65 }, (_, index) => ({
+        ...inv.items[0], name: index === 0 ? 'LongProductCode'.repeat(10) : 'Synthetic row ' + index,
+      }));
+      await downloadInvoicePdf({ ...inv, code: 'LONG-INVOICE', items }, { ...state.db.settings, logo: 'missing.png' });
+      return pages;
+    } finally {
+      window.html2pdf = original;
+    }
+  });
+  const longPdfFile = path.join(artifacts, 'long-invoice.pdf');
+  await (await longPdf).saveAs(longPdfFile);
+  const pdfPageCount = Array.from(fs.readFileSync(longPdfFile).toString('latin1').matchAll(/\/Type \/Page\b/g)).length;
+  assert.ok(pages.length > 1);
+  assert.equal(pdfPageCount, pages.length);
+  assert.equal(pages[0].columns.length, 5);
+  assert.ok(pages.every(page => page.fits && !page.logo && JSON.stringify(page.columns) === JSON.stringify(pages[0].columns)));
+  assert.deepEqual(pages.flatMap(page => page.rows), Array.from({ length: 65 }, (_, index) => index + 1));
+  assert.equal(pages.findIndex(page => page.totals), pages.length - 1);
   // Browser ZIP download, restore-preview/cancel, then actual restore.
   await go('#/backup', '#backup-export');
   const pendingBackup = page.waitForEvent('download'); await page.locator('#backup-export').click();

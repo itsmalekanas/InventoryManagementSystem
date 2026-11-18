@@ -268,7 +268,13 @@ function renderSettings() {
     const low = parseWhole(f.lowStock.value);
     if (!isNaN(low)) d.lowStock = low;
     d.logoSize = Number(f.logoSize.value);
-    d.logoAlign = f.logoAlign.value;
+    if (d.logoAlign !== f.logoAlign.value) {
+      d.logoAlign = f.logoAlign.value;
+      if (!d.a4Layout) {
+        layout.headerAlign = a4Layout(d).headerAlign;
+        $('#a4-headerAlign').value = layout.headerAlign;
+      }
+    }
     d.showStoreName = f.showStoreName.checked;
     d.invoiceTitle = f.invoiceTitle.value;
     d.header = f.header.value;

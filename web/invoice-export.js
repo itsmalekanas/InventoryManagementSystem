@@ -1,5 +1,21 @@
 'use strict';
 
+async function prepareInvoiceExport(host) {
+  // Wait for language styles and fonts before measuring the invoice.
+  if (!await languageStylesReady) throw new Error('Invoice stylesheet could not be loaded');
+  if (document.fonts) await document.fonts.ready;
+  await Promise.all($$('img', host).map(async img => {
+    try {
+      await img.decode();
+    } catch {
+      // A missing or unreadable logo should not prevent exporting the sale.
+      const header = img.parentElement;
+      img.remove();
+      if (!header.children.length) header.remove();
+    }
+  }));
+}
+
 // Measure and render separate pages so large invoices never require a canvas
 // taller than the browser supports. Every page repeats the invoice/table header.
 async function downloadInvoicePdf(inv, s) {
@@ -16,16 +32,24 @@ async function downloadInvoicePdf(inv, s) {
   host.innerHTML = invoiceHtml(inv, s);
   document.body.appendChild(host);
   try {
-    // A language switch replaces Bootstrap's stylesheet asynchronously. Measure
-    // only after it loads, otherwise page breaks use the wrong font/layout.
-    if (!await languageStylesReady) throw new Error('Invoice stylesheet could not be loaded');
-    if (document.fonts) await document.fonts.ready;
-    await Promise.all($$('img', host).map(img => img.decode()));
     const template = $('.invoice', host);
     template.classList.add('pdf-page');
     template.style.width = `${contentWidth}mm`;
     // Resolve inherited CSS direction explicitly in the PDF library's clone.
     template.dir = host.dir;
+    await prepareInvoiceExport(host);
+    const table = $('.inv-table', template);
+    // Measure the complete table so every page uses the same column widths.
+    const widths = $$('thead th', table).map(cell => cell.getBoundingClientRect().width);
+    const totalWidth = widths.reduce((sum, width) => sum + width, 0);
+    const columns = document.createElement('colgroup');
+    for (const width of widths) {
+      const column = document.createElement('col');
+      column.style.width = `${100 * width / totalWidth}%`;
+      columns.appendChild(column);
+    }
+    table.prepend(columns);
+    table.style.tableLayout = 'fixed';
     const rows = $$('.inv-table tbody tr', template);
     const totals = $('.inv-table tfoot', template);
     const footer = $('.inv-foot', template);
@@ -107,14 +131,12 @@ async function downloadInvoicePng(inv, s) {
   document.body.appendChild(host);
   let worker;
   try {
-    if (!await languageStylesReady) throw new Error('Invoice stylesheet could not be loaded');
     const invoice = $('.invoice', host);
     invoice.style.width = receipt ? '80mm' : '210mm';
     invoice.style.maxWidth = 'none';
     invoice.style.boxShadow = 'none';
     invoice.dir = host.dir;
-    if (document.fonts) await document.fonts.ready;
-    await Promise.all($$('img', host).map(img => img.decode()));
+    await prepareInvoiceExport(host);
     const { width, height } = invoice.getBoundingClientRect();
     // Export the whole invoice as one image, reducing resolution for long lists
     // to stay within browser canvas dimensions and a bounded pixel budget.

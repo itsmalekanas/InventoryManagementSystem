@@ -258,6 +258,7 @@ body {
 /* ---------- invoice ---------- */
 .invoice {
   background: #fff; color: #000; margin: 0 auto; padding: 32px;
+  overflow-wrap: anywhere;
   box-shadow: 0 1px 4px rgba(0,0,0,.12);
 }
 /* A4 is 794 x 1123 px on screen; the column layout pushes the footer to the bottom. */

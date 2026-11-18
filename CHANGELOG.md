@@ -4,6 +4,22 @@ User-facing changes and maintenance updates are recorded here by release.
 Dates use YYYY-MM-DD. The application version is separate from the database
 and backup format versions. Earlier releases remain documented in Git history.
 
+## [v0.6.3] - 2026-11-19
+
+### Fixed
+
+- The first A4 invoice text-style edit preserves the existing header alignment,
+  so changing the store name's size, weight or color keeps it in place.
+- PDF and PNG exports complete when the store logo is missing or unreadable.
+  The export omits the unavailable logo.
+- Long product names and unbroken codes wrap within the invoice. Multi-page
+  PDFs use consistent table column widths.
+
+### Compatibility and upgrade
+
+- Existing databases and backup ZIPs work with this release. Exit the old app
+  before copying its complete `data` folder or importing a full backup.
+
 ## [v0.6.2] - 2026-11-17
 
 ### Changed
@@ -94,6 +110,7 @@ and backup format versions. Earlier releases remain documented in Git history.
 - Browser tests redirect downloads into temporary folders to keep test exports
   out of the user's Downloads folder.
 
+[v0.6.3]: https://github.com/itsmalekanas/InventoryManagementSystem/compare/v0.6.2...v0.6.3
 [v0.6.2]: https://github.com/itsmalekanas/InventoryManagementSystem/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/itsmalekanas/InventoryManagementSystem/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/itsmalekanas/InventoryManagementSystem/compare/v0.5.8...v0.6.0

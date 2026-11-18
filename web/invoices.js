@@ -83,7 +83,8 @@ function a4Layout(s) {
     englishFont: 'ibmplexsans',
     arabicFont: 'ibmplexsansarabic',
     emphasis: v.emphasis === 'headings' ? 'headings' : 'regular',
-    headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign : 'center',
+    headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign
+      : s.logoAlign === 'start' ? 'end' : s.logoAlign === 'end' ? 'start' : 'center',
     footerAlign: ['start', 'center', 'end'].includes(v.footerAlign) ? v.footerAlign : 'center' };
 }
 

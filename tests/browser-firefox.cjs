@@ -102,6 +102,35 @@ async function until(fn, timeout = 30000) {
   assert.equal(await page.locator('#text-store-weight').inputValue(), '500');
   await page.locator('#text-labels-weight').selectOption('700');
   await page.locator('#text-values-size').fill('14');
+  await page.locator('#sf-custom-widths').check();
+  await page.locator('#a4-englishFont').selectOption('systemarial');
+  assert.equal(await page.locator('#a4-arabicFont').inputValue(), 'ibmplexsansarabic');
+  await page.locator('#a4-arabicFont').selectOption('systemarial');
+  await page.waitForFunction(() => {
+    const font = getComputedStyle(document.querySelector('#sf-preview .invoice')).fontFamily;
+    return font.includes('InvoiceLatin-systemarial') && font.includes('InvoiceArabic-systemarial');
+  });
+  if (process.platform === 'win32') {
+    assert.equal(await page.evaluate(async () => {
+      for (const [family, sample] of [['InvoiceLatin-systemarial', 'Invoice'], ['InvoiceArabic-systemarial', '\u0641\u0627\u062A\u0648\u0631\u0629']]) {
+        for (const weight of [400, 700]) {
+          const faces = await document.fonts.load(`${weight} 16px ${family}`, sample);
+          if (!faces.length || faces.some(face => face.status !== 'loaded')) return false;
+        }
+      }
+      return true;
+    }), true);
+  }
+  await page.locator('#invoice-width-price').fill('12');
+  assert.equal(await page.locator('#sf-preview col:nth-child(3)').evaluate(col => col.style.width), '12%');
+  await page.locator('#invoice-width-price').fill('35');
+  await page.locator('#invoice-width-total').fill('35');
+  assert.equal(await page.locator('#invoice-width-number').evaluate(input => input.validity.customError), true);
+  await page.locator('#invoice-width-total').fill('18');
+  await page.locator('#invoice-width-price').fill('12');
+  await page.locator('#sf-custom-widths').uncheck();
+  await page.locator('#sf-preview colgroup').waitFor({ state: 'detached' });
+  await page.locator('#sf-custom-widths').check();
   assert.equal(await page.locator('#sf-text-styles input[type=color]').count(), 0);
   assert.equal(await page.locator('#sf-text-styles .color-picker-trigger').count(), 9);
   await page.locator('[data-color-picker=textStyle_labels] .color-picker-trigger').click();
@@ -120,6 +149,9 @@ async function until(fn, timeout = 30000) {
   await go('#/settings', '#sf'); await page.locator('#settings-tab-invoice').click();
   assert.equal(await page.locator('#text-values-size').inputValue(), '14');
   assert.equal(await page.locator('#text-labels-color').inputValue(), '#123456');
+  assert.equal(await page.locator('#invoice-width-price').inputValue(), '12');
+  assert.equal(await page.locator('#a4-englishFont').inputValue(), 'systemarial');
+  assert.equal(await page.locator('#a4-arabicFont').inputValue(), 'systemarial');
   assert.equal(await page.locator('#sf-save-status').getAttribute('data-unsaved'), 'false');
   assert.equal(await page.evaluate(async () => {
     for (const family of ['AppPlexLatin', 'AppPlexArabic', 'InvoiceLatin-ibmplexsans', 'InvoiceArabic-ibmplexsansarabic']) {
@@ -199,6 +231,7 @@ async function until(fn, timeout = 30000) {
   assert.ok(pages.length > 1);
   assert.equal(pdfPageCount, pages.length);
   assert.equal(pages[0].columns.length, 5);
+  assert.equal(pages[0].columns[2], '12%');
   assert.ok(pages.every(page => page.fits && !page.logo && JSON.stringify(page.columns) === JSON.stringify(pages[0].columns)));
   assert.deepEqual(pages.flatMap(page => page.rows), Array.from({ length: 65 }, (_, index) => index + 1));
   assert.equal(pages.findIndex(page => page.totals), pages.length - 1);
@@ -220,7 +253,9 @@ async function until(fn, timeout = 30000) {
   await page.locator('#modal.show [data-r]:last-child').click();
   await until(() => app.exitCode !== null);
   launch(); await ready();
-  const restarted = await data(); assert.equal(restarted.db.invoices[0].code, code); assert.equal(restarted.db.settings.a4Layout.englishFont, 'ibmplexsans');
+  const restarted = await data(); assert.equal(restarted.db.invoices[0].code, code);
+  assert.equal(restarted.db.settings.a4Layout.englishFont, 'systemarial');
+  assert.equal(restarted.db.settings.a4Layout.arabicFont, 'systemarial');
   await page.goto(url + '/?restart=1#/settings');
   await page.locator('#sf').waitFor({ state: 'attached' });
   await page.evaluate(async () => {

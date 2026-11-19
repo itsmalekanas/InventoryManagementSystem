@@ -25,6 +25,10 @@ test('retired font layouts render as IBM Plex Sans without changing stored setti
   assert.equal(layout.arabicFont, 'ibmplexsansarabic');
   assert.equal(layout.fontSize, 18);
   assert.equal(saved.a4Layout.englishFont, 'googlesans');
+  assert.equal(context.a4Layout({ a4Layout: { englishFont: 'arial' } }).englishFont, 'ibmplexsans');
+  const mixed = context.a4Layout({ a4Layout: { englishFont: 'systemarial', arabicFont: 'arial' } });
+  assert.equal(mixed.englishFont, 'systemarial');
+  assert.equal(mixed.arabicFont, 'ibmplexsansarabic');
 });
 
 test('text styles admit supported values only and cannot inject printable CSS', () => {

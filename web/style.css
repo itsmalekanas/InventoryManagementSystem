@@ -217,6 +217,10 @@ body {
 @font-face { font-family: InvoiceArabic-ibmplexsansarabic; src: url('vendor/fonts/ibmplexsansarabic-regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: InvoiceArabic-ibmplexsansarabic; src: url('vendor/fonts/ibmplexsansarabic-medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
 @font-face { font-family: InvoiceArabic-ibmplexsansarabic; src: url('vendor/fonts/ibmplexsansarabic-bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+@font-face { font-family: InvoiceLatin-systemarial; src: local("Arial"), local("ArialMT"); font-weight: 400; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceLatin-systemarial; src: local("Arial Bold"), local("Arial-BoldMT"); font-weight: 700; unicode-range: U+0000-024F, U+0300-036F, U+1E00-1EFF; }
+@font-face { font-family: InvoiceArabic-systemarial; src: local("Arial"), local("ArialMT"); font-weight: 400; }
+@font-face { font-family: InvoiceArabic-systemarial; src: local("Arial Bold"), local("Arial-BoldMT"); font-weight: 700; }
 .invoice-font-sample { padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--bs-border-radius); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
 .invoice-settings-section + .invoice-settings-section,
 .invoice-a4-settings + .invoice-settings-section { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 24px; }
@@ -304,6 +308,8 @@ body {
 .inv-cust { margin-bottom: 12px; }
 .inv-cust div, .inv-meta div { overflow-wrap: anywhere; }
 .inv-table { width: 100%; border-collapse: collapse; }
+.inv-table-custom { table-layout: fixed; }
+.inv-table-custom td.num { white-space: normal; }
 .inv-table th, .inv-table td { border-bottom: 1px solid #ccc; padding: 6px 4px; text-align: start; vertical-align: top; }
 .inv-table th { border-bottom: 2px solid #000; color: var(--accent); }
 .inv-table .r { text-align: end; }

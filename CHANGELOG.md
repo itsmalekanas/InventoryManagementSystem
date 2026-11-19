@@ -4,6 +4,21 @@ User-facing changes and maintenance updates are recorded here by release.
 Dates use YYYY-MM-DD. The application version is separate from the database
 and backup format versions. Earlier releases remain documented in Git history.
 
+## [v0.7.2] - 2026-11-19
+
+### Added
+
+- A4 invoice settings allow custom widths for item number, price, quantity,
+  and total. Product names wrap within the remaining space. The preview,
+  print layout, and PDF and PNG downloads use the chosen widths.
+- Arial can be selected independently for English and Arabic invoices.
+  It uses the installed font, with bundled IBM Plex as the fallback.
+
+### Compatibility
+
+- Existing layouts keep automatic column widths and their previous font
+  behavior. New settings survive backup, restore, and restart.
+
 ## [v0.7.1] - 2026-11-19
 
 ### Changed

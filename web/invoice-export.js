@@ -40,16 +40,18 @@ async function downloadInvoicePdf(inv, s) {
     await prepareInvoiceExport(host);
     const table = $('.inv-table', template);
     // Measure the complete table so every page uses the same column widths.
-    const widths = $$('thead th', table).map(cell => cell.getBoundingClientRect().width);
-    const totalWidth = widths.reduce((sum, width) => sum + width, 0);
-    const columns = document.createElement('colgroup');
-    for (const width of widths) {
-      const column = document.createElement('col');
-      column.style.width = `${100 * width / totalWidth}%`;
-      columns.appendChild(column);
+    if (!table.querySelector('colgroup')) {
+      const widths = $$('thead th', table).map(cell => cell.getBoundingClientRect().width);
+      const totalWidth = widths.reduce((sum, width) => sum + width, 0);
+      const columns = document.createElement('colgroup');
+      for (const width of widths) {
+        const column = document.createElement('col');
+        column.style.width = `${100 * width / totalWidth}%`;
+        columns.appendChild(column);
+      }
+      table.prepend(columns);
+      table.style.tableLayout = 'fixed';
     }
-    table.prepend(columns);
-    table.style.tableLayout = 'fixed';
     const rows = $$('.inv-table tbody tr', template);
     const totals = $('.inv-table tfoot', template);
     const footer = $('.inv-foot', template);

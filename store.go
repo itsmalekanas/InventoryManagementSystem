@@ -95,19 +95,28 @@ type Settings struct {
 
 // Optional so older databases retain their original settings unchanged.
 type A4Layout struct {
-	TextStyles  map[string]InvoiceTextStyle `json:"textStyles,omitempty"`
-	EnglishFont string                      `json:"englishFont,omitempty"`
-	ArabicFont  string                      `json:"arabicFont,omitempty"`
-	Emphasis    string                      `json:"emphasis,omitempty"`
-	Margin      int                         `json:"margin"`
-	Font        string                      `json:"font"`
-	FontSize    int                         `json:"fontSize"`
-	StoreSize   int                         `json:"storeSize"`
-	TitleSize   int                         `json:"titleSize"`
-	HeaderAlign string                      `json:"headerAlign"`
-	FooterAlign string                      `json:"footerAlign"`
-	HeaderGap   int                         `json:"headerGap"`
-	FooterGap   int                         `json:"footerGap"`
+	ColumnWidths *InvoiceColumnWidths        `json:"columnWidths,omitempty"`
+	TextStyles   map[string]InvoiceTextStyle `json:"textStyles,omitempty"`
+	EnglishFont  string                      `json:"englishFont,omitempty"`
+	ArabicFont   string                      `json:"arabicFont,omitempty"`
+	Emphasis     string                      `json:"emphasis,omitempty"`
+	Margin       int                         `json:"margin"`
+	Font         string                      `json:"font"`
+	FontSize     int                         `json:"fontSize"`
+	StoreSize    int                         `json:"storeSize"`
+	TitleSize    int                         `json:"titleSize"`
+	HeaderAlign  string                      `json:"headerAlign"`
+	FooterAlign  string                      `json:"footerAlign"`
+	HeaderGap    int                         `json:"headerGap"`
+	FooterGap    int                         `json:"footerGap"`
+}
+
+// Widths are percentages of the table. The product column receives the remainder.
+type InvoiceColumnWidths struct {
+	Number   int `json:"number"`
+	Price    int `json:"price"`
+	Quantity int `json:"quantity"`
+	Total    int `json:"total"`
 }
 
 // Optional overrides preserve the appearance of existing layouts and snapshots.
@@ -120,6 +129,18 @@ type InvoiceTextStyle struct {
 func validA4Layout(v *A4Layout) bool {
 	if v == nil {
 		return true
+	}
+	if widths := v.ColumnWidths; widths != nil {
+		sum := 0
+		for _, width := range []int{widths.Number, widths.Price, widths.Quantity, widths.Total} {
+			if width < 5 || width > 35 {
+				return false
+			}
+			sum += width
+		}
+		if sum > 75 {
+			return false
+		}
 	}
 	for key, style := range v.TextStyles {
 		switch key {
@@ -136,8 +157,8 @@ func validA4Layout(v *A4Layout) bool {
 	align := func(s string) bool { return s == "start" || s == "center" || s == "end" }
 	// Accept previous font identifiers in old databases, snapshots and backups.
 	// The browser renders all invoice text with the bundled IBM Plex Sans families.
-	if (v.EnglishFont != "" && v.EnglishFont != "segoe" && v.EnglishFont != "arial" && v.EnglishFont != "georgia" && v.EnglishFont != "inter" && v.EnglishFont != "lora" && v.EnglishFont != "sourcesans3" && v.EnglishFont != "googlesans" && v.EnglishFont != "manrope" && v.EnglishFont != "ibmplexsans" && v.EnglishFont != "notosans") ||
-		(v.ArabicFont != "" && v.ArabicFont != "tahoma" && v.ArabicFont != "arial" && v.ArabicFont != "traditional" && v.ArabicFont != "cairo" && v.ArabicFont != "tajawal" && v.ArabicFont != "amiri" && v.ArabicFont != "ibmplexsansarabic" && v.ArabicFont != "notosansarabic" && v.ArabicFont != "notonaskharabic") ||
+	if (v.EnglishFont != "" && v.EnglishFont != "segoe" && v.EnglishFont != "arial" && v.EnglishFont != "georgia" && v.EnglishFont != "inter" && v.EnglishFont != "lora" && v.EnglishFont != "sourcesans3" && v.EnglishFont != "googlesans" && v.EnglishFont != "manrope" && v.EnglishFont != "ibmplexsans" && v.EnglishFont != "notosans" && v.EnglishFont != "systemarial") ||
+		(v.ArabicFont != "" && v.ArabicFont != "tahoma" && v.ArabicFont != "arial" && v.ArabicFont != "traditional" && v.ArabicFont != "cairo" && v.ArabicFont != "tajawal" && v.ArabicFont != "amiri" && v.ArabicFont != "ibmplexsansarabic" && v.ArabicFont != "notosansarabic" && v.ArabicFont != "notonaskharabic" && v.ArabicFont != "systemarial") ||
 		(v.Emphasis != "" && v.Emphasis != "regular" && v.Emphasis != "headings") {
 		return false
 	}

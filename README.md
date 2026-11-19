@@ -1,6 +1,6 @@
-# Inventory Management System v0.7.1
+# Inventory Management System v0.7.2
 
-**v0.7.1 is an early release under active development.** The application version
+**v0.7.2 is an early release under active development.** The application version
 is stored in `VERSION` and shown on Home, in the browser title, and in the tray
 tooltip. It is independent of the database and backup format version numbers.
 
@@ -48,24 +48,18 @@ If an automatic daily backup fails, a persistent warning appears while successfu
 data saves remain intact. Check disk space and folder access and export a full
 backup; the warning clears after a successful daily-backup retry.
 
-For A4 invoices, **A4 layout and branding** offers Compact, Standard, and
-Spacious page spacing, plus Small, Standard, and Large text sizes. Individual
-margins, sizes, alignment, and spacing are under **Advanced layout**.
-Existing custom values stay unchanged until you choose a preset and show as
-**Custom (saved values)** when they do not match a preset.
-Changes appear in the live preview and apply to printing and PDF
-downloads. Logo size/position and header/footer text remain available above
-these controls. **Reset A4 layout** restores the original design. Receipt
-layouts are unaffected. Layout settings are included in backups.
+For A4 invoices, **Settings → Invoice** offers Standard, Compact, Spacious,
+and Custom layouts. Margins, spacing, alignment, and typography can be edited
+directly. **Table columns** lets you set widths for item number, price, quantity,
+and total. The product name uses the space left over and wraps within its column.
+Changes appear in the live preview and apply to printing, PDF, and PNG.
+**Reset A4 layout** restores the original design.
 
-A4 typography uses regular weight consistently for invoice and customer details.
-Choose **Uniform regular weight** or **Bold headings and totals** in Settings.
-Invoices use bundled IBM Plex Sans for English and IBM Plex Sans Arabic for
-Arabic, including mixed-language text. Each language has one font option with
-a preview. Regular, Medium and Bold remain available. Fonts work offline without
-installation. Older saved font choices now render with these families; existing
-data and backups still load and their stored identifiers remain readable.
-Font settings and weight preferences are included in backups.
+Choose a font for each language under **Typography**. The defaults are bundled
+IBM Plex Sans for English and IBM Plex Sans Arabic for Arabic. Arial uses the
+font installed on your computer, with IBM Plex available as a fallback.
+Both choices work offline. Earlier saved font identifiers retain their
+existing rendering behavior. Layout and font settings are included in backups.
 Font licenses and pinned source details are in `web/vendor/fonts/`.
 
 Settings also includes **App colors** with presets, a custom inline color
@@ -101,13 +95,13 @@ stays intact. Full ZIP backups include costs and the return history.
 
 ## How to use it (Windows)
 
-1. Download `InventoryManagementSystem-v0.7.1-windows.zip` from the
-   [early release page](../../releases/tag/v0.7.1) and unzip it anywhere, for example
+1. Download `InventoryManagementSystem-v0.7.2-windows.zip` from the
+   [early release page](../../releases/tag/v0.7.2) and unzip it anywhere, for example
    on the desktop or a USB stick.
-2. Double click `Inventory Management System v0.7.1.exe`. The app opens in your browser and a mint-colored box
+2. Double click `Inventory Management System v0.7.2.exe`. The app opens in your browser and a mint-colored box
    inventory icon appears in the Windows notification area near the clock.
    There is no console window. Windows may place the icon under the **^** arrow.
-3. Running `Inventory Management System v0.7.1.exe` again while it is already open just opens the
+3. Running `Inventory Management System v0.7.2.exe` again while it is already open just opens the
    browser page again, provided it is the same build using the same data folder.
    A copy in another folder uses its own data and an available local port. If an
    older or different build is running for the same data, exit it before opening
@@ -131,8 +125,8 @@ the program is not signed. Click **More info** and then **Run anyway**.
 Everything is saved next to the program, in a folder called `data`:
 
 ```
-Inventory Management System v0.7.1/
-  Inventory Management System v0.7.1.exe
+Inventory Management System v0.7.2/
+  Inventory Management System v0.7.2.exe
   data/
     db.json        all products, customers, invoices and settings (UTF-8, Arabic safe)
     images/        product pictures and the store logo
@@ -147,7 +141,7 @@ from `backups` over `data/db.json`.
 
 Earlier versions used `InventoryApp.exe`, `Inventory System.exe` or the unversioned
 `Inventory Management System.exe`. The new executable is
-`Inventory Management System v0.7.1.exe`; keep it beside the existing `data` folder. The app name
+`Inventory Management System v0.7.2.exe`; keep it beside the existing `data` folder. The app name
 does not change your store name, invoice numbers, data format, or backup support.
 
 The original JSON database and images are supported. Close the old app first
@@ -288,7 +282,7 @@ Both scripts run the same backend tests, static checks and JavaScript checks
 before building Intel/AMD 64-bit packages. Run those checks alone with
 `node tools/check.cjs`. App users need neither Go nor Node.
 
-- Windows: double click `build.bat`. The program is written to `dist\Inventory Management System v0.7.1\Inventory Management System v0.7.1.exe`.
+- Windows: double click `build.bat`. The program is written to `dist\Inventory Management System v0.7.2\Inventory Management System v0.7.2.exe`.
 - Linux: run `sh build.sh` to build Windows and Linux Intel/AMD packages into `dist/`.
 - Linux only, from any supported build host: `go run ./tools/build-linux`.
   This writes a versioned portable
@@ -299,15 +293,15 @@ before building Intel/AMD 64-bit packages. Run those checks alone with
 - Windows browser regression tests: `node tests/browser-regression.cjs`
   after building; see [tests/README.md](tests/README.md).
 
-Options (PowerShell): `& ".\Inventory Management System v0.7.1.exe" -port 8750 -data D:\ShopData -no-browser`.
-Use `-version` to print `Inventory Management System v0.7.1` and exit without opening any data.
+Options (PowerShell): `& ".\Inventory Management System v0.7.2.exe" -port 8750 -data D:\ShopData -no-browser`.
+Use `-version` to print `Inventory Management System v0.7.2` and exit without opening any data.
 For foreground development or automation, add `-no-tray`. Linux/macOS builds
 run in the foreground when invoked directly with the same browser interface;
 press Ctrl+C to stop, or use the portable Linux `start.sh` launcher. The Windows
 tray implementation uses native APIs and no CGO, so
 cross-compilation stays available without Linux desktop dependencies.
 
-Pushes to `main` build and test the app. Version tags such as `v0.7.1` publish a
+Pushes to `main` build and test the app. Version tags such as `v0.7.2` publish a
 separate release with the Windows ZIP and Linux archives, marked as latest
 (see `.github/workflows/build.yml`).
 Update `VERSION` before tagging; the tag must match that file. Older version tags remain in Git history; older GitHub releases and their
@@ -321,7 +315,7 @@ the repository's latest-release link.
    and builds portable artifacts without changing published releases.
 3. When ready to release, update `VERSION` and the version references in this
    README, add a dated entry to [CHANGELOG.md](CHANGELOG.md), commit and push,
-   then create and push a matching tag (for example `v0.7.1`). The tag workflow
+   then create and push a matching tag (for example `v0.7.2`). The tag workflow
    publishes the Windows ZIP and Linux amd64 archive with that changelog entry
    as the release notes.
 
@@ -353,8 +347,8 @@ location and save-prompt preferences.
 تطبيق بسيط وخفيف لإدارة المخزون والمبيعات، يعمل على الحاسوب مباشرة بدون تثبيت
 وبدون إنترنت، ويدعم اللغة العربية بالكامل. العملة هي الدينار العراقي (د.ع).
 
-**طريقة الاستخدام:** فك ضغط الملف `InventoryManagementSystem-v0.7.1-windows.zip` في أي مكان (مثلاً
-على فلاش USB) ثم شغّل `Inventory Management System v0.7.1.exe`. سيفتح التطبيق في المتصفح وتظهر أيقونة
+**طريقة الاستخدام:** فك ضغط الملف `InventoryManagementSystem-v0.7.2-windows.zip` في أي مكان (مثلاً
+على فلاش USB) ثم شغّل `Inventory Management System v0.7.2.exe`. سيفتح التطبيق في المتصفح وتظهر أيقونة
 بنفسجية قرب ساعة ويندوز بدون نافذة سوداء. اضغط عليها بزر الفأرة الأيمن واختر
 `Open app` لفتح التطبيق أو `Exit` لإيقافه. إغلاق المتصفح لا يوقف التطبيق.
 قد تجد الأيقونة ضمن السهم **^**. لتغيير اللغة اضغط زر

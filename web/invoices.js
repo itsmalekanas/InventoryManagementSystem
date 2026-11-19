@@ -73,6 +73,16 @@ function invoiceTextStyles(styles) {
   return result;
 }
 
+const invoiceColumnDefaults = Object.freeze({ number: 7, price: 16, quantity: 9, total: 18 });
+
+function invoiceColumnWidths(value) {
+  if (!value) return null;
+  const widths = Object.fromEntries(Object.keys(invoiceColumnDefaults).map(key => [key, value[key]]));
+  const entries = Object.values(widths);
+  return entries.every(width => Number.isInteger(width) && width >= 5 && width <= 35)
+    && entries.reduce((sum, width) => sum + width, 0) <= 75 ? widths : null;
+}
+
 function a4Layout(s) {
   const v = s.a4Layout || {};
   const number = (key, fallback, min, max) => Number.isInteger(v[key]) && v[key] >= min && v[key] <= max ? v[key] : fallback;
@@ -80,16 +90,24 @@ function a4Layout(s) {
     storeSize: number('storeSize', 24, 14, 40), titleSize: number('titleSize', 21, 14, 36),
     headerGap: number('headerGap', 16, 0, 48), footerGap: number('footerGap', 24, 0, 48),
     font: ['system', 'sans', 'serif'].includes(v.font) ? v.font : 'system',
-    englishFont: 'ibmplexsans',
-    arabicFont: 'ibmplexsansarabic',
+    englishFont: v.englishFont === 'systemarial' ? 'systemarial' : 'ibmplexsans',
+    arabicFont: v.arabicFont === 'systemarial' ? 'systemarial' : 'ibmplexsansarabic',
     emphasis: v.emphasis === 'headings' ? 'headings' : 'regular',
     headerAlign: ['start', 'center', 'end'].includes(v.headerAlign) ? v.headerAlign
       : s.logoAlign === 'start' ? 'end' : s.logoAlign === 'end' ? 'start' : 'center',
     footerAlign: ['start', 'center', 'end'].includes(v.footerAlign) ? v.footerAlign : 'center' };
 }
 
+function invoiceFontFamily(key, choice) {
+  const arabic = key === 'arabicFont';
+  const prefix = arabic ? 'InvoiceArabic' : 'InvoiceLatin';
+  const plex = prefix + (arabic ? '-ibmplexsansarabic' : '-ibmplexsans');
+  return choice === 'systemarial' ? `${prefix}-systemarial, ${plex}` : plex;
+}
+
 function invoiceHtml(inv, s) {
   const layout = a4Layout(s);
+  const columns = s.paper === 'receipt' ? null : invoiceColumnWidths(s.a4Layout?.columnWidths);
   const textStyle = key => {
     if (s.paper === 'receipt') return '';
     const style = layout.textStyles[key];
@@ -102,7 +120,7 @@ function invoiceHtml(inv, s) {
     (s.header ? `<div class="prewrap" ${textStyle('header')}>${rich(s.header)}</div>` : '');
   const logo = s.logo ? `<img src="${imgUrl(s.logo)}" alt="" style="height:${Number(s.logoSize) || 80}px">` : '';
   const pieces = inv.items.reduce((sum, it) => sum + it.qty, 0);
-  const fontFamily = `InvoiceLatin-${layout.englishFont}, InvoiceArabic-${layout.arabicFont}, Tahoma, Arial, sans-serif`;
+  const fontFamily = `${invoiceFontFamily('englishFont', layout.englishFont)}, ${invoiceFontFamily('arabicFont', layout.arabicFont)}, Tahoma, Arial, sans-serif`;
   const style = `--accent:${safeColor(s.accentColor, '#714b67')};--row:${safeColor(s.rowColor, '#f3edf2')};--a4-font:${fontFamily};--a4-emphasis:${layout.emphasis === 'headings' ? 700 : 400}` +
     (s.paper !== 'receipt' && s.a4Layout ? `;--a4-margin:${layout.margin}mm;--a4-height:${297 - layout.margin * 2 - 3}mm;--a4-font:${fontFamily};--a4-size:${layout.fontSize}px;--store-size:${layout.storeSize}px;--title-size:${layout.titleSize}px;--header-align:${layout.headerAlign};--footer-align:${layout.footerAlign};--header-gap:${layout.headerGap}px;--footer-gap:${layout.footerGap}px` : '');
   return `<div class="invoice paper-${s.paper === 'receipt' ? 'receipt' : 'a4'}" data-bs-theme="light" style="${style}">
@@ -117,7 +135,8 @@ function invoiceHtml(inv, s) {
       ${inv.customerPhone ? `<div><strong class="inv-label" ${textStyle('labels')}>${t('phone')}:</strong> <span dir="ltr" class="inv-value num" ${textStyle('values')}>${esc(inv.customerPhone)}</span></div>` : ''}
       ${inv.customerAddress ? `<div><strong class="inv-label" ${textStyle('labels')}>${t('address')}:</strong> <span class="inv-value prewrap" ${textStyle('values')}>${rich(inv.customerAddress)}</span></div>` : ''}
     </div>
-    <table class="inv-table">
+    <table class="inv-table${columns ? ' inv-table-custom' : ''}">
+      ${columns ? `<colgroup><col style="width:${columns.number}%"><col><col style="width:${columns.price}%"><col style="width:${columns.quantity}%"><col style="width:${columns.total}%"></colgroup>` : ''}
       <thead><tr><th ${textStyle('tableHeadings')}>#</th><th ${textStyle('tableHeadings')}>${t('product')}</th><th class="r" ${textStyle('tableHeadings')}>${t('price')}</th><th class="r" ${textStyle('tableHeadings')}>${t('qty')}</th><th class="r" ${textStyle('tableHeadings')}>${t('total')}</th></tr></thead>
       <tbody ${textStyle('rows')}>${inv.items.map((it, i) => `<tr>
         <td class="num">${i + 1}</td>

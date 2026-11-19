@@ -13,6 +13,8 @@ function renderSettings() {
   settingsBusy = () => logoUploads > 0 || settingsSaving;
   const d = JSON.parse(saved); // draft
   const layout = a4Layout(d);
+  const columnLabels = { number: 'invoiceColumnNumber', price: 'price', quantity: 'qty', total: 'total' };
+  const savedWidths = invoiceColumnWidths(d.a4Layout?.columnWidths);
   const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
   const designPresets = {
     standard: { margin: 12, headerGap: 16, footerGap: 24, fontSize: 16, storeSize: 24, titleSize: 21 },
@@ -53,9 +55,12 @@ function renderSettings() {
   };
   const layoutAlign = (key, label) => `<div><label class="form-label" for="a4-${key}">${t(label)}</label>
     <select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`;
-  const fontSample = (key, family, prefix, dir) => `<div class="invoice-font-picker">
-    <div class="small fw-semibold" dir="ltr">${family}</div>
-    <div class="invoice-font-sample mt-1" data-font-sample="${key}" dir="${dir}" style="font-family:${prefix}-${layout[key]},sans-serif">${t(dir === 'rtl' ? 'invoiceArabicFontSample' : 'invoiceEnglishFontSample')}</div>
+  const fontPicker = (key, label, plexId, plexName, dir) => `<div class="invoice-font-picker">
+    <label class="form-label" for="a4-${key}">${t(label)}</label>
+    <select class="form-select" id="a4-${key}" data-invoice-font="${key}">
+      ${opt(plexId, plexName, layout[key])}${opt('systemarial', 'Arial', layout[key])}
+    </select>
+    <div class="invoice-font-sample mt-1" data-font-sample="${key}" dir="${dir}" style="font-family:${invoiceFontFamily(key, layout[key])},sans-serif">${t(dir === 'rtl' ? 'invoiceArabicFontSample' : 'invoiceEnglishFontSample')}</div>
   </div>`;
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
@@ -120,13 +125,31 @@ function renderSettings() {
                 </div>
                 <button type="button" class="btn btn-outline-secondary btn-sm" id="sf-a4-reset">${t('a4Reset')}</button>
               </section>
+              <section class="invoice-settings-section" aria-labelledby="invoice-columns-heading">
+                <h5 id="invoice-columns-heading">${t('invoiceTableColumns')}</h5>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="sf-custom-widths"${savedWidths ? ' checked' : ''}>
+                  <label class="form-check-label" for="sf-custom-widths">${t('invoiceCustomWidths')}</label>
+                </div>
+                <p class="form-text" id="sf-width-hint">${t('invoiceWidthHint')}</p>
+                <div class="invoice-layout-fields">
+                  ${Object.keys(columnLabels).map(key => `<div>
+                    <label class="form-label" for="invoice-width-${key}">${t(columnLabels[key])} (%)</label>
+                    <input class="form-control" id="invoice-width-${key}" data-invoice-width="${key}" type="number"
+                      min="5" max="35" step="1" required dir="ltr" aria-describedby="sf-width-hint sf-width-status"
+                      value="${(savedWidths || invoiceColumnDefaults)[key]}"${savedWidths ? '' : ' disabled'}>
+                  </div>`).join('')}
+                </div>
+                <p id="sf-width-status" class="form-text mt-2" aria-live="polite"></p>
+              </section>
               <section class="invoice-settings-section" aria-labelledby="invoice-typography-heading">
                 <h5 id="invoice-typography-heading">${t('invoiceTypography')}</h5>
                 <div class="invoice-layout-fields mb-3">${['fontSize', 'storeSize', 'titleSize'].map(layoutNumber).join('')}</div>
                 <div class="invoice-font-samples mb-3">
-                  ${fontSample('englishFont', 'IBM Plex Sans', 'InvoiceLatin', 'ltr')}
-                  ${fontSample('arabicFont', 'IBM Plex Sans Arabic', 'InvoiceArabic', 'rtl')}
+                  ${fontPicker('englishFont', 'a4EnglishFont', 'ibmplexsans', 'IBM Plex Sans', 'ltr')}
+                  ${fontPicker('arabicFont', 'a4ArabicFont', 'ibmplexsansarabic', 'IBM Plex Sans Arabic', 'rtl')}
                 </div>
+                <p class="form-text">${t('invoiceArialHint')}</p>
                 <h6>${t('textStyles')}</h6>
                 <p class="form-text">${t('textStylesHint')}</p>
                 <div id="sf-text-styles" class="invoice-text-styles">
@@ -211,6 +234,21 @@ function renderSettings() {
   $('.topbar').classList.add('settings-topbar');
   const f = $('#sf');
   const showPaperControls = () => { $('#sf-a4').hidden = d.paper === 'receipt'; };
+  const widthToggle = $('#sf-custom-widths');
+  const widthInputs = $$('[data-invoice-width]', f);
+  const widthStatus = $('#sf-width-status');
+  const updateWidthStatus = () => {
+    widthInputs.forEach(input => { input.disabled = !widthToggle.checked; });
+    const values = Object.fromEntries(widthInputs.map(input => [input.dataset.invoiceWidth, input.valueAsNumber]));
+    const widths = widthToggle.checked ? invoiceColumnWidths(values) : null;
+    const excess = widthToggle.checked && Object.values(values).every(value => Number.isInteger(value) && value >= 5 && value <= 35)
+      && Object.values(values).reduce((sum, value) => sum + value, 0) > 75;
+    widthInputs[0].setCustomValidity(excess ? t('invoiceWidthLimit') : '');
+    widthStatus.classList.toggle('text-danger', excess);
+    widthStatus.textContent = excess ? t('invoiceWidthLimit') : widths
+      ? t('invoiceProductWidth', { n: 100 - Object.values(widths).reduce((sum, value) => sum + value, 0) }) : '';
+    return widths;
+  };
   const selectTab = (key, focus = false) => {
     if (!['general', 'invoice', 'data'].includes(key)) key = 'general';
     state.settingsTab = key;
@@ -259,6 +297,10 @@ function renderSettings() {
   });
   const preview = () => {
     drawInvoice();
+    $$('[data-font-sample]', f).forEach(sample => {
+      const key = sample.dataset.fontSample;
+      sample.style.fontFamily = `${invoiceFontFamily(key, layout[key])}, sans-serif`;
+    });
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
     $$('[data-text-prop="color"]', f).forEach(control => {
@@ -324,11 +366,16 @@ function renderSettings() {
     $$('[data-a4]', f).forEach(control => {
       control.value = layout[control.dataset.a4];
     });
+    $$('[data-invoice-font]', f).forEach(control => { control.value = layout[control.dataset.invoiceFont]; });
     $$('[data-text-group]', f).forEach(control => {
       const style = layout.textStyles[control.dataset.textGroup] || {};
       control.value = style[control.dataset.textProp] || (control.dataset.textProp === 'color' ? textDefaults(control.dataset.textGroup).color : '');
     });
     if (resetColors) invoiceTextGroups.forEach(key => colorPickers['textStyle_' + key]?.sync(true));
+    const widths = invoiceColumnWidths(d.a4Layout?.columnWidths);
+    widthToggle.checked = Boolean(widths);
+    widthInputs.forEach(input => { input.value = (widths || invoiceColumnDefaults)[input.dataset.invoiceWidth]; });
+    updateWidthStatus();
   };
   const editLayout = () => {
     setLayout();
@@ -336,6 +383,22 @@ function renderSettings() {
     $('#sf-design').value = 'custom';
     read();
   };
+  $$('[data-invoice-font]', f).forEach(control => {
+    control.addEventListener('change', () => {
+      const key = control.dataset.invoiceFont;
+      layout[key] = control.value;
+      d.a4Layout = { ...d.a4Layout, [key]: control.value };
+      editLayout();
+    });
+  });
+  const editWidths = () => {
+    const widths = updateWidthStatus();
+    if (widthToggle.checked && !widths) return;
+    d.a4Layout = { ...d.a4Layout, columnWidths: widths ?? undefined };
+    editLayout();
+  };
+  widthToggle.addEventListener('change', editWidths);
+  widthInputs.forEach(input => input.addEventListener('input', editWidths));
   $('#sf-design').onchange = event => {
     const choice = event.target.value;
     if (choice === 'custom') {
@@ -457,6 +520,7 @@ function renderSettings() {
     return (!dirtyForms.has(f) && JSON.stringify(d) === saved && parseInvoiceNumber(f.nextInvoiceNumber.value) === numbering.nextNumber) || confirm(t('unsaved'));
   };
   showPaperControls();
+  updateWidthStatus();
   preview();
   drawInvoice.flush();
 }

@@ -33,6 +33,18 @@ func TestA4LayoutPersistenceAndValidation(t *testing.T) {
 	if validA4Layout(&invalid) {
 		t.Fatal("unsupported Arabic font accepted")
 	}
+	for _, widths := range []InvoiceColumnWidths{
+		{Number: 7, Price: 4, Quantity: 9, Total: 18},
+		{Number: 15, Price: 30, Quantity: 12, Total: 20},
+	} {
+		invalid = *settings.A4Layout
+		invalid.ColumnWidths = &widths
+		settings.A4Layout = &invalid
+		if status, _ := call(t, srv, "PUT", "/api/settings", settings); status != http.StatusBadRequest {
+			t.Fatalf("invalid widths accepted: %d", status)
+		}
+		settings.A4Layout = s.db.Settings.A4Layout
+	}
 	invalid = *settings.A4Layout
 	invalid.Margin = 100
 	settings.A4Layout = &invalid
@@ -76,7 +88,8 @@ func TestInvoiceTextStylesBackupRoundTrip(t *testing.T) {
 	settings := s.db.Settings
 	settings.A4Layout = &A4Layout{Margin: 12, Font: "system", FontSize: 16, StoreSize: 24, TitleSize: 21, HeaderAlign: "center", FooterAlign: "center", HeaderGap: 16, FooterGap: 24,
 		EnglishFont: "manrope", ArabicFont: "notosansarabic",
-		TextStyles: map[string]InvoiceTextStyle{"labels": {Weight: 700}, "values": {Size: 14, Color: "#000000"}, "footer": {Size: 12, Weight: 500, Color: "#123456"}}}
+		ColumnWidths: &InvoiceColumnWidths{Number: 7, Price: 13, Quantity: 9, Total: 18},
+		TextStyles:   map[string]InvoiceTextStyle{"labels": {Weight: 700}, "values": {Size: 14, Color: "#000000"}, "footer": {Size: 12, Weight: 500, Color: "#123456"}}}
 	if code, _ := call(t, source, "PUT", "/api/settings", settings); code != 200 {
 		t.Fatalf("save: %d", code)
 	}
@@ -88,14 +101,14 @@ func TestInvoiceTextStylesBackupRoundTrip(t *testing.T) {
 		t.Fatalf("import: %d %s", code, raw)
 	}
 	if !reflect.DeepEqual(settings, restored.db.Settings) {
-		t.Fatal("backup lost text styles")
+		t.Fatal("backup lost text styles or column widths")
 	}
 	reopened, err := OpenStore(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(settings, reopened.db.Settings) {
-		t.Fatal("restart changed restored text styles")
+		t.Fatal("restart changed restored text styles or column widths")
 	}
 }
 

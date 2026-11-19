@@ -2,6 +2,19 @@
 
 Updated: 2026-11-19 (Asia/Baghdad).
 
+## Latest completed checkpoint: v0.7.1
+
+- Published v0.7.1 as latest at tag commit `1ba0116`. VERSION, README, and
+  CHANGELOG match. Tag workflow 44563467290 passed. Main workflow 44563467181
+  was still running at release verification.
+- Verified published notes, both archive file lists, and SHA-256 digests.
+  Downloads: %TEMP%\inventory-release-v071-a9fad3f5-7ee6-40cc-b114-9cb71bc5ce2d.
+- A4 layout controls stay visible. One preset chooser fills in the editable
+  fields, and typography uses a responsive grid with static font samples.
+- Local shared checks, Windows and Linux builds, Chrome regression, and
+  Firefox compatibility passed with synthetic data. Legacy font IDs, invoice
+  snapshots, and backup restore were verified. Data formats are unchanged.
+
 ## Latest completed checkpoint: v0.7
 
 - Published v0.7 as latest at tag commit `6284e5c`. VERSION, README, and

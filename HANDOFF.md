@@ -2,6 +2,20 @@
 
 Updated: 2026-11-19 (Asia/Baghdad).
 
+## Latest completed checkpoint: v0.7.2
+
+- Published v0.7.2 as latest at tag commit `0926e76`. Main workflow
+  44579722623 and tag workflow 44579722179 passed. Verified release notes,
+  both archive file lists, and SHA-256 digests. Downloads:
+  %TEMP%\inventory-release-v072-09c87d06-7542-4ae7-86b1-0ba0690226ba.
+- First Windows Firefox CI run raced the preview redraw. Fixed the assertion
+  to wait for the rendered width and moved the tag before publication.
+- Optional A4 column widths default to automatic. Arial is independently
+  selectable for English and Arabic, using local Arial with bundled IBM Plex
+  fallback. Legacy font identifiers retain their prior rendering behavior.
+- Local shared checks, Windows and Linux builds, and Chrome and Firefox
+  suites passed with synthetic data, including PDF/PNG and ZIP restore.
+
 ## Latest completed checkpoint: v0.7.1
 
 - Published v0.7.1 as latest at tag commit `1ba0116`. VERSION, README, and

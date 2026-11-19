@@ -4,6 +4,20 @@ User-facing changes and maintenance updates are recorded here by release.
 Dates use YYYY-MM-DD. The application version is separate from the database
 and backup format versions. Earlier releases remain documented in Git history.
 
+## [v0.7.3] - 2026-11-19
+
+### Added
+
+- Choose Default, Left, Center, or Right for each A4 invoice table column.
+  The live preview, print layout, and PDF and PNG exports use the chosen
+  alignment.
+
+### Compatibility
+
+- Existing invoice settings and backups retain their original alignment
+  until a custom alignment is selected. Custom choices survive backup and
+  restore.
+
 ## [v0.7.2] - 2026-11-19
 
 ### Added

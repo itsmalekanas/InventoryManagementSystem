@@ -103,6 +103,13 @@ async function until(fn, timeout = 30000) {
   await page.locator('#text-labels-weight').selectOption('700');
   await page.locator('#text-values-size').fill('14');
   await page.locator('#sf-custom-widths').check();
+  await page.locator('#invoice-align-product').selectOption('left');
+  await page.locator('#invoice-align-price').selectOption('center');
+  await page.locator('#invoice-align-total').selectOption('right');
+  await page.waitForFunction(() => {
+    const cells = document.querySelector('#sf-preview .inv-table tbody tr').cells;
+    return [1, 2, 4].map(index => getComputedStyle(cells[index]).textAlign).join(',') === 'left,center,right';
+  });
   await page.locator('#a4-englishFont').selectOption('systemarial');
   assert.equal(await page.locator('#a4-arabicFont').inputValue(), 'ibmplexsansarabic');
   await page.locator('#a4-arabicFont').selectOption('systemarial');
@@ -150,6 +157,7 @@ async function until(fn, timeout = 30000) {
   assert.equal(await page.locator('#text-values-size').inputValue(), '14');
   assert.equal(await page.locator('#text-labels-color').inputValue(), '#123456');
   assert.equal(await page.locator('#invoice-width-price').inputValue(), '12');
+  assert.equal(await page.locator('#invoice-align-price').inputValue(), 'center');
   assert.equal(await page.locator('#a4-englishFont').inputValue(), 'systemarial');
   assert.equal(await page.locator('#a4-arabicFont').inputValue(), 'systemarial');
   assert.equal(await page.locator('#sf-save-status').getAttribute('data-unsaved'), 'false');
@@ -205,6 +213,7 @@ async function until(fn, timeout = 30000) {
           pages.push({
             rows: Array.from(table.tBodies[0].rows, row => Number(row.cells[0].textContent)),
             columns: Array.from(table.querySelectorAll('col'), col => col.style.width),
+            alignments: [1, 2, 4].map(index => doc.defaultView.getComputedStyle(table.tHead.rows[0].cells[index]).textAlign),
             fits: table.getBoundingClientRect().width <= invoice.getBoundingClientRect().width,
             totals: Boolean(table.tFoot),
             logo: Boolean(invoice.querySelector('img')),
@@ -232,6 +241,7 @@ async function until(fn, timeout = 30000) {
   assert.equal(pdfPageCount, pages.length);
   assert.equal(pages[0].columns.length, 5);
   assert.equal(pages[0].columns[2], '12%');
+  assert.ok(pages.every(page => page.alignments.join(',') === 'left,center,right'));
   assert.ok(pages.every(page => page.fits && !page.logo && JSON.stringify(page.columns) === JSON.stringify(pages[0].columns)));
   assert.deepEqual(pages.flatMap(page => page.rows), Array.from({ length: 65 }, (_, index) => index + 1));
   assert.equal(pages.findIndex(page => page.totals), pages.length - 1);

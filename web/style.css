@@ -313,6 +313,9 @@ body {
 .inv-table th, .inv-table td { border-bottom: 1px solid #ccc; padding: 6px 4px; text-align: start; vertical-align: top; }
 .inv-table th { border-bottom: 2px solid #000; color: var(--accent); }
 .inv-table .r { text-align: end; }
+.inv-table .inv-align-left { text-align: left; }
+.inv-table .inv-align-center { text-align: center; }
+.inv-table .inv-align-right { text-align: right; }
 .inv-table .inv-total td { font-weight: 700; font-size: 1.15em; color: var(--accent); border-top: 2px solid #000; border-bottom: 0; }
 /* A4: a simple grid, with the chosen fill on even product rows (not the total row). */
 .paper-a4 .inv-table th, .paper-a4 .inv-table td { border: 1px solid #999; padding: 6px 8px; }

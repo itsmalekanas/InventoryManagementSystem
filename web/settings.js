@@ -14,6 +14,8 @@ function renderSettings() {
   const d = JSON.parse(saved); // draft
   const layout = a4Layout(d);
   const columnLabels = { number: 'invoiceColumnNumber', price: 'price', quantity: 'qty', total: 'total' };
+  const alignmentLabels = { number: 'invoiceColumnNumber', product: 'product', price: 'price', quantity: 'qty', total: 'total' };
+  const alignmentOptions = [['', 'textStyleDefault'], ['left', 'invoiceAlignLeft'], ['center', 'alignCenter'], ['right', 'invoiceAlignRight']];
   const savedWidths = invoiceColumnWidths(d.a4Layout?.columnWidths);
   const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
   const designPresets = {
@@ -141,6 +143,17 @@ function renderSettings() {
                   </div>`).join('')}
                 </div>
                 <p id="sf-width-status" class="form-text mt-2" aria-live="polite"></p>
+                <fieldset class="mt-3">
+                  <legend class="h6">${t('invoiceTableAlignment')}</legend>
+                  <div class="invoice-layout-fields">
+                    ${Object.entries(alignmentLabels).map(([key, label]) => `<div>
+                      <label class="form-label" for="invoice-align-${key}">${t(label)}</label>
+                      <select class="form-select" id="invoice-align-${key}" data-invoice-alignment="${key}">
+                        ${alignmentOptions.map(([value, option]) => opt(value, t(option), d.a4Layout?.columnAlignments?.[key] || '')).join('')}
+                      </select>
+                    </div>`).join('')}
+                  </div>
+                </fieldset>
               </section>
               <section class="invoice-settings-section" aria-labelledby="invoice-typography-heading">
                 <h5 id="invoice-typography-heading">${t('invoiceTypography')}</h5>
@@ -236,6 +249,7 @@ function renderSettings() {
   const showPaperControls = () => { $('#sf-a4').hidden = d.paper === 'receipt'; };
   const widthToggle = $('#sf-custom-widths');
   const widthInputs = $$('[data-invoice-width]', f);
+  const alignmentInputs = $$('[data-invoice-alignment]', f);
   const widthStatus = $('#sf-width-status');
   const updateWidthStatus = () => {
     widthInputs.forEach(input => { input.disabled = !widthToggle.checked; });
@@ -375,6 +389,7 @@ function renderSettings() {
     const widths = invoiceColumnWidths(d.a4Layout?.columnWidths);
     widthToggle.checked = Boolean(widths);
     widthInputs.forEach(input => { input.value = (widths || invoiceColumnDefaults)[input.dataset.invoiceWidth]; });
+    alignmentInputs.forEach(input => { input.value = d.a4Layout?.columnAlignments?.[input.dataset.invoiceAlignment] || ''; });
     updateWidthStatus();
   };
   const editLayout = () => {
@@ -399,6 +414,13 @@ function renderSettings() {
   };
   widthToggle.addEventListener('change', editWidths);
   widthInputs.forEach(input => input.addEventListener('input', editWidths));
+  alignmentInputs.forEach(input => input.addEventListener('change', () => {
+    const alignments = Object.fromEntries(alignmentInputs
+      .filter(control => invoiceColumnAlignments.includes(control.value))
+      .map(control => [control.dataset.invoiceAlignment, control.value]));
+    d.a4Layout = { ...d.a4Layout, columnAlignments: Object.keys(alignments).length ? alignments : undefined };
+    editLayout();
+  }));
   $('#sf-design').onchange = event => {
     const choice = event.target.value;
     if (choice === 'custom') {

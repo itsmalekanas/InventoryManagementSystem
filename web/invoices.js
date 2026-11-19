@@ -74,6 +74,7 @@ function invoiceTextStyles(styles) {
 }
 
 const invoiceColumnDefaults = Object.freeze({ number: 7, price: 16, quantity: 9, total: 18 });
+const invoiceColumnAlignments = ['left', 'center', 'right'];
 
 function invoiceColumnWidths(value) {
   if (!value) return null;
@@ -108,6 +109,11 @@ function invoiceFontFamily(key, choice) {
 function invoiceHtml(inv, s) {
   const layout = a4Layout(s);
   const columns = s.paper === 'receipt' ? null : invoiceColumnWidths(s.a4Layout?.columnWidths);
+  const alignments = s.paper === 'receipt' ? null : s.a4Layout?.columnAlignments;
+  const columnClass = (key, fallback = '') => {
+    const alignment = alignments?.[key];
+    return [fallback, invoiceColumnAlignments.includes(alignment) ? `inv-align-${alignment}` : ''].filter(Boolean).join(' ');
+  };
   const textStyle = key => {
     if (s.paper === 'receipt') return '';
     const style = layout.textStyles[key];
@@ -137,18 +143,21 @@ function invoiceHtml(inv, s) {
     </div>
     <table class="inv-table${columns ? ' inv-table-custom' : ''}">
       ${columns ? `<colgroup><col style="width:${columns.number}%"><col><col style="width:${columns.price}%"><col style="width:${columns.quantity}%"><col style="width:${columns.total}%"></colgroup>` : ''}
-      <thead><tr><th ${textStyle('tableHeadings')}>#</th><th ${textStyle('tableHeadings')}>${t('product')}</th><th class="r" ${textStyle('tableHeadings')}>${t('price')}</th><th class="r" ${textStyle('tableHeadings')}>${t('qty')}</th><th class="r" ${textStyle('tableHeadings')}>${t('total')}</th></tr></thead>
+      <thead><tr>
+        ${[['number', '#', ''], ['product', t('product'), ''], ['price', t('price'), 'r'], ['quantity', t('qty'), 'r'], ['total', t('total'), 'r']].map(([key, label, fallback]) =>
+          `<th class="${columnClass(key, fallback)}" ${textStyle('tableHeadings')}>${label}</th>`).join('')}
+      </tr></thead>
       <tbody ${textStyle('rows')}>${inv.items.map((it, i) => `<tr>
-        <td class="num">${i + 1}</td>
-        <td><bdi>${esc(it.name)}</bdi></td>
-        <td class="r num">${int(it.price)}</td>
-        <td class="r num">${int(it.qty)}</td>
-        <td class="r num">${int(it.total)}</td>
+        <td class="${columnClass('number', 'num')}">${i + 1}</td>
+        <td class="${columnClass('product')}"><bdi>${esc(it.name)}</bdi></td>
+        <td class="${columnClass('price', 'r num')}">${int(it.price)}</td>
+        <td class="${columnClass('quantity', 'r num')}">${int(it.qty)}</td>
+        <td class="${columnClass('total', 'r num')}">${int(it.total)}</td>
       </tr>`).join('')}</tbody>
       <tfoot><tr class="inv-total">
         <td colspan="3" ${textStyle('totals')}>${t('total')}</td>
-        <td class="r num" ${textStyle('totals')}>${int(pieces)}</td>
-        <td class="r" ${textStyle('totals')}>${money(inv.total)}</td>
+        <td class="${columnClass('quantity', 'r num')}" ${textStyle('totals')}>${int(pieces)}</td>
+        <td class="${columnClass('total', 'r')}" ${textStyle('totals')}>${money(inv.total)}</td>
       </tr>${s.showPaid ? `<tr class="inv-paid-row"><td colspan="4" class="inv-blank"></td><td class="inv-paid" ${textStyle('totals')}>${t('paid')}</td></tr>` : ''}</tfoot>
     </table>
     ${s.footer ? `<div class="inv-foot" ${textStyle('footer')}>${rich(s.footer)}</div>` : ''}

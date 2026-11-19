@@ -95,6 +95,8 @@ type Settings struct {
 
 // Optional so older databases retain their original settings unchanged.
 type A4Layout struct {
+	ColumnAlignments map[string]string `json:"columnAlignments,omitempty"`
+
 	ColumnWidths *InvoiceColumnWidths        `json:"columnWidths,omitempty"`
 	TextStyles   map[string]InvoiceTextStyle `json:"textStyles,omitempty"`
 	EnglishFont  string                      `json:"englishFont,omitempty"`
@@ -129,6 +131,16 @@ type InvoiceTextStyle struct {
 func validA4Layout(v *A4Layout) bool {
 	if v == nil {
 		return true
+	}
+	for column, alignment := range v.ColumnAlignments {
+		switch column {
+		case "number", "product", "price", "quantity", "total":
+		default:
+			return false
+		}
+		if alignment != "left" && alignment != "center" && alignment != "right" {
+			return false
+		}
 	}
 	if widths := v.ColumnWidths; widths != nil {
 		sum := 0

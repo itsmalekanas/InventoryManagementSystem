@@ -2,6 +2,17 @@
 
 Updated: 2026-11-19 (Asia/Baghdad).
 
+## Latest completed checkpoint: v0.7.3
+
+- Published v0.7.3 as latest at tag commit `6e15bba`. Main workflow
+  44589079896 and tag workflow 44589079869 passed. Verified release notes,
+  both archive file lists, and SHA-256 digests. Downloads:
+  %TEMP%\inventory-release-v073-493569fa-ddfe-4739-a330-405e55f715fe.
+- Each A4 invoice column supports Default, Left, Center, and Right. Saved
+  choices apply to preview, print, PDF, and PNG. Existing layouts retain
+  default alignment. Local Go, Chrome, and Firefox checks verified settings,
+  ZIP restore, and multi-page PDF alignment with synthetic data.
+
 ## Latest completed checkpoint: v0.7.2
 
 - Published v0.7.2 as latest at tag commit `0926e76`. Main workflow

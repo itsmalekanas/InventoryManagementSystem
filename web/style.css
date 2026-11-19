@@ -223,6 +223,7 @@ body {
 .invoice-settings-section > h5 { margin-bottom: 20px; }
 .invoice-settings-section > :last-child { margin-bottom: 0 !important; }
 .invoice-a4-settings { min-width: 0; margin-bottom: 0; }
+#invoice-typography-heading { scroll-margin-top: 110px; }
 .invoice-text-style { min-width: 0; padding-block: 8px 10px; border: 0; border-bottom: 1px solid var(--line); }
 .invoice-text-style legend { float: none; width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px; font-size: .85rem; font-weight: 600; }
 .invoice-text-style .text-style-color-source { font-size: .7rem; font-weight: 400; color: var(--muted); text-align: end; }

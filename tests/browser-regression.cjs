@@ -133,6 +133,8 @@ async function api(url,endpoint,body,method='POST'){
   await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
   const settingsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'settings-invoice-tab.png'),Buffer.from(settingsShot.data,'base64'));
   assert.equal(await evaluate('document.querySelectorAll("#settings-panel-invoice details").length'),0);
+  assert.equal(await evaluate('document.querySelector("#sf-a4").hidden'),true);
+  await click('#sf-customize');
   assert.equal(await evaluate('document.querySelector("#a4-margin").getClientRects().length>0'),true);
   assert.equal(await evaluate('document.querySelectorAll("#sf-a4 [data-a4][type=range]").length'),0);
   await input('#a4-spacing','spacious','change');await input('#a4-text-size','large','change');

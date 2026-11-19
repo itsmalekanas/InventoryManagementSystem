@@ -31,7 +31,7 @@ func build(out string) error {
 		return err
 	}
 	version := strings.TrimSpace(string(raw))
-	if !regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+$`).MatchString(version) {
+	if !regexp.MustCompile(`^v[0-9]+\.[0-9]+(\.[0-9]+)?$`).MatchString(version) {
 		return fmt.Errorf("invalid VERSION")
 	}
 	folder := filepath.Join(out, "Inventory Management System "+version+" linux-"+arch)

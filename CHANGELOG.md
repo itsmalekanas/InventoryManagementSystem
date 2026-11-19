@@ -4,6 +4,30 @@ User-facing changes and maintenance updates are recorded here by release.
 Dates use YYYY-MM-DD. The application version is separate from the database
 and backup format versions. Earlier releases remain documented in Git history.
 
+## [v0.7] - 2026-11-19
+
+### Added
+
+- Reports supports Today, This Month, Last Month, All Time, and inclusive
+  custom date ranges. Sales and best sellers follow the selected period.
+- Download reports as Excel workbooks or CSV. Exports include the selected
+  dates, sales figures, best sellers, and current stock.
+- Profit tracking shows recorded cost of goods sold, gross profit, and sales
+  and refunds with missing costs. Reports links to the affected invoices.
+
+### Changed
+
+- Invoice Settings starts with paper size and A4 design. Standard, Compact,
+  and Spacious presets update the live preview. Custom restores the prior
+  layout draft before saving and exposes the detailed controls.
+- Branding, invoice content, and invoice numbering have dedicated sections.
+
+### Compatibility and upgrade
+
+- Existing JSON databases, invoice snapshots, images, numbering, and backup
+  ZIPs use the same formats. Exit the old app before copying its complete
+  `data` folder or importing a full backup.
+
 ## [v0.6.3] - 2026-11-19
 
 ### Fixed

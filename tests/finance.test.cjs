@@ -18,8 +18,12 @@ test('profit includes known zero costs and losses, with refunds on their own dat
   ], returns: [{ date: '2026-11-03', total: 100, items: [{ index: 0, qty: 1 }, { index: 3, qty: 1 }] }] };
   const all = finance.summary([inv]);
   assert.equal(all.net, 80); assert.equal(all.profit, 35); assert.equal(all.excluded, 0);
+  assert.equal(all.unknownSales, 50); assert.equal(all.unknownRefunds, 50);
+  assert.deepEqual(all.missing, [{ invoice: inv, missingSale: true, missingRefund: true }]);
   const day = finance.summary([inv], date => date === '2026-11-03');
   assert.equal(day.count, 0); assert.equal(day.net, -100); assert.equal(day.profit, -20); assert.equal(day.excluded, -50);
+  assert.equal(day.cost, -30); assert.equal(day.unknownSales, 0); assert.equal(day.unknownRefunds, 50);
+  assert.deepEqual(day.missing, [{ invoice: inv, missingSale: false, missingRefund: true }]);
   assert.equal(finance.returnedQty(inv, 0), 1); assert.equal(finance.netTotal(inv), 80);
 });
 

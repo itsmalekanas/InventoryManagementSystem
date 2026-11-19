@@ -16,7 +16,19 @@ function renderSettings() {
   const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
   const spacingPresets = { compact: { margin: 8, headerGap: 8, footerGap: 12 }, standard: { margin: 12, headerGap: 16, footerGap: 24 }, spacious: { margin: 20, headerGap: 28, footerGap: 36 } };
   const sizePresets = { small: { fontSize: 14, storeSize: 21, titleSize: 18 }, standard: { fontSize: 16, storeSize: 24, titleSize: 21 }, large: { fontSize: 18, storeSize: 28, titleSize: 24 } };
+  const designPresets = {
+    standard: { ...spacingPresets.standard, ...sizePresets.standard },
+    compact: { ...spacingPresets.compact, ...sizePresets.small },
+    spacious: { ...spacingPresets.spacious, ...sizePresets.large },
+  };
   const selectedPreset = presets => Object.entries(presets).find(([, values]) => Object.entries(values).every(([key, value]) => layout[key] === value))?.[0] || 'custom';
+  const designChoice = () => Object.keys(layout.textStyles).length ? 'custom' : selectedPreset(designPresets);
+  let customLayout;
+  const setLayout = () => {
+    // Retain legacy font identifiers and other stored layout fields when editing.
+    const { englishFont, arabicFont, ...editable } = layout;
+    d.a4Layout = { englishFont, arabicFont, ...d.a4Layout, ...editable };
+  };
   const textGroupLabels = { store: 'textStyleStore', title: 'textStyleTitle', labels: 'textStyleLabels', values: 'textStyleValues', tableHeadings: 'textStyleTableHeadings', rows: 'textStyleRows', totals: 'textStyleTotals', header: 'textStyleHeader', footer: 'textStyleFooter' };
   const textDefaults = key => {
     const base = d.a4Layout ? layout.fontSize : 16;
@@ -81,6 +93,19 @@ function renderSettings() {
           <div class="row g-4">
             <div class="col-lg-5">
               <div class="invoice-settings-controls bg-white rounded shadow-sm p-3 p-md-4">
+            <section class="invoice-settings-section" aria-labelledby="invoice-design-heading">
+              <h5 id="invoice-design-heading">${t('invoicePaperAndDesign')}</h5>
+              <div class="mb-3"><label class="form-label" for="sf-paper">${t('paper')}</label>
+                <select class="form-select" id="sf-paper" name="paper">${opt('a4', t('paperA4'), d.paper)}${opt('receipt', t('paperReceipt'), d.paper)}</select></div>
+              <div id="invoice-design-presets"${d.paper === 'receipt' ? ' hidden' : ''}>
+                <label class="form-label" for="sf-design">${t('invoiceDesignPreset')}</label>
+                <select class="form-select" id="sf-design" aria-describedby="sf-design-hint">
+                  ${[['standard', 'invoiceStandard'], ['compact', 'invoiceCompact'], ['spacious', 'invoiceSpacious'], ['custom', 'invoiceDesignCustom']].map(([key, label]) => opt(key, t(label), designChoice())).join('')}
+                </select>
+                <p class="form-text" id="sf-design-hint">${t('invoiceDesignHint')}</p>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="sf-customize" aria-controls="sf-a4" aria-expanded="false">${t('invoiceCustomize')}</button>
+              </div>
+            </section>
             <section class="invoice-settings-section" aria-labelledby="invoice-branding-heading">
             <h5 id="invoice-branding-heading">${t('invoiceBranding')}</h5>
             <div class="mb-3"><label class="form-label">${t('storeName')}</label>
@@ -98,15 +123,15 @@ function renderSettings() {
             <div class="mb-3"><label class="form-label">${t('logoAlign')}</label>
               <select class="form-select" name="logoAlign">${opt('start', t('alignStart'), d.logoAlign)}${opt('center', t('alignCenter'), d.logoAlign)}${opt('end', t('alignEnd'), d.logoAlign)}</select></div>
 
+            <div class="row g-3 mb-3">
+              <div class="col-6"><label class="form-label">${t('accentColor')}</label>
+                ${pickerHtml('accentColor', d.accentColor, t('accentColor'))}</div>
+              <div class="col-6"><label class="form-label">${t('rowColor')}</label>
+                ${pickerHtml('rowColor', d.rowColor, t('rowColor'))}</div>
+            </div>
             </section>
             <section class="invoice-settings-section" aria-labelledby="invoice-content-heading">
             <h5 id="invoice-content-heading">${t('invoiceContent')}</h5>
-            <div class="mb-3">
-              <label class="form-label" for="sf-next-number">${t('nextInvoiceNumber')} (${numbering.year})</label>
-              <div class="input-group" dir="ltr"><span class="input-group-text">INV-HS-${numbering.year}-</span>
-                <input class="form-control" id="sf-next-number" name="nextInvoiceNumber" inputmode="numeric" value="${numbering.nextNumber}"></div>
-              <div class="form-text">${t('numberingHint')}</div>
-            </div>
             <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="showStoreName" id="sf-show"${d.showStoreName ? ' checked' : ''}>
               <label class="form-check-label" for="sf-show">${t('showStoreName')}</label></div>
             <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="showPaid" id="sf-paid"${d.showPaid ? ' checked' : ''}>
@@ -115,21 +140,21 @@ function renderSettings() {
               <label class="form-check-label" for="sf-date">${t('showDate')}</label></div>
             <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="showTime" id="sf-time"${d.showTime !== false ? ' checked' : ''}>
               <label class="form-check-label" for="sf-time">${t('showTime')}</label></div>
-            <div class="row g-3 mb-3">
-              <div class="col-6"><label class="form-label">${t('accentColor')}</label>
-                ${pickerHtml('accentColor', d.accentColor, t('accentColor'))}</div>
-              <div class="col-6"><label class="form-label">${t('rowColor')}</label>
-                ${pickerHtml('rowColor', d.rowColor, t('rowColor'))}</div>
-            </div>
             <div class="mb-3"><label class="form-label">${t('invoiceTitle')}</label>
               <input class="form-control" name="invoiceTitle" maxlength="100" dir="auto" placeholder="${esc(t('invoiceTitlePh'))}" value="${esc(d.invoiceTitle)}"></div>
             <div class="mb-3"><label class="form-label">${t('header')}</label>
               <textarea class="form-control" name="header" rows="3" dir="auto" placeholder="${esc(t('headerPh'))}">${esc(d.header)}</textarea></div>
             <div class="mb-3"><label class="form-label">${t('footer')}</label>
               <textarea class="form-control" name="footer" rows="3" dir="auto" placeholder="${esc(t('footerPh'))}">${esc(d.footer)}</textarea></div>
-            <div class="mb-3"><label class="form-label">${t('paper')}</label>
-              <select class="form-select" name="paper">${opt('a4', t('paperA4'), d.paper)}${opt('receipt', t('paperReceipt'), d.paper)}</select></div>
-
+            </section>
+            <section class="invoice-settings-section" aria-labelledby="invoice-numbering-heading">
+            <h5 id="invoice-numbering-heading">${t('invoiceNumbering')}</h5>
+            <div class="mb-3">
+              <label class="form-label" for="sf-next-number">${t('nextInvoiceNumber')} (${numbering.year})</label>
+              <div class="input-group" dir="ltr"><span class="input-group-text">INV-HS-${numbering.year}-</span>
+                <input class="form-control" id="sf-next-number" name="nextInvoiceNumber" inputmode="numeric" value="${numbering.nextNumber}"></div>
+              <div class="form-text">${t('numberingHint')}</div>
+            </div>
             </section>
             <fieldset id="sf-a4" class="invoice-a4-settings"${d.paper === 'receipt' ? ' hidden' : ''}>
               <legend class="visually-hidden">${t('a4Layout')}</legend>
@@ -180,6 +205,13 @@ function renderSettings() {
 
   $('.topbar').classList.add('settings-topbar');
   const f = $('#sf');
+  let customOpen = designChoice() === 'custom';
+  const showCustom = () => {
+    $('#sf-a4').hidden = d.paper === 'receipt' || !customOpen;
+    $('#invoice-design-presets').hidden = d.paper === 'receipt';
+    $('#sf-customize').setAttribute('aria-expanded', String(customOpen));
+    $('#sf-customize').textContent = t(customOpen ? 'invoiceHideCustom' : 'invoiceCustomize');
+  };
   const selectTab = (key, focus = false) => {
     if (!['general', 'invoice', 'data'].includes(key)) key = 'general';
     state.settingsTab = key;
@@ -195,6 +227,7 @@ function renderSettings() {
   const revealControl = control => {
     const panel = control.closest('[role="tabpanel"]');
     if (panel) selectTab(panel.id.replace('settings-panel-', ''));
+    if (control.closest('#sf-a4')) { customOpen = true; showCustom(); }
     control.focus();
   };
   const tabs = $$('[data-settings-tab]');
@@ -221,7 +254,7 @@ function renderSettings() {
     total: 84500, // 50,000 + 22,500 + 12,000
   };
   let colorPickers = {}, savedDraft;
-  const draftSignature = () => JSON.stringify([d.logo || '', d.a4Layout ? a4Layout(d) : null, ...Array.from(f.elements).filter(control => control.matches('input, select, textarea') && control.type !== 'file').map(control => [control.name || control.id, ['checkbox', 'radio'].includes(control.type) ? control.checked : control.value])]);
+  const draftSignature = () => JSON.stringify([d.logo || '', d.a4Layout ? a4Layout(d) : null, ...Array.from(f.elements).filter(control => control.matches('input, select, textarea') && control.type !== 'file' && control.id !== 'sf-design').map(control => [control.name || control.id, ['checkbox', 'radio'].includes(control.type) ? control.checked : control.value])]);
   const previewTarget = $('#sf-preview');
   const drawInvoice = frameUpdate(() => {
     if (previewTarget.isConnected) previewTarget.innerHTML = invoiceHtml(sample, d);
@@ -280,7 +313,7 @@ function renderSettings() {
     d.header = f.header.value;
     d.footer = f.footer.value;
     d.paper = f.paper.value;
-    $('#sf-a4').hidden = d.paper === 'receipt';
+    showCustom();
     d.showPaid = f.showPaid.checked;
     d.showDate = f.showDate.checked;
     d.showTime = f.showTime.checked;
@@ -306,6 +339,40 @@ function renderSettings() {
     });
     if (resetColors) invoiceTextGroups.forEach(key => colorPickers['textStyle_' + key]?.sync(true));
   };
+  const editLayout = () => {
+    setLayout();
+    customLayout = undefined;
+    $('#sf-design').value = 'custom';
+    customOpen = true;
+    read();
+  };
+  $('#sf-customize').onclick = () => {
+    customOpen = !customOpen;
+    showCustom();
+    if (customOpen) $('#invoice-typography-heading').scrollIntoView({ block: 'start' });
+  };
+  $('#sf-design').onchange = event => {
+    const choice = event.target.value;
+    if (choice === 'custom') {
+      if (customLayout) {
+        if (customLayout.saved) d.a4Layout = customLayout.saved;
+        else delete d.a4Layout;
+        Object.assign(layout, a4Layout(d));
+        customLayout = undefined;
+        syncLayout(true);
+      }
+      customOpen = true;
+    } else {
+      if (designChoice() === 'custom' || !customLayout) {
+        customLayout = { saved: d.a4Layout ? JSON.parse(JSON.stringify(d.a4Layout)) : undefined };
+      }
+      Object.assign(layout, designPresets[choice], { textStyles: {} });
+      setLayout();
+      syncLayout(true);
+      customOpen = false;
+    }
+    read();
+  };
   $$('[data-text-group]', f).forEach(control => {
     const update = () => {
       if (control.type === 'number' && control.value && !control.checkValidity()) return;
@@ -315,23 +382,20 @@ function renderSettings() {
       else style[prop] = prop === 'color' ? control.value : Number(control.value);
       if (Object.keys(style).length) layout.textStyles[key] = style;
       else delete layout.textStyles[key];
-      d.a4Layout = { ...layout };
-      read();
+      editLayout();
     };
     control.oninput = update;
     control.onchange = update;
   });
   $('#sf-text-reset').onclick = () => {
     layout.textStyles = {};
-    d.a4Layout = { ...layout };
-    syncLayout(true); read();
+    syncLayout(true); editLayout();
   };
   [['#a4-spacing', spacingPresets], ['#a4-text-size', sizePresets]].forEach(([selector, presets]) => {
     $(selector).onchange = event => {
       if (!presets[event.target.value]) { event.target.value = selectedPreset(presets); return; }
       Object.assign(layout, presets[event.target.value]);
-      d.a4Layout = { ...layout };
-      syncLayout(); read();
+      syncLayout(); editLayout();
     };
   });
   $$('[data-a4]', f).forEach(control => {
@@ -340,10 +404,9 @@ function renderSettings() {
       layout[control.dataset.a4] = ['range', 'number'].includes(control.type) ? Number(control.value) : control.value;
       const output = $(`#a4-${control.dataset.a4}-value`);
       if (output) output.textContent = control.value;
-      d.a4Layout = { ...layout };
       $('#a4-spacing').value = selectedPreset(spacingPresets);
       $('#a4-text-size').value = selectedPreset(sizePresets);
-      read();
+      editLayout();
     };
     control.oninput = update;
     control.onchange = update;
@@ -351,6 +414,8 @@ function renderSettings() {
   $('#sf-a4-reset').onclick = () => {
     delete d.a4Layout;
     Object.assign(layout, a4Layout(d));
+    customLayout = undefined;
+    $('#sf-design').value = designChoice();
     syncLayout(true);
     read();
   };
@@ -419,6 +484,7 @@ function renderSettings() {
     if (settingsBusy()) { toast(t('uploadWait'), true); return false; }
     return (!dirtyForms.has(f) && JSON.stringify(d) === saved && parseInvoiceNumber(f.nextInvoiceNumber.value) === numbering.nextNumber) || confirm(t('unsaved'));
   };
+  showCustom();
   preview();
   drawInvoice.flush();
 }

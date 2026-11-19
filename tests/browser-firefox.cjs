@@ -122,7 +122,7 @@ async function until(fn, timeout = 30000) {
     }), true);
   }
   await page.locator('#invoice-width-price').fill('12');
-  assert.equal(await page.locator('#sf-preview col:nth-child(3)').evaluate(col => col.style.width), '12%');
+  await page.waitForFunction(() => document.querySelector('#sf-preview col:nth-child(3)')?.style.width === '12%');
   await page.locator('#invoice-width-price').fill('35');
   await page.locator('#invoice-width-total').fill('35');
   assert.equal(await page.locator('#invoice-width-number').evaluate(input => input.validity.customError), true);

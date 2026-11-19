@@ -2,6 +2,22 @@
 
 Updated: 2026-11-19 (Asia/Baghdad).
 
+## Latest completed checkpoint: v0.7
+
+- Published v0.7 as latest at tag commit `6284e5c`. VERSION, README, and
+  CHANGELOG match. Main workflow 44550493350 and tag workflow 44550493334
+  passed. Verified published notes, both archive file lists, and SHA-256
+  digests. Downloads: %TEMP%\inventory-release-v07-fc870d2d-5ce4-453c-866a-13b8ef120d9e.
+- Reports has date ranges, Excel and CSV, recorded COGS and profit, and
+  links to invoices affected by missing costs. Chrome verified totals and
+  exports with 50,000 synthetic invoices. Desktop Excel opening is unverified.
+- Invoice Settings offers Standard, Compact, Spacious, and Custom A4
+  layouts. Verified draft restoration, preservation of legacy font IDs
+  and invoice snapshots, and ZIP restore. Data formats are unchanged.
+- Local shared checks and temporary Windows and Linux builds passed.
+  Local Chrome and Firefox suites used synthetic data. Product label
+  printing was removed before this release at the user's request.
+
 ## Latest completed checkpoint: v0.6.3
 
 - Published v0.6.3 as latest at tag commit `197f6b6`. VERSION, README and

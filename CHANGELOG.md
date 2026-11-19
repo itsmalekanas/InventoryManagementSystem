@@ -4,6 +4,21 @@ User-facing changes and maintenance updates are recorded here by release.
 Dates use YYYY-MM-DD. The application version is separate from the database
 and backup format versions. Earlier releases remain documented in Git history.
 
+## [v0.7.1] - 2026-11-19
+
+### Changed
+
+- Invoice layout controls stay visible whenever A4 is selected. Standard,
+  Compact, and Spacious fill in the visible fields, and manual edits select
+  Custom. The live preview updates as before.
+- Spacing and alignment are grouped together. Typography uses a responsive
+  size, weight, and color grid with samples for both bundled invoice fonts.
+
+### Compatibility
+
+- Existing databases, invoice snapshots, legacy font identifiers, and backup
+  ZIPs retain their formats.
+
 ## [v0.7] - 2026-11-19
 
 ### Added

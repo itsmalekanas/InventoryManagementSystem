@@ -217,17 +217,28 @@ body {
 @font-face { font-family: InvoiceArabic-ibmplexsansarabic; src: url('vendor/fonts/ibmplexsansarabic-regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: InvoiceArabic-ibmplexsansarabic; src: url('vendor/fonts/ibmplexsansarabic-medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
 @font-face { font-family: InvoiceArabic-ibmplexsansarabic; src: url('vendor/fonts/ibmplexsansarabic-bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
-.invoice-font-sample { padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--bs-border-radius); font-size: 18px; line-height: 1.6; overflow-wrap: anywhere; }
+.invoice-font-sample { padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--bs-border-radius); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
 .invoice-settings-section + .invoice-settings-section,
-.invoice-a4-settings { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 28px; }
+.invoice-a4-settings + .invoice-settings-section { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 24px; }
 .invoice-settings-section > h5 { margin-bottom: 20px; }
 .invoice-settings-section > :last-child { margin-bottom: 0 !important; }
-.invoice-a4-settings { min-width: 0; margin-bottom: 0; }
-#invoice-typography-heading { scroll-margin-top: 110px; }
-.invoice-text-style { min-width: 0; padding-block: 8px 10px; border: 0; border-bottom: 1px solid var(--line); }
-.invoice-text-style legend { float: none; width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 5px; font-size: .85rem; font-weight: 600; }
-.invoice-text-style .text-style-color-source { font-size: .7rem; font-weight: 400; color: var(--muted); text-align: end; }
+.invoice-a4-settings { min-width: 0; margin-top: 12px; }
+.invoice-layout-fields, .invoice-font-samples { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); }
+.invoice-layout-fields { align-items: end; }
+.invoice-layout-fields .form-label { margin-bottom: 4px; }
+.invoice-text-styles { container-type: inline-size; }
+.invoice-style-head { display: none; }
+.invoice-text-style { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 6px; align-items: end; padding-block: 8px; border-bottom: 1px solid var(--line); }
+.invoice-style-part { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: .85rem; font-weight: 600; }
+.invoice-text-style .text-style-color-source { font-size: .7rem; font-weight: 400; color: var(--muted); }
 .invoice-text-style .form-label { font-size: .75rem; margin-bottom: 3px; }
+@container (min-width: 410px) {
+  .invoice-style-head, .invoice-text-style { display: grid; grid-template-columns: minmax(0, 1fr) 64px minmax(116px, 1fr) 102px; gap: 8px; align-items: center; }
+  .invoice-style-head { font-size: .75rem; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .invoice-style-part { grid-column: auto; flex-direction: column; }
+  .invoice-text-style label.form-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .invoice-text-style div.form-label { display: none; }
+}
 .invoice-text-style .color-picker { position: relative; }
 .invoice-text-style .color-picker-trigger { min-height: 31px; padding: 3px 6px; gap: 6px; border-radius: var(--bs-border-radius-sm); }
 .invoice-text-style .color-picker-swatch { width: 18px; height: 18px; border-radius: 4px; }

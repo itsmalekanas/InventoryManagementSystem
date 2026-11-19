@@ -54,9 +54,6 @@ async function until(fn, timeout = 30000) {
   assert.equal(downloads.length, 0, 'Ordinary navigation/checkout must not download files');
   // Configure new offline fonts and text overrides, save, and reload.
   await go('#/settings', '#sf'); await page.locator('#settings-tab-invoice').click();
-  assert.equal(await page.locator('#a4-englishFont option[value=googlesans]').count(), 0);
-  assert.deepEqual(await page.locator('#a4-englishFont option').evaluateAll(options => options.map(option => option.value)), ['ibmplexsans']);
-  assert.deepEqual(await page.locator('#a4-arabicFont option').evaluateAll(options => options.map(option => option.value)), ['ibmplexsansarabic']);
   // Burst edits must produce a single invoice render with the final draft.
   const burst = await page.evaluate(async () => {
     await new Promise(requestAnimationFrame);
@@ -83,12 +80,13 @@ async function until(fn, timeout = 30000) {
   assert.equal((await data()).db.settings.a4Layout, undefined);
   await page.locator('#sf [name=logoAlign]').selectOption('start');
   await page.waitForFunction(() => getComputedStyle(document.querySelector('#sf-preview .inv-store')).textAlign === 'end');
-  await page.locator('#sf-customize').click();
+  assert.equal(await page.locator('#sf-a4').isVisible(), true);
+  assert.equal(await page.locator('[data-font-sample]').count(), 2);
   await page.locator('#text-store-weight').selectOption('500');
   await page.waitForFunction(() => getComputedStyle(document.querySelector('#sf-preview .inv-store')).fontWeight === '500');
   assert.equal(await page.locator('#sf-preview .inv-store').evaluate(el => getComputedStyle(el).textAlign), 'end');
   await page.locator('#sf-design').selectOption('compact');
-  assert.equal(await page.locator('#sf-a4').isVisible(), false);
+  assert.equal(await page.locator('#sf-a4').isVisible(), true);
   assert.equal(await page.locator('#a4-margin').inputValue(), '8');
   assert.equal(await page.locator('#text-store-weight').inputValue(), '');
   assert.equal((await data()).db.settings.a4Layout, undefined);
@@ -98,8 +96,10 @@ async function until(fn, timeout = 30000) {
   assert.equal(await page.locator('#sf-a4').isVisible(), true);
   assert.equal(await page.locator('#text-store-weight').inputValue(), '500');
   assert.equal(await page.locator('#a4-headerAlign').inputValue(), 'end');
-  await page.locator('#a4-englishFont').selectOption('ibmplexsans');
-  await page.locator('#a4-arabicFont').selectOption('ibmplexsansarabic');
+  await page.locator('#sf-paper').selectOption('receipt');
+  assert.equal(await page.locator('#sf-a4').isVisible(), false);
+  await page.locator('#sf-paper').selectOption('a4');
+  assert.equal(await page.locator('#text-store-weight').inputValue(), '500');
   await page.locator('#text-labels-weight').selectOption('700');
   await page.locator('#text-values-size').fill('14');
   assert.equal(await page.locator('#sf-text-styles input[type=color]').count(), 0);
@@ -118,8 +118,6 @@ async function until(fn, timeout = 30000) {
   assert.equal(await page.locator('#picker-textStyle_labels').isVisible(), false);
   await page.locator('#sf-save').click(); await until(async () => (await data()).db.settings.a4Layout?.textStyles?.labels?.weight === 700);
   await go('#/settings', '#sf'); await page.locator('#settings-tab-invoice').click();
-  assert.equal(await page.locator('#a4-englishFont').inputValue(), 'ibmplexsans');
-  assert.equal(await page.locator('#a4-arabicFont').inputValue(), 'ibmplexsansarabic');
   assert.equal(await page.locator('#text-values-size').inputValue(), '14');
   assert.equal(await page.locator('#text-labels-color').inputValue(), '#123456');
   assert.equal(await page.locator('#sf-save-status').getAttribute('data-unsaved'), 'false');

@@ -133,17 +133,15 @@ async function api(url,endpoint,body,method='POST'){
   await evaluate('new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))');
   const settingsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'settings-invoice-tab.png'),Buffer.from(settingsShot.data,'base64'));
   assert.equal(await evaluate('document.querySelectorAll("#settings-panel-invoice details").length'),0);
-  assert.equal(await evaluate('document.querySelector("#sf-a4").hidden'),true);
-  await click('#sf-customize');
+  assert.equal(await evaluate('document.querySelector("#sf-a4").hidden'),false);
   assert.equal(await evaluate('document.querySelector("#a4-margin").getClientRects().length>0'),true);
   assert.equal(await evaluate('document.querySelectorAll("#sf-a4 [data-a4][type=range]").length'),0);
-  await input('#a4-spacing','spacious','change');await input('#a4-text-size','large','change');
+  await input('#sf-design','spacious','change');
   assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
   assert.equal(await evaluate('document.querySelector("#a4-fontSize").value'),'18');
   assert.ok(await evaluate('document.querySelector("#text-store-size").placeholder.includes("28")'));
   assert.ok(await evaluate('document.querySelector("#text-labels-weight option:first-child").textContent.includes(t("textStyleRegular"))'));
   assert.equal(await evaluate('document.querySelector("#a4-fontSize").closest("section").id||document.querySelector("#a4-fontSize").closest("section").getAttribute("aria-labelledby")'),'invoice-typography-heading');
-  assert.equal(await evaluate('document.querySelector("#a4-advanced #a4-fontSize")'),null);
   await input('#sf [name=accentColor]','#245a81');
   assert.equal(await evaluate('document.querySelector("[data-color-picker=textStyle_store] .color-picker-value").textContent'),'#245A81');
   assert.equal(await evaluate('document.querySelector("[data-text-color-source=store]").textContent'),await evaluate('t("textColorAccent")'));
@@ -161,7 +159,6 @@ async function api(url,endpoint,body,method='POST'){
   await click('#sf-text-reset');await input('#sf [name=accentColor]','#714b67');
   assert.equal(await evaluate('document.querySelector("[data-color-picker=textStyle_store] .color-picker-value").textContent'),'#714B67');
   assert.equal(await evaluate('document.querySelector("[data-color-picker=textStyle_values] .color-picker-value").textContent'),'#000000');
-  await input('select[name=englishFont]','ibmplexsans','change');await input('select[name=arabicFont]','ibmplexsansarabic','change');
   await evaluate('document.fonts.ready');
   await evaluate('document.fonts.load("18px InvoiceLatin-ibmplexsans", "Invoice")');
   assert.ok(await evaluate('document.fonts.check("18px InvoiceLatin-ibmplexsans", "Invoice")'));
@@ -204,8 +201,8 @@ async function api(url,endpoint,body,method='POST'){
   await until(async()=>(await data(url)).db.settings.a4Layout?.margin===20);
   await go('#/settings','#sf');assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
   assert.equal(await evaluate('document.querySelector("#sf-save-status").dataset.unsaved'),'false');
-  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'ibmplexsansarabic');
-  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'ibmplexsans');
+  assert.equal(await evaluate('document.querySelector("[data-font-sample=arabicFont]").style.fontFamily.split(",")[0].split("-")[1]'),'ibmplexsansarabic');
+  assert.equal(await evaluate('document.querySelector("[data-font-sample=englishFont]").style.fontFamily.split(",")[0].split("-")[1]'),'ibmplexsans');
   assert.ok(await evaluate('pageCss(state.db.settings).includes("20mm")'));
   assert.equal(await evaluate('document.querySelector("#text-values-size").value'),'14');
   assert.equal(await evaluate('document.querySelector("#text-totals-weight").value'),'500');
@@ -236,7 +233,7 @@ async function api(url,endpoint,body,method='POST'){
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-label")).fontWeight'),'400');
   assert.equal(await evaluate('getComputedStyle(document.querySelector("#sf-preview .inv-value")).fontWeight'),'400');
   assert.equal(await evaluate('document.querySelector("#a4-margin").value'),'20');
-  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'ibmplexsans');
+  assert.equal(await evaluate('document.querySelector("[data-font-sample=englishFont]").style.fontFamily.split(",")[0].split("-")[1]'),'ibmplexsans');
   assert.ok(await evaluate('Array.from(document.querySelectorAll("[data-text-prop=size], [data-text-prop=weight]"),control=>control.value).every(value=>value==="")'));
   await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
   await evaluate('window.scrollTo({top:document.querySelector("#sf-text-styles").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
@@ -301,7 +298,6 @@ async function api(url,endpoint,body,method='POST'){
   await go('#/settings','#sf');await click('#settings-tab-invoice');
   const newFonts=[['englishFont','ibmplexsans'],['arabicFont','ibmplexsansarabic']];
   for(const [key,value] of newFonts) {
-    await input('select[name='+key+']',value,'change');
     assert.ok(await evaluate('document.querySelector("[data-font-sample='+key+']").style.fontFamily.includes('+JSON.stringify(value)+')'));
     const family=(key==='englishFont'?'InvoiceLatin-':'InvoiceArabic-')+value;
     assert.ok(await evaluate(`(async()=>{for(const weight of [400,500,700]){const faces=await document.fonts.load(weight+' 18px '+${JSON.stringify(family)},${JSON.stringify(key==='englishFont'?'Invoice 0123456789':'\u0641\u0627\u062a\u0648\u0631\u0629')});if(!faces.length||faces.some(face=>face.status!=='loaded'))return false;}return true;})()`));
@@ -311,13 +307,13 @@ async function api(url,endpoint,body,method='POST'){
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
   await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
-  await evaluate('window.scrollTo({top:document.querySelector("select[name=englishFont]").closest(".invoice-font-picker").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+  await evaluate('window.scrollTo({top:document.querySelector("[data-font-sample=englishFont]").closest(".invoice-font-picker").getBoundingClientRect().top+scrollY-85,behavior:"instant"});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
   const arabicFontsShot=await c('Page.captureScreenshot',{format:'png'});fs.writeFileSync(path.join(artifacts,'new-arabic-fonts.png'),Buffer.from(arabicFontsShot.data,'base64'));
   await input('#sf [name=language]','ar','change');await click('#sf-save');
   await until(()=>evaluate('document.documentElement.dir==="rtl"&&!document.querySelector("#sf-save").disabled'));
   await go('#/settings','#sf');await click('#settings-tab-invoice');
-  assert.equal(await evaluate('document.querySelector("select[name=englishFont]").value'),'ibmplexsans');
-  assert.equal(await evaluate('document.querySelector("select[name=arabicFont]").value'),'ibmplexsansarabic');
+  assert.equal(await evaluate('document.querySelector("[data-font-sample=englishFont]").style.fontFamily.split(",")[0].split("-")[1]'),'ibmplexsans');
+  assert.equal(await evaluate('document.querySelector("[data-font-sample=arabicFont]").style.fontFamily.split(",")[0].split("-")[1]'),'ibmplexsansarabic');
   await go('#/invoice/'+seedInvoice.id,'#inv-png');
   const fontExportFolder=path.join(artifacts,'new-fonts-export');fs.mkdirSync(fontExportFolder);
   await command('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:fontExportFolder,eventsEnabled:true});

@@ -14,12 +14,10 @@ function renderSettings() {
   const d = JSON.parse(saved); // draft
   const layout = a4Layout(d);
   const layoutRanges = { margin: [5, 30, 'a4Margin'], fontSize: [10, 22, 'a4FontSize'], storeSize: [14, 40, 'a4StoreSize'], titleSize: [14, 36, 'a4TitleSize'], headerGap: [0, 48, 'a4HeaderGap'], footerGap: [0, 48, 'a4FooterGap'] };
-  const spacingPresets = { compact: { margin: 8, headerGap: 8, footerGap: 12 }, standard: { margin: 12, headerGap: 16, footerGap: 24 }, spacious: { margin: 20, headerGap: 28, footerGap: 36 } };
-  const sizePresets = { small: { fontSize: 14, storeSize: 21, titleSize: 18 }, standard: { fontSize: 16, storeSize: 24, titleSize: 21 }, large: { fontSize: 18, storeSize: 28, titleSize: 24 } };
   const designPresets = {
-    standard: { ...spacingPresets.standard, ...sizePresets.standard },
-    compact: { ...spacingPresets.compact, ...sizePresets.small },
-    spacious: { ...spacingPresets.spacious, ...sizePresets.large },
+    standard: { margin: 12, headerGap: 16, footerGap: 24, fontSize: 16, storeSize: 24, titleSize: 21 },
+    compact: { margin: 8, headerGap: 8, footerGap: 12, fontSize: 14, storeSize: 21, titleSize: 18 },
+    spacious: { margin: 20, headerGap: 28, footerGap: 36, fontSize: 18, storeSize: 28, titleSize: 24 },
   };
   const selectedPreset = presets => Object.entries(presets).find(([, values]) => Object.entries(values).every(([key, value]) => layout[key] === value))?.[0] || 'custom';
   const designChoice = () => Object.keys(layout.textStyles).length ? 'custom' : selectedPreset(designPresets);
@@ -41,17 +39,24 @@ function renderSettings() {
   };
   const textStyleControls = () => invoiceTextGroups.map(key => {
     const style = layout.textStyles[key] || {};
-    return `<fieldset class="invoice-text-style"><legend><span>${t(textGroupLabels[key])}</span><span class="text-style-color-source" id="text-${key}-color-info" data-text-color-source="${key}"></span></legend><div class="row g-2 align-items-end">
-      <div class="col-4"><label class="form-label" for="text-${key}-size">${t('textStyleSize')}</label><input class="form-control form-control-sm" id="text-${key}-size" data-text-group="${key}" data-text-prop="size" type="number" min="8" max="48" step="1" placeholder="${esc(t('textStyleDefault'))}" value="${style.size || ''}"></div>
-      <div class="col-4"><label class="form-label" for="text-${key}-weight">${t('textStyleWeight')}</label><select class="form-select form-select-sm" id="text-${key}-weight" data-text-group="${key}" data-text-prop="weight">${[['', 'textStyleDefault'], [400, 'textStyleRegular'], [500, 'textStyleMedium'], [700, 'textStyleBold']].map(([value, label]) => `<option value="${value}"${String(style.weight || '') === String(value) ? ' selected' : ''}>${t(label)}</option>`).join('')}</select></div>
-      <div class="col-4"><div class="form-label">${t('textStyleColor')}</div>${pickerHtml('textStyle_' + key, style.color || textDefaults(key).color, t(textGroupLabels[key]) + ': ' + t('textStyleColor'), { sourceId: `text-${key}-color`, textGroup: key, descriptionId: `text-${key}-color-info` })}</div>
-    </div></fieldset>`;
+    return `<div class="invoice-text-style" role="group" aria-labelledby="text-${key}-heading">
+      <div class="invoice-style-part"><span id="text-${key}-heading">${t(textGroupLabels[key])}</span><span class="text-style-color-source" id="text-${key}-color-info" data-text-color-source="${key}"></span></div>
+      <div><label class="form-label" for="text-${key}-size">${t('textStyleSize')}</label><input class="form-control form-control-sm" id="text-${key}-size" data-text-group="${key}" data-text-prop="size" type="number" min="8" max="48" step="1" placeholder="${esc(t('textStyleDefault'))}" value="${style.size || ''}"></div>
+      <div><label class="form-label" for="text-${key}-weight">${t('textStyleWeight')}</label><select class="form-select form-select-sm" id="text-${key}-weight" data-text-group="${key}" data-text-prop="weight">${[['', 'textStyleDefault'], [400, 'textStyleRegular'], [500, 'textStyleMedium'], [700, 'textStyleBold']].map(([value, label]) => `<option value="${value}"${String(style.weight || '') === String(value) ? ' selected' : ''}>${t(label)}</option>`).join('')}</select></div>
+      <div><div class="form-label" aria-hidden="true">${t('textStyleColor')}</div>${pickerHtml('textStyle_' + key, style.color || textDefaults(key).color, t(textGroupLabels[key]) + ': ' + t('textStyleColor'), { sourceId: `text-${key}-color`, textGroup: key, descriptionId: `text-${key}-color-info` })}</div>
+    </div>`;
   }).join('');
-  const fontGallery = (key, label, prefix, fonts) => {
-    return `<div class="mb-3 invoice-font-picker"><label class="form-label" for="a4-${key}">${t(label)}</label>
-      <select class="form-select" id="a4-${key}" name="${key}" data-a4="${key}" aria-describedby="font-sample-${key}">${fonts.map(([value, name]) => `<option value="${value}"${layout[key] === value ? ' selected' : ''}>${esc(name)}</option>`).join('')}</select>
-      <div class="invoice-font-sample mt-2" id="font-sample-${key}" data-font-sample="${key}" dir="${key === 'arabicFont' ? 'rtl' : 'ltr'}" style="font-family:${prefix}-${layout[key]},sans-serif">${key === 'arabicFont' ? 'فاتورة · متجري · ٠١٢٣٤٥٦٧٨٩' : 'Invoice · My Store · 0123456789'}</div></div>`;
+  const layoutNumber = key => {
+    const [min, max, label] = layoutRanges[key];
+    return `<div><label class="form-label" for="a4-${key}">${t(label)}</label>
+      <input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`;
   };
+  const layoutAlign = (key, label) => `<div><label class="form-label" for="a4-${key}">${t(label)}</label>
+    <select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`;
+  const fontSample = (key, family, prefix, dir) => `<div class="invoice-font-picker">
+    <div class="small fw-semibold" dir="ltr">${family}</div>
+    <div class="invoice-font-sample mt-1" data-font-sample="${key}" dir="${dir}" style="font-family:${prefix}-${layout[key]},sans-serif">${t(dir === 'rtl' ? 'invoiceArabicFontSample' : 'invoiceEnglishFontSample')}</div>
+  </div>`;
   const numbering = { ...invoiceNumbering() };
   const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
   $('#app').innerHTML = `
@@ -97,15 +102,40 @@ function renderSettings() {
               <h5 id="invoice-design-heading">${t('invoicePaperAndDesign')}</h5>
               <div class="mb-3"><label class="form-label" for="sf-paper">${t('paper')}</label>
                 <select class="form-select" id="sf-paper" name="paper">${opt('a4', t('paperA4'), d.paper)}${opt('receipt', t('paperReceipt'), d.paper)}</select></div>
-              <div id="invoice-design-presets"${d.paper === 'receipt' ? ' hidden' : ''}>
-                <label class="form-label" for="sf-design">${t('invoiceDesignPreset')}</label>
-                <select class="form-select" id="sf-design" aria-describedby="sf-design-hint">
-                  ${[['standard', 'invoiceStandard'], ['compact', 'invoiceCompact'], ['spacious', 'invoiceSpacious'], ['custom', 'invoiceDesignCustom']].map(([key, label]) => opt(key, t(label), designChoice())).join('')}
-                </select>
-                <p class="form-text" id="sf-design-hint">${t('invoiceDesignHint')}</p>
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="sf-customize" aria-controls="sf-a4" aria-expanded="false">${t('invoiceCustomize')}</button>
-              </div>
             </section>
+            <fieldset id="sf-a4" class="invoice-a4-settings"${d.paper === 'receipt' ? ' hidden' : ''}>
+              <legend class="visually-hidden">${t('a4Layout')}</legend>
+              <section class="invoice-settings-section" aria-labelledby="invoice-layout-heading">
+                <div class="mb-3">
+                  <label class="form-label" id="invoice-layout-heading" for="sf-design">${t('invoiceDesignPreset')}</label>
+                  <select class="form-select" id="sf-design" aria-describedby="sf-design-hint">
+                    ${[['standard', 'invoiceStandard'], ['compact', 'invoiceCompact'], ['spacious', 'invoiceSpacious'], ['custom', 'invoiceDesignCustom']].map(([key, label]) => opt(key, t(label), designChoice())).join('')}
+                  </select>
+                  <p class="form-text" id="sf-design-hint">${t('invoiceDesignHint')}</p>
+                </div>
+                <div class="invoice-layout-fields mb-3">
+                  ${['margin', 'headerGap', 'footerGap'].map(layoutNumber).join('')}
+                  ${layoutAlign('headerAlign', 'a4HeaderAlign')}
+                  ${layoutAlign('footerAlign', 'a4FooterAlign')}
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm" id="sf-a4-reset">${t('a4Reset')}</button>
+              </section>
+              <section class="invoice-settings-section" aria-labelledby="invoice-typography-heading">
+                <h5 id="invoice-typography-heading">${t('invoiceTypography')}</h5>
+                <div class="invoice-layout-fields mb-3">${['fontSize', 'storeSize', 'titleSize'].map(layoutNumber).join('')}</div>
+                <div class="invoice-font-samples mb-3">
+                  ${fontSample('englishFont', 'IBM Plex Sans', 'InvoiceLatin', 'ltr')}
+                  ${fontSample('arabicFont', 'IBM Plex Sans Arabic', 'InvoiceArabic', 'rtl')}
+                </div>
+                <h6>${t('textStyles')}</h6>
+                <p class="form-text">${t('textStylesHint')}</p>
+                <div id="sf-text-styles" class="invoice-text-styles">
+                  <div class="invoice-style-head" aria-hidden="true"><span></span><span>${t('textStyleSize')}</span><span>${t('textStyleWeight')}</span><span>${t('textStyleColor')}</span></div>
+                  ${textStyleControls()}
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="sf-text-reset">${t('textStyleReset')}</button>
+              </section>
+            </fieldset>
             <section class="invoice-settings-section" aria-labelledby="invoice-branding-heading">
             <h5 id="invoice-branding-heading">${t('invoiceBranding')}</h5>
             <div class="mb-3"><label class="form-label">${t('storeName')}</label>
@@ -156,31 +186,6 @@ function renderSettings() {
               <div class="form-text">${t('numberingHint')}</div>
             </div>
             </section>
-            <fieldset id="sf-a4" class="invoice-a4-settings"${d.paper === 'receipt' ? ' hidden' : ''}>
-              <legend class="visually-hidden">${t('a4Layout')}</legend>
-              <section class="invoice-settings-section" aria-labelledby="invoice-typography-heading">
-              <h5 id="invoice-typography-heading">${t('invoiceTypography')}</h5>
-              <p class="form-text">${t('a4Hint')}</p>
-              <div class="mb-3"><label class="form-label" for="a4-fontSize">${t('a4FontSize')}</label><input class="form-control" id="a4-fontSize" data-a4="fontSize" type="number" required min="10" max="22" step="1" value="${layout.fontSize}"></div>
-                <div class="mb-3"><label class="form-label" for="a4-text-size">${t('invoiceTextSize')}</label><select class="form-select" id="a4-text-size">${opt('custom', t('invoiceCustom'), selectedPreset(sizePresets))}${opt('small', t('invoiceSmall'), selectedPreset(sizePresets))}${opt('standard', t('invoiceStandard'), selectedPreset(sizePresets))}${opt('large', t('invoiceLarge'), selectedPreset(sizePresets))}</select></div>
-              <p class="form-text">${t('invoiceFontsOffline')}</p>
-              ${fontGallery('englishFont', 'a4EnglishFont', 'InvoiceLatin', [['ibmplexsans', 'IBM Plex Sans']])}
-              ${fontGallery('arabicFont', 'a4ArabicFont', 'InvoiceArabic', [['ibmplexsansarabic', 'IBM Plex Sans Arabic']])}
-              <h6>${t('textStyles')}</h6>
-              <p class="form-text">${t('textStylesHint')}</p>
-              <div id="sf-text-styles">${textStyleControls()}</div>
-              <button type="button" class="btn btn-outline-secondary mt-2" id="sf-text-reset">${t('textStyleReset')}</button>
-              </section>
-              <section class="invoice-settings-section" aria-labelledby="invoice-layout-heading">
-              <h5 id="invoice-layout-heading">${t('invoiceLayout')}</h5>
-                <div class="mb-3"><label class="form-label" for="a4-spacing">${t('invoiceSpacing')}</label><select class="form-select" id="a4-spacing">${opt('custom', t('invoiceCustom'), selectedPreset(spacingPresets))}${opt('compact', t('invoiceCompact'), selectedPreset(spacingPresets))}${opt('standard', t('invoiceStandard'), selectedPreset(spacingPresets))}${opt('spacious', t('invoiceSpacious'), selectedPreset(spacingPresets))}</select></div>
-              <div id="a4-advanced" class="row g-3 mb-3">
-              ${Object.entries(layoutRanges).filter(([key]) => !['fontSize', 'storeSize', 'titleSize'].includes(key)).map(([key, [min, max, label]]) => `<div class="col-sm-6"><label class="form-label" for="a4-${key}">${t(label)}</label><input class="form-control" id="a4-${key}" data-a4="${key}" type="number" required min="${min}" max="${max}" step="1" value="${layout[key]}"></div>`).join('')}
-              </div>
-              ${[['headerAlign', 'a4HeaderAlign'], ['footerAlign', 'a4FooterAlign']].map(([key, label]) => `<div class="mb-3"><label class="form-label" for="a4-${key}">${t(label)}</label><select class="form-select" id="a4-${key}" data-a4="${key}">${opt('start', t('alignStart'), layout[key])}${opt('center', t('alignCenter'), layout[key])}${opt('end', t('alignEnd'), layout[key])}</select></div>`).join('')}
-              <button type="button" class="btn btn-outline-secondary" id="sf-a4-reset">${t('a4Reset')}</button>
-              </section>
-            </fieldset>
               </div>
             </div>
             <div class="col-lg-7">
@@ -205,13 +210,7 @@ function renderSettings() {
 
   $('.topbar').classList.add('settings-topbar');
   const f = $('#sf');
-  let customOpen = designChoice() === 'custom';
-  const showCustom = () => {
-    $('#sf-a4').hidden = d.paper === 'receipt' || !customOpen;
-    $('#invoice-design-presets').hidden = d.paper === 'receipt';
-    $('#sf-customize').setAttribute('aria-expanded', String(customOpen));
-    $('#sf-customize').textContent = t(customOpen ? 'invoiceHideCustom' : 'invoiceCustomize');
-  };
+  const showPaperControls = () => { $('#sf-a4').hidden = d.paper === 'receipt'; };
   const selectTab = (key, focus = false) => {
     if (!['general', 'invoice', 'data'].includes(key)) key = 'general';
     state.settingsTab = key;
@@ -227,7 +226,6 @@ function renderSettings() {
   const revealControl = control => {
     const panel = control.closest('[role="tabpanel"]');
     if (panel) selectTab(panel.id.replace('settings-panel-', ''));
-    if (control.closest('#sf-a4')) { customOpen = true; showCustom(); }
     control.focus();
   };
   const tabs = $$('[data-settings-tab]');
@@ -261,10 +259,6 @@ function renderSettings() {
   });
   const preview = () => {
     drawInvoice();
-    $$('[data-font-sample]', f).forEach(sample => {
-      const key = sample.dataset.fontSample;
-      sample.style.fontFamily = `${key === 'arabicFont' ? 'InvoiceArabic' : 'InvoiceLatin'}-${layout[key]}, sans-serif`;
-    });
     $('.topbar').style.cssText = topbarStyle(d);
     applyAccent(d);
     $$('[data-text-prop="color"]', f).forEach(control => {
@@ -272,7 +266,7 @@ function renderSettings() {
       if (!style.color) control.value = defaults.color;
       $(`[data-text-color-source="${key}"]`, f).textContent = t(style.color ? 'textColorCustom' : defaults.accent ? 'textColorAccent' : 'textColorDefault');
       const size = $(`#text-${key}-size`, f);
-      size.placeholder = `${t('textStyleDefault')} (${defaults.size})`;
+      size.placeholder = String(defaults.size);
       size.title = `${t('textStyleDefault')}: ${defaults.size}px`;
       $(`#text-${key}-weight option[value=""]`, f).textContent = `${t(defaults.weight === 700 ? 'textStyleBold' : 'textStyleRegular')} (${t('textStyleDefault')})`;
     });
@@ -313,7 +307,7 @@ function renderSettings() {
     d.header = f.header.value;
     d.footer = f.footer.value;
     d.paper = f.paper.value;
-    showCustom();
+    showPaperControls();
     d.showPaid = f.showPaid.checked;
     d.showDate = f.showDate.checked;
     d.showTime = f.showTime.checked;
@@ -328,11 +322,8 @@ function renderSettings() {
   f.onchange = read;
   const syncLayout = (resetColors = false) => {
     $$('[data-a4]', f).forEach(control => {
-      if (control.type === 'radio') control.checked = control.value === layout[control.dataset.a4];
-      else control.value = layout[control.dataset.a4];
+      control.value = layout[control.dataset.a4];
     });
-    $('#a4-spacing').value = selectedPreset(spacingPresets);
-    $('#a4-text-size').value = selectedPreset(sizePresets);
     $$('[data-text-group]', f).forEach(control => {
       const style = layout.textStyles[control.dataset.textGroup] || {};
       control.value = style[control.dataset.textProp] || (control.dataset.textProp === 'color' ? textDefaults(control.dataset.textGroup).color : '');
@@ -343,13 +334,7 @@ function renderSettings() {
     setLayout();
     customLayout = undefined;
     $('#sf-design').value = 'custom';
-    customOpen = true;
     read();
-  };
-  $('#sf-customize').onclick = () => {
-    customOpen = !customOpen;
-    showCustom();
-    if (customOpen) $('#invoice-typography-heading').scrollIntoView({ block: 'start' });
   };
   $('#sf-design').onchange = event => {
     const choice = event.target.value;
@@ -361,7 +346,6 @@ function renderSettings() {
         customLayout = undefined;
         syncLayout(true);
       }
-      customOpen = true;
     } else {
       if (designChoice() === 'custom' || !customLayout) {
         customLayout = { saved: d.a4Layout ? JSON.parse(JSON.stringify(d.a4Layout)) : undefined };
@@ -369,7 +353,6 @@ function renderSettings() {
       Object.assign(layout, designPresets[choice], { textStyles: {} });
       setLayout();
       syncLayout(true);
-      customOpen = false;
     }
     read();
   };
@@ -391,21 +374,10 @@ function renderSettings() {
     layout.textStyles = {};
     syncLayout(true); editLayout();
   };
-  [['#a4-spacing', spacingPresets], ['#a4-text-size', sizePresets]].forEach(([selector, presets]) => {
-    $(selector).onchange = event => {
-      if (!presets[event.target.value]) { event.target.value = selectedPreset(presets); return; }
-      Object.assign(layout, presets[event.target.value]);
-      syncLayout(); editLayout();
-    };
-  });
   $$('[data-a4]', f).forEach(control => {
     const update = () => {
       if (control.type === 'number' && (!control.value || !control.checkValidity())) return;
-      layout[control.dataset.a4] = ['range', 'number'].includes(control.type) ? Number(control.value) : control.value;
-      const output = $(`#a4-${control.dataset.a4}-value`);
-      if (output) output.textContent = control.value;
-      $('#a4-spacing').value = selectedPreset(spacingPresets);
-      $('#a4-text-size').value = selectedPreset(sizePresets);
+      layout[control.dataset.a4] = control.type === 'number' ? control.valueAsNumber : control.value;
       editLayout();
     };
     control.oninput = update;
@@ -484,7 +456,7 @@ function renderSettings() {
     if (settingsBusy()) { toast(t('uploadWait'), true); return false; }
     return (!dirtyForms.has(f) && JSON.stringify(d) === saved && parseInvoiceNumber(f.nextInvoiceNumber.value) === numbering.nextNumber) || confirm(t('unsaved'));
   };
-  showCustom();
+  showPaperControls();
   preview();
   drawInvoice.flush();
 }
